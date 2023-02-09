@@ -1,0 +1,11 @@
+{
+    "name": "node-red-contrib-ewelink-cube",
+    "description": "Node-RED integration with eWeLink Cube",
+    "version": "0.0.1",
+    "node-red": {
+        "nodes": {
+            "api-client": "src/api-client.js",
+            "get-devices": "src/get-devices.js"
+        }
+    }
+}
