@@ -1,9 +1,31 @@
 <script type="text/html" data-template-name="api-client">
-    <!-- ... -->
+    <div class="form-row">
+        <label for="node-config-input-name">
+            Name
+        </label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ip">
+            IP
+        </label>
+        <div>
+            <input type="text" id="node-config-input-ip">
+            <a class="red-ui-button">
+                <i class="fa fa-search"></i>
+            </a>
+        </div>
+    </div>
+    <div class="form-row">
+        <label>
+            Token
+        </label>
+        <button type="button" class="red-ui-button">GET TOKEN</button>
+    </div>
 </script>
 
 <script type="text/javascript">
     RED.nodes.registerType('api-client', {
         category: 'config'
-    })
+    });
 </script>
