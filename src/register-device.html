@@ -9,7 +9,7 @@
             server: {
                 value: '',
                 required: true,
-                type: 'api-client',
+                type: 'api-server',
             },
             deviceId: {
                 value:''
@@ -49,6 +49,7 @@
         label() {
             return this.name || 'register-device';
         },
+        paletteLabel: 'get devices'
     });
 </script>
 
