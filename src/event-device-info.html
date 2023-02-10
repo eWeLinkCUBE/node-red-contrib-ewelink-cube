@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('get-devices', {
+    RED.nodes.registerType('event-device-info', {
         category: 'eWeLink Cube',
         color: '#4697ff',
         defaults: {
@@ -20,14 +20,14 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: ' white-globe.svg',
+        icon: 'template.svg',
         label() {
-            return this.name || 'get device';
+            return this.name || 'event-device-info';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="get-devices">
+<script type="text/html" data-template-name="event-device-info">
     <div class="form-row">
         <label for="node-input-name">
             Name

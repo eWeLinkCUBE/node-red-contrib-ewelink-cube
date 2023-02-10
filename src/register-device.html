@@ -1,0 +1,128 @@
+<script type="text/javascript">
+    RED.nodes.registerType('register-device', {
+        category: 'eWeLink Cube',
+        color: '#4697ff',
+        defaults: {
+            name: {
+                value: '',
+            },
+            server: {
+                value: '',
+                required: true,
+                type: 'api-client',
+            },
+            deviceId: {
+                value:''
+            },
+            deviceName:{
+                value:''
+            },
+            category:{
+                value:''
+            },
+            capabilities:{
+                value:''
+            },
+            manufacturer:{
+                value:''
+            },
+            model:{
+                value:''
+            },
+            fimware_version:{
+                value:''
+            },
+            service_address:{
+                value:''
+            },
+            tag:{
+                value:''
+            },
+            state:{
+                value:''
+            }
+
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'serial.svg',
+        label() {
+            return this.name || 'register-device';
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="register-device">
+    <div class="form-row">
+        <label for="node-input-name">
+            Name
+        </label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-server">
+            Server
+        </label>
+        <input type="text" id="node-input-server" placeholder="Server" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-deviceId">
+            deviceId
+        </label>
+        <input type="text" id="node-input-deviceId" placeholder="deviceId" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-deviceName">
+            deviceName
+        </label>
+        <input type="text" id="node-input-deviceName" placeholder="deviceName" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-category">
+            category
+        </label>
+        <input type="text" id="node-input-category" placeholder="category" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-capabilities">
+            capabilities
+        </label>
+        <input type="text" id="node-input-capabilities" placeholder="capabilities" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-manufacturer">
+            manufacturer
+        </label>
+        <input type="text" id="node-input-manufacturer" placeholder="manufacturer" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-model">
+            model
+        </label>
+        <input type="text" id="node-input-model" placeholder="model" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-fimware_version">
+            fimware_version
+        </label>
+        <input type="text" id="node-input-fimware_version" placeholder="fimware_version" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-service_address">
+            service_address
+        </label>
+        <input type="text" id="node-input-service_address" placeholder="service_address" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-tag">
+            tag
+        </label>
+        <input type="text" id="node-input-tag" placeholder="tag" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-state">
+            state
+        </label>
+        <input type="text" id="node-input-state" placeholder="state" />
+    </div>
+</script>

@@ -5,7 +5,15 @@
     "node-red": {
         "nodes": {
             "api-client": "src/api-client.js",
-            "get-devices": "src/get-devices.js"
+            "get-devices": "src/get-devices.js",
+            "event-state":"src/event-state.js",
+            "event-online":"src/event-online.js",
+            "control-device":"src/control-device.js",
+            "event-add-device":"src/event-add-device.js",
+            "event-del-device":"src/event-del-device.js",
+            "event-device-info":"src/event-device-info.js",
+            "put-device-state":"src/put-device-state.js",
+            "register-device":"src/register-device.js"
         }
     }
 }
