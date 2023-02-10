@@ -1,12 +1,55 @@
-<script type="text/html" data-template-name="get-devices">
-    <!-- ... -->
-</script>
-
 <script type="text/javascript">
     RED.nodes.registerType('get-devices', {
         category: 'eWeLink Cube',
+        color: '#4697ff',
+        defaults: {
+            name: {
+                value: '',
+            },
+            server: {
+                value: '',
+                required: true,
+                type: 'api-client',
+            },
+            category: {
+                value: '',
+            },
+            device: {
+                value: '',
+            },
+        },
         input: 1,
         output: 1,
-        paletteLabel: 'get devices'
-    })
+        icon: 'bridge.svg',
+        label() {
+            return this.name || 'get device';
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="get-devices">
+    <div class="form-row">
+        <label for="node-input-name">
+            Name
+        </label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-server">
+            Server
+        </label>
+        <input type="text" id="node-input-server" placeholder="server" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-category">
+            Category
+        </label>
+        <select id="node-input-category" placeholder="Category" style="width:70%"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-device">
+            Device
+        </label>
+        <select id="node-input-device" placeholder="Device" style="width:70%"></select>
+    </div>
 </script>
