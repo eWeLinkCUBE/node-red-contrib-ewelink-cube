@@ -3,8 +3,9 @@
     "description": "Node-RED integration with eWeLink Cube",
     "version": "0.0.1",
     "node-red": {
+        "version": ">=2.1.0",
         "nodes": {
-            "api-client": "src/api-client.js",
+            "api-server": "src/api-server.js",
             "get-devices": "src/get-devices.js",
             "event-state":"src/event-state.js",
             "event-online":"src/event-online.js",

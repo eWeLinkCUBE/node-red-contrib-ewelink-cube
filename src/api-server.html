@@ -1,0 +1,72 @@
+<script type="text/html" data-template-name="api-server">
+    <div class="form-row">
+        <label for="node-config-input-name">
+            <i class="fa fa-tag"></i>
+            Name
+        </label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ip">
+            <i class="fa fa-server"></i>
+            IP
+        </label>
+        <div style="display: inline-flex; width: 70%;">
+            <input type="text" id="node-config-input-ip" style="width: 100%; margin-right: 10px;">
+            <a class="red-ui-button" id="node-config-input-search-btn">
+                <i class="fa fa-search"></i>
+            </a>
+        </div>
+    </div>
+    <div class="form-row">
+        <label>
+            <i class="fa fa-id-badge"></i>
+            Token
+        </label>
+        <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;" disabled>GET TOKEN</button>
+    </div>
+</script>
+
+<script type="text/javascript">
+;(function () {
+    RED.nodes.registerType('api-server', {
+        category: 'config',
+        defaults: {
+            name: {
+                value: ''
+            },
+            ip: {
+                value: ''
+            }
+        },
+        label() {
+            return this.name || this.ip;
+        },
+        oneditprepare() {
+            // Test HTTP POST request.
+            $.ajax({
+                url: 'hello',
+                type: 'POST',
+                data: JSON.stringify({ foo: 'bar' }),
+                contentType: 'application/json; charset=utf-8',
+                success() {
+                    // ...
+                },
+                error() {
+                    // ...
+                }
+            })
+
+            // Set search button click event.
+            $('#node-config-input-search-btn').on('click', () => {
+                console.log('search')
+            });
+
+            // Set get token button click event.
+            $('#node-config-input-get-token-btn').on('click', () => {
+                console.log('get token');
+            });
+        }
+    });
+})();
+</script>
