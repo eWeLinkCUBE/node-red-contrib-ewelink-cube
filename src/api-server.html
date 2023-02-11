@@ -29,43 +29,108 @@
 
 <script type="text/javascript">
 ;(function () {
+    const searchBtnId = '#node-config-input-search-btn';
+    const searchBtnIconId = searchBtnId + ' i';
+    const getTokenBtnId = '#node-config-input-get-token-btn';
+
+    /**
+     * Set searchBtnIcon spin state.
+     */
+    function setSearchBtnIconSpin(val) {
+        if (val) {
+            $(searchBtnIconId).addClass('spinner');
+        } else {
+            $(searchBtnIconId).removeClass('spinner');
+        }
+    }
+
+    function enableGetTokenBtn() {
+        $(getTokenBtnId).prop('disabled', false);
+    }
+
+    function disableGetTokenBtn() {
+        $(getTokenBtnId).prop('disabled', true);
+    }
+
+    function searchBtnOnClickHandler() {
+        const ip = $('#node-config-input-ip').val().trim();
+        if (!ip) {
+            console.log('no ip');
+            return;
+        } else {
+            const ipRegex = /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
+            if (!ipRegex.test(ip)) {
+                console.log('ip invalid');
+                return;
+            } else {
+                setSearchBtnIconSpin(true);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'get-bridge-info',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({ ip }),
+                    success(res) {
+                        console.log(res);
+                        setSearchBtnIconSpin(false);
+                        try {
+                            if (typeof res !== 'object') {
+                                console.log('not object');
+                            } else if (res.error !== 0) {
+                                console.log('req failed');
+                            } else {
+                                console.log('success');
+                                enableGetTokenBtn();
+                            }
+                        } catch (err) {
+                            console.log('parse error');
+                        }
+                    },
+                    error(err) {
+                        console.log(err);
+                        setSearchBtnIconSpin(false);
+                    }
+                });
+            }
+        }
+    }
+
+    function getTokenBtnOnClickHandler() {
+        const ip = $('#node-config-input-ip').val().trim();
+        $.ajax({
+            type: 'POST',
+            url: 'get-bridge-token',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ ip }),
+            success(res) {
+                console.log(res);
+            },
+            error(err) {
+                console.log(err);
+            }
+        })
+    }
+
     RED.nodes.registerType('api-server', {
         category: 'config',
         defaults: {
             name: {
-                value: ''
+                value: '',
             },
             ip: {
-                value: ''
+                value: '',
+                required: true
             }
         },
         label() {
             return this.name || this.ip;
         },
         oneditprepare() {
-            // Test HTTP POST request.
-            $.ajax({
-                url: 'hello',
-                type: 'POST',
-                data: JSON.stringify({ foo: 'bar' }),
-                contentType: 'application/json; charset=utf-8',
-                success() {
-                    // ...
-                },
-                error() {
-                    // ...
-                }
-            })
-
             // Set search button click event.
-            $('#node-config-input-search-btn').on('click', () => {
-                console.log('search')
-            });
+            $(searchBtnId).on('click', searchBtnOnClickHandler);
 
             // Set get token button click event.
-            $('#node-config-input-get-token-btn').on('click', () => {
-                console.log('get token');
-            });
+            $(getTokenBtnId).on('click', getTokenBtnOnClickHandler);
         }
     });
 })();
