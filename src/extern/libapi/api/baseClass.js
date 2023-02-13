@@ -10,14 +10,15 @@ const EMethod_1 = __importDefault(require("../ts/enum/EMethod"));
 const EPath_1 = __importDefault(require("../ts/enum/EPath"));
 class baseClass {
     ip = '';
-    at = '0f3cecd6-894c-43a9-8540-1d2af2a4c8b4';
+    at = '';
     debug = false;
     interval = null;
     timeout = null;
     time = new Date().getTime();
     event = null;
-    constructor({ ip, debug = false }) {
+    constructor({ ip, at = '', debug = false }) {
         this.ip = ip;
+        this.at = at;
         this.debug = debug;
     }
     setIp(ip) {
