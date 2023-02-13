@@ -13,8 +13,9 @@ export default abstract class baseClass {
     timeout: NodeJS.Timeout | null;
     time: number;
     event: EventSource | null;
-    constructor({ ip, debug }: {
+    constructor({ ip, at, debug }: {
         ip: string;
+        at?: string;
         debug?: boolean;
     });
     setIp(ip: string): void;

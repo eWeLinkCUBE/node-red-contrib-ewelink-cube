@@ -91,22 +91,30 @@ const index_1 = __importDefault(require("../index"));
 // 	})
 // }
 async function run() {
-    const ihostApi = new index_1.default.ihostApi({ ip: '192.168.1.115', debug: true });
+    const ihostApi = new index_1.default.ihostApi({ ip: '192.168.1.115', at: 'aa', debug: true });
+    const at = ihostApi.getAt();
+    console.log("🚀 ~ file: index.ts:98 ~ run ~ at", at);
     // await ihostApi.getBridgeAT({})
     // await ihostApi.getDeviceList()
-    ihostApi.initSSE();
-    ihostApi.mountSseFunc({
-        onopen: (message) => {
-            console.log(message);
-        },
-        onUpdateDeviceState(message) {
-            console.log("🚀 ~ file: index.ts:105 ~ updateDeviceState ~ message", message);
-        },
-        onerror(message) {
-            console.log("🚀 ~ file: index.ts:108 ~ onerror ~ message", message);
-        },
-    });
-    await sleep(20);
+    // ihostApi.initSSE();
+    // ihostApi.mountSseFunc({
+    // 	onopen: (message: MessageEvent) => {
+    // 		console.log(message);
+    // 	},
+    // 	onUpdateDeviceState(message) {
+    // 		console.log("🚀 ~ file: index.ts:105 ~ updateDeviceState ~ message", message)
+    // 	},
+    // 	onerror(message) {
+    // 		console.log("🚀 ~ file: index.ts:108 ~ onerror ~ message", message)
+    // 	},
+    // })
+    // await sleep(20)
+    try {
+        ihostApi.unmountSseFunc();
+    }
+    catch (error) {
+        console.log("🚀 ~ file: index.ts:116 ~ run ~ error", error);
+    }
 }
 run();
 async function sleep(timeout) {

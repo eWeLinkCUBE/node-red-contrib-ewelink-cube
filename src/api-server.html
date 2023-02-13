@@ -24,36 +24,51 @@
             Token
         </label>
         <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;" disabled>GET TOKEN</button>
+        <!-- Store token -->
+        <input type="text" id="node-config-input-token" style="width: 0; height: 0; visibility: hidden;">
     </div>
 </script>
 
 <script type="text/javascript">
 ;(function () {
-    const searchBtnId = '#node-config-input-search-btn';
-    const searchBtnIconId = searchBtnId + ' i';
-    const getTokenBtnId = '#node-config-input-get-token-btn';
+    const API_PREFIX = 'ewelink-cube-api-v1';
+    const DOM_ID_SEARCH_BTN = '#node-config-input-search-btn';
+    const DOM_ID_SEARCH_BTN_ICON = `${DOM_ID_SEARCH_BTN} i`;
+    const DOM_ID_GET_TOKEN_BTN = '#node-config-input-get-token-btn';
+    const DOM_ID_INPUT_NAME = '#node-config-input-name';
+    const DOM_ID_INPUT_IP = '#node-config-input-ip';
+    const DOM_ID_INPUT_TOKEN = '#node-config-input-token';
 
     /**
-     * Set searchBtnIcon spin state.
+     * Set search button icon spin state.
      */
     function setSearchBtnIconSpin(val) {
         if (val) {
-            $(searchBtnIconId).addClass('spinner');
+            $(DOM_ID_SEARCH_BTN_ICON).addClass('spinner');
         } else {
-            $(searchBtnIconId).removeClass('spinner');
+            $(DOM_ID_SEARCH_BTN_ICON).removeClass('spinner');
         }
     }
 
+    /**
+     * Enable get token button.
+     */
     function enableGetTokenBtn() {
-        $(getTokenBtnId).prop('disabled', false);
+        $(DOM_ID_GET_TOKEN_BTN).prop('disabled', false);
     }
 
+    /**
+     * Disable get token button.
+     */
     function disableGetTokenBtn() {
-        $(getTokenBtnId).prop('disabled', true);
+        $(DOM_ID_GET_TOKEN_BTN).prop('disabled', true);
     }
 
+    /**
+     * Search button click event handler.
+     */
     function searchBtnOnClickHandler() {
-        const ip = $('#node-config-input-ip').val().trim();
+        const ip = $(DOM_ID_INPUT_IP).val().trim();
         if (!ip) {
             console.log('no ip');
             return;
@@ -67,23 +82,19 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: 'get-bridge-info',
+                    url: `${API_PREFIX}/get-bridge-info`,
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify({ ip }),
                     success(res) {
                         console.log(res);
                         setSearchBtnIconSpin(false);
-                        try {
-                            if (typeof res !== 'object') {
-                                console.log('not object');
-                            } else if (res.error !== 0) {
-                                console.log('req failed');
-                            } else {
-                                console.log('success');
-                                enableGetTokenBtn();
-                            }
-                        } catch (err) {
-                            console.log('parse error');
+                        if (typeof res !== 'object') {
+                            console.log('not object');
+                        } else if (res.error !== 0) {
+                            console.log('req failed');
+                        } else {
+                            console.log('success');
+                            enableGetTokenBtn();
                         }
                     },
                     error(err) {
@@ -95,15 +106,25 @@
         }
     }
 
+    /**
+     * Get token button click event handler.
+     */
     function getTokenBtnOnClickHandler() {
+        // $(tokenInputId).val('abcdef');
         const ip = $('#node-config-input-ip').val().trim();
+        // TODO: check IP
         $.ajax({
             type: 'POST',
-            url: 'get-bridge-token',
+            url: `${API_PREFIX}/get-bridge-token`,
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({ ip }),
             success(res) {
                 console.log(res);
+                if (res.error === 0) {
+                    $(DOM_ID_INPUT_TOKEN).val(res.data.token);
+                } else {
+                    console.log('get token failed')
+                }
             },
             error(err) {
                 console.log(err);
@@ -120,6 +141,9 @@
             ip: {
                 value: '',
                 required: true
+            },
+            token: {
+                value: ''
             }
         },
         label() {
@@ -127,10 +151,38 @@
         },
         oneditprepare() {
             // Set search button click event.
-            $(searchBtnId).on('click', searchBtnOnClickHandler);
+            $(DOM_ID_SEARCH_BTN).on('click', searchBtnOnClickHandler.bind(this));
 
             // Set get token button click event.
-            $(getTokenBtnId).on('click', getTokenBtnOnClickHandler);
+            $(DOM_ID_GET_TOKEN_BTN).on('click', getTokenBtnOnClickHandler.bind(this));
+        },
+        oneditsave() {
+            // Cache api server node data when user clicks `save` button.
+            const id = this.id;
+            const name = $(DOM_ID_INPUT_NAME).val().trim();
+            const ip = $(DOM_ID_INPUT_IP).val().trim();
+            const token = $(DOM_ID_INPUT_TOKEN).val().trim();
+            $.ajax({
+                type: 'POST',
+                url: `${API_PREFIX}/cache/add-api-server-node`,
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    id,
+                    name,
+                    ip,
+                    token
+                })
+            });
+        },
+        oneditdelete() {
+            // Remove api server node data from cache when user clicks `delete` button.
+            const id = this.id;
+            $.ajax({
+                type: 'POST',
+                url: `${API_PREFIX}/cache/remove-api-server-node`,
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ id })
+            });
         }
     });
 })();
