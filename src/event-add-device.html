@@ -27,6 +27,19 @@
         label() {
             return this.name || 'event-add-device';
         },
+        oneditprepare() {
+            // DEBUG
+            debugger
+            const server = $('#node-input-server').val();
+            $('#node-input-name').on('click', () => {
+                $.ajax({
+                    type: 'POST',
+                    url: 'ewelink-cube-api-v1/get-device-list',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({ id: server }),
+                })
+            })
+        }
     });
 </script>
 

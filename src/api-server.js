@@ -119,18 +119,26 @@ module.exports = function (RED) {
 
     // body: { "id": "xxx" }
     RED.httpAdmin.post(API_URL_GET_DEVICE_LIST, (req, res) => {
-        // getNode
-        // Y: this.apiClient
-        // N: cache
-        // apiClient.getDeviceList()
-        //     .then((data) => {
-        //         res.send(data);
-        //     })
-        //     .catch((err) => {
-        //         // TODO: handle err
-        //         res.send(JSON.stringify({ error: 500, msg: 'getDeviceList() error' }))
-        //     });
-        res.send('ok');
+        const id = req.body.id;
+
+        const node = RED.nodes.getNode(id);
+        let apiClient = null;
+        if (!node) {
+            // TODO: handle no nodeData
+            const nodeData = nodeDataCache.getNodeData(id);
+            apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
+        } else {
+            apiClient = node.apiClient;
+        }
+
+        apiClient.getDeviceList()
+            .then((data) => {
+                res.send(data);
+            })
+            .catch((err) => {
+                // TODO: handle err
+                res.send(JSON.stringify({ error: 500, msg: 'getDeviceList() error' }));
+            });
     });
 
     RED.nodes.registerType('api-server', ApiServerNode);

@@ -57,6 +57,20 @@ NodeDataCache.prototype.remove = function (id) {
 };
 
 /**
+ * Get node data by id.
+ *
+ * @param {string} id node id
+ */
+NodeDataCache.prototype.getNodeData = function (id) {
+    const i = this.index(id);
+    if (i === -1) {
+        return null;
+    } else {
+        return this.cache[i];
+    }
+};
+
+/**
  * Clean cache.
  */
 NodeDataCache.prototype.clean = function () {
