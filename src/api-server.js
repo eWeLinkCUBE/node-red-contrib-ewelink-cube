@@ -1,17 +1,65 @@
 const { ihostApi: ApiClient } = require('./extern/libapi').default;
 const { NodeDataCache } = require('./utils/cache');
+const { eventBridge } = require('./utils/event');
+const {
+    API_URL_CACHE_ADD_API_SERVER_NODE,
+    API_URL_CACHE_REMOVE_API_SERVER_NODE,
+    API_URL_GET_BRIDGE_INFO,
+    API_URL_GET_BRIDGE_TOKEN,
+    API_URL_GET_DEVICE_LIST,
+    EVENT_SSE_ON_UPDATE_DEVICE_STATE
+} = require('./utils/const');
 
 module.exports = function (RED) {
-    function ApiServerNode(config) {
-        RED.nodes.createNode(this, config);
-        // TODO: clean cache
-    }
-
-    const API_PREFIX = 'ewelink-cube-api-v1';
     const nodeDataCache = new NodeDataCache();
 
+    function ApiServerNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        // Clean cache when user clicks deploy button.
+        nodeDataCache.clean();
+
+        // TODO: check config.ip and config.token, use subscribe and emit.
+
+        // Create API client and SSE connection.
+        node.apiClient = new ApiClient({
+            ip: config.ip,
+            at: config.token
+        });
+        node.apiClient.initSSE();
+        node.apiClient.mountSseFunc({
+            onopen(msg) {
+                console.log(msg);
+            },
+            onerror(msg) {
+                console.log(msg);
+            },
+            onAddDevice(msg) {
+                console.log(msg);
+            },
+            onUpdateDeviceInfo(msg) {
+                console.log(msg);
+            },
+            onDeleteDevice(msg) {
+                console.log(msg);
+            },
+            onUpdateDeviceState(msg) {
+                console.log(msg);
+                // RED.comms.publish('sse-state', 'state state');
+                eventBridge.emit(EVENT_SSE_ON_UPDATE_DEVICE_STATE, JSON.stringify({ srcNodeId: config.id, msg }));
+            },
+            onUpdateDeviceOnline(msg) {
+                console.log(msg);
+            }
+        });
+
+
+        // TODO: restart or delete
+        // this.on('close')
+    }
+
     // body: { "id": "xxx", "name": "xxx", "ip": "xxx", "token": "xxx" }
-    RED.httpAdmin.post(`/${API_PREFIX}/cache/add-api-server-node`, (req, res) => {
+    RED.httpAdmin.post(API_URL_CACHE_ADD_API_SERVER_NODE, (req, res) => {
         const id = req.body.id;
         const name = req.body.name;
         const ip = req.body.ip;
@@ -31,7 +79,7 @@ module.exports = function (RED) {
     });
 
     // body: { "id": "xxx" }
-    RED.httpAdmin.post(`/${API_PREFIX}/cache/remove-api-server-node`, (req, res) => {
+    RED.httpAdmin.post(API_URL_CACHE_REMOVE_API_SERVER_NODE, (req, res) => {
         const id = req.body.id;
 
         if (nodeDataCache.has(id)) {
@@ -42,7 +90,7 @@ module.exports = function (RED) {
     });
 
     // body: { "ip": "xxx" }
-    RED.httpAdmin.post(`/${API_PREFIX}/get-bridge-info`, (req, res) => {
+    RED.httpAdmin.post(API_URL_GET_BRIDGE_INFO, (req, res) => {
         const ip = req.body.ip;
         const apiClient = new ApiClient({ ip });
         apiClient.getBridgeInfo()
@@ -56,7 +104,7 @@ module.exports = function (RED) {
     });
 
     // body: { "ip": "xxx" }
-    RED.httpAdmin.post(`/${API_PREFIX}/get-bridge-token`, (req, res) => {
+    RED.httpAdmin.post(API_URL_GET_BRIDGE_TOKEN, (req, res) => {
         const ip = req.body.ip;
         const apiClient = new ApiClient({ ip });
         apiClient.getBridgeAT({})
@@ -70,7 +118,7 @@ module.exports = function (RED) {
     });
 
     // body: { "id": "xxx" }
-    RED.httpAdmin.post(`/${API_PREFIX}/get-device-list`, (req, res) => {
+    RED.httpAdmin.post(API_URL_GET_DEVICE_LIST, (req, res) => {
         // getNode
         // Y: this.apiClient
         // N: cache
