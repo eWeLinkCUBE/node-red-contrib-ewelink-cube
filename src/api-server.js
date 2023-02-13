@@ -1,4 +1,7 @@
 const ApiClient = require('./extern/libapi').default.ihostApi;
+const { NodeDataCache } = require('./utils/cache');
+
+const nodeData = new NodeDataCache();
 
 module.exports = function (RED) {
     let apiClient = null;
