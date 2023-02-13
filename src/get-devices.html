@@ -1,84 +1,146 @@
 <script type="text/javascript">
-(function () {
-    RED.nodes.registerType('get-devices', {
-        category: 'eWeLink Cube',
-        color: '#4697ff',
-        defaults: {
-            name: {
-                value: '',
-            },
-            server: {
-                value: '',
-                required: true,
-                type: 'api-server',
-            },
-            category: {
-                value: '',
-            },
-            device: {
-                value: '',
-            },
-        },
-        inputs: 1,
-        outputs: 1,
-        icon: ' white-globe.svg',
-        label() {
-            return this.name || 'get device';
-        },
-        oneditprepare() {
-            $('#node-input-name').on('click', () => {
-                console.log('-------------------------click')
-               var mm = test();
-                $('#node-input-category').append(mm)
-            });
-
-            $('#node-input-category').on('change',()=>{
-                console.log('-------------',$('#node-input-category').val());
-                const categoryVal =$('#node-input-category').val();
-            })
-
-
-            function test(){
-                var list=[];
-
-                $("#node-input-category").get(0).options.length=0;
-
-                if(!list.length || list.length<1)return '';
-
-                var tempStr='';
-                for(var i=0;i<=list.length-1;i++){
-                    tempStr+='<option'+' value='+list[i]+'>'+list[i]+'</option>'
+    (function () {
+        let tempList = [];
+        console.log('-------------->', tempList);
+        function renderOptions(list, type) {
+            if (!list.length || list.length < 1) return '';
+            let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
+            dom.get(0).options.length = 0;
+            var optionStr = '';
+            for (var i = 0; i <= list.length - 1; i++) {
+                let content = type == 'category' ? list[i].display_category : list[i].name;
+                let value = type == 'category' ? list[i].display_category : list[i].serial_number;
+                if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
+                    optionStr += '<option' + ' value=' + value + '>' + content + '</option>';
                 }
-                return tempStr;
             }
+            return optionStr;
         }
-    });
-})();
+
+        function getDevice() {
+            $.ajax({
+                url: 'get-device-list',
+                type: 'POST',
+                data: JSON.stringify({ foo: 'bar' }),
+                contentType: 'application/json; charset=utf-8',
+                success(res) {
+                    if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                        tempList = [];
+                        let deviceList = res.data.device_list;
+                        for (var i = 0; i <= deviceList.length - 1; i++) {
+                            if (deviceList[i].display_category && deviceList[i].name) {
+                                let params = {
+                                    serial_number: deviceList[i].serial_number,
+                                    display_category: deviceList[i].display_category,
+                                    name: deviceList[i].name,
+                                };
+                                tempList.push(params);
+                            }
+                        }
+                        var categoryOption = renderOptions(tempList, 'category');
+                        // $('#node-input-category').empty();
+                        $('#node-input-category').append(categoryOption);
+
+                        var deviceOption = renderOptions(tempList, 'device');
+                        $('#node-input-device').append(deviceOption);
+                    }
+                },
+                error(error) {
+                    console.log('network error', error);
+                },
+            });
+        }
+
+        function updateDeviceState() {
+            $.ajax({
+                url: 'update-device-state',
+                type: 'POST',
+                data: JSON.stringify({ serial_number: '00124b0026b6d012', updateParams: { state: 'on' } }),
+                contentType: 'application/json; charset=utf-8',
+                success(data) {
+                    console.log('成功--------------->', data);
+                },
+                error(error) {
+                    console.log('失败--------------->', error);
+                },
+            });
+        }
+
+        RED.nodes.registerType('get-devices', {
+            category: 'eWeLink Cube',
+            color: '#4697ff',
+            defaults: {
+                name: {
+                    value: '',
+                },
+                server: {
+                    value: '',
+                    required: true,
+                    type: 'api-server',
+                },
+                category: {
+                    value: '',
+                },
+                device: {
+                    value: '',
+                },
+            },
+            inputs: 1,
+            outputs: 1,
+            icon: ' white-globe.svg',
+            label() {
+                return this.name || 'get device';
+            },
+            oneditprepare() {
+                $('#node-input-category').on('focus', () => {
+                    getDevice();
+                });
+                $('#node-input-category').on('change', () => {
+                    $('#node-input-device').empty();
+                    // $('#node-input-device').val();
+                    // $("#node-input-device").attr("selected",false);
+
+                    var categoryVal = $('#node-input-category').val();
+                    //Get deviceList by selected category
+                    let deviceList = [];
+                    for (var j = 0; j <= tempList.length - 1; j++) {
+                        if (categoryVal == tempList[j].display_category) {
+                            deviceList.push(tempList[j]);
+                        }
+                    }
+                    var deviceOption = renderOptions(deviceList, 'device');
+                    $('#node-input-device').append(deviceOption);
+                });
+
+                // $('#node-input-device').on('focus', () => {
+                //     $('#node-input-category').empty();
+                //     getDevice();
+                // });
+
+                // $('#node-input-device').on('change', () => {
+                //     $('#node-input-category').empty();
+                //     getDevice();
+                // });
+            },
+        });
+    })();
 </script>
 
 <script type="text/html" data-template-name="get-devices">
     <div class="form-row">
-        <label for="node-input-name">
-            Name
-        </label>
+        <label for="node-input-name"> Name </label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
-        <label for="node-input-server">
-            Server
-        </label>
+        <label for="node-input-server"> Server </label>
         <input type="text" id="node-input-server" placeholder="server" />
     </div>
     <div class="form-row">
-        <label for="node-input-category">
-            Category
-        </label>
+        <label for="node-input-category"> Category </label>
         <select id="node-input-category" placeholder="Category" style="width:70%"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-device">
-            Device
-        </label>
+        <label for="node-input-device"> Device </label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
 </script>
