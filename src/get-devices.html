@@ -1,7 +1,6 @@
 <script type="text/javascript">
     (function () {
         let tempList = [];
-        console.log('-------------->', tempList);
         function renderOptions(list, type) {
             if (!list.length || list.length < 1) return '';
             let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
@@ -18,11 +17,12 @@
         }
 
         function getDevice() {
+            const server = $('#node-input-server').val();
             $.ajax({
-                url: 'get-device-list',
                 type: 'POST',
-                data: JSON.stringify({ foo: 'bar' }),
+                url: 'ewelink-cube-api-v1/get-device-list',
                 contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
                         tempList = [];
@@ -40,9 +40,6 @@
                         var categoryOption = renderOptions(tempList, 'category');
                         // $('#node-input-category').empty();
                         $('#node-input-category').append(categoryOption);
-
-                        var deviceOption = renderOptions(tempList, 'device');
-                        $('#node-input-device').append(deviceOption);
                     }
                 },
                 error(error) {
@@ -51,20 +48,6 @@
             });
         }
 
-        function updateDeviceState() {
-            $.ajax({
-                url: 'update-device-state',
-                type: 'POST',
-                data: JSON.stringify({ serial_number: '00124b0026b6d012', updateParams: { state: 'on' } }),
-                contentType: 'application/json; charset=utf-8',
-                success(data) {
-                    console.log('成功--------------->', data);
-                },
-                error(error) {
-                    console.log('失败--------------->', error);
-                },
-            });
-        }
 
         RED.nodes.registerType('get-devices', {
             category: 'eWeLink Cube',
