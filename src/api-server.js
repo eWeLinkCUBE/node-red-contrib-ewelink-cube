@@ -129,11 +129,11 @@ module.exports = function (RED) {
     RED.httpAdmin.post(API_URL_GET_DEVICE_LIST, (req, res) => {
         const id = req.body.id;
 
+        const nodeData = nodeDataCache.getNodeData(id);
         const node = RED.nodes.getNode(id);
         let apiClient = null;
-        if (!node) {
-            // TODO: handle no nodeData
-            const nodeData = nodeDataCache.getNodeData(id);
+        // If cache hit, use cache data. Otherwise use node instance.
+        if (nodeData) {
             apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
         } else {
             apiClient = node.apiClient;
@@ -155,10 +155,11 @@ module.exports = function (RED) {
         const deviceId = req.body.deviceId;
         const params = req.body.params;
 
+        const nodeData = nodeDataCache.getNodeData(id);
         const node = RED.nodes.getNode(id);
         let apiClient = null;
-        if (!node) {
-            const nodeData = nodeDataCache.getNodeData(id);
+        // If cache hit, use cache data. Otherwise use node instance.
+        if (nodeData) {
             apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
         } else {
             apiClient = node.apiClient;
