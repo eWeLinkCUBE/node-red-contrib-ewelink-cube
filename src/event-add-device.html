@@ -1,4 +1,20 @@
+<script type="text/html" data-template-name="event-add-device">
+    <div class="form-row">
+        <label for="node-input-name">
+            Name
+        </label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-server">
+            Server
+        </label>
+        <input type="text" id="node-input-server" placeholder="Server" />
+    </div>
+</script>
+
 <script type="text/javascript">
+;(function () {
     //RED.comms.subscribe('sse-open', (eventName, msg) => {
     //    console.log('sse-open--------->', eventName, msg);
     //});
@@ -29,7 +45,6 @@
         },
         oneditprepare() {
             // DEBUG
-            debugger
             const server = $('#node-input-server').val();
             $('#node-input-name').on('click', () => {
                 $.ajax({
@@ -41,19 +56,5 @@
             })
         }
     });
-</script>
-
-<script type="text/html" data-template-name="event-add-device">
-    <div class="form-row">
-        <label for="node-input-name">
-            Name
-        </label>
-        <input type="text" id="node-input-name" placeholder="Name" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-server">
-            Server
-        </label>
-        <input type="text" id="node-input-server" placeholder="Server" />
-    </div>
+})();
 </script>
