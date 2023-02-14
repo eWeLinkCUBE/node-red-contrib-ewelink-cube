@@ -35,8 +35,6 @@
                                     serial_number: deviceList[i].serial_number,
                                     display_category: deviceList[i].display_category,
                                     name: deviceList[i].name,
-                                    value: deviceList[i].serial_number,
-                                    label: deviceList[i].display_category,
                                 };
                                 tempList.push(params);
                             }
@@ -47,15 +45,6 @@
                         if(tempVal){
                             $('#node-input-category').val(tempVal);
                         }
-
-                        // $('#node-input-device').typedInput({
-                        //     types: [
-                        //         {
-                        //             value: '',
-                        //             options: tempList,
-                        //         },
-                        //     ],
-                        // });
                     }
                 },
                 error(error) {

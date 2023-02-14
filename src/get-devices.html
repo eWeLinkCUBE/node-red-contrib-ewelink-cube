@@ -16,8 +16,9 @@
             return optionStr;
         }
 
-        function getDevice() {
+        function getDeviceList() {
             const server = $('#node-input-server').val();
+            const tempVal = $('#node-input-category').val();
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
@@ -38,8 +39,10 @@
                             }
                         }
                         var categoryOption = renderOptions(tempList, 'category');
-                        // $('#node-input-category').empty();
                         $('#node-input-category').append(categoryOption);
+                        if(tempVal){
+                            $('#node-input-category').val(tempVal);
+                        }
                     }
                 },
                 error(error) {
@@ -76,7 +79,7 @@
             },
             oneditprepare() {
                 $('#node-input-category').on('focus', () => {
-                    getDevice();
+                    getDeviceList();
                 });
                 $('#node-input-category').on('change', () => {
                     $('#node-input-device').empty();

@@ -1,3 +1,4 @@
+const { eventBridge } = require('./utils/event');
 module.exports = function (RED) {
     function GetStatusNode(config) {
         RED.nodes.createNode(this, config);
@@ -5,6 +6,10 @@ module.exports = function (RED) {
         this.on('input',(msg) => {
             msg.payload='test';
             this.send(msg);
+        });
+
+        eventBridge.on('sse-state', (msg) => {
+           this.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', msg);
         });
     }
 
