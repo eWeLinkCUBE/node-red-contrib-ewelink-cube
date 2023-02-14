@@ -62,11 +62,20 @@ module.exports = function (RED) {
             }
         });
 
-        // TODO: restart or delete
-        // this.on('close')
+        node.on('close', (done) => {
+            node.apiClient.unmountSseFunc();
+            done();
+        });
     }
 
-    // body: { "id": "xxx", "name": "xxx", "ip": "xxx", "token": "xxx" }
+    // Add API server node data to cache.
+    // params:
+    //      {
+    //          "id": "xxx" - API server node ID
+    //          "name": "xxx" - API server node name
+    //          "ip": "xxx" - API server node IP
+    //          "token": "xxx" - API server node token
+    //      }
     RED.httpAdmin.post(API_URL_CACHE_ADD_API_SERVER_NODE, (req, res) => {
         const id = req.body.id;
         const name = req.body.name;
@@ -86,7 +95,11 @@ module.exports = function (RED) {
         res.send(JSON.stringify({ error: 0, msg: 'success' }));
     });
 
-    // body: { "id": "xxx" }
+    // Remove API server node data from cache.
+    // params:
+    //      {
+    //          "id": "xxx" - API server node ID
+    //      }
     RED.httpAdmin.post(API_URL_CACHE_REMOVE_API_SERVER_NODE, (req, res) => {
         const id = req.body.id;
 
@@ -97,7 +110,11 @@ module.exports = function (RED) {
         res.send(JSON.stringify({ error: 0, msg: 'success' }));
     });
 
-    // body: { "ip": "xxx" }
+    // Get bridge info.
+    // params:
+    //      {
+    //          "ip": "xxx" - API server node IP
+    //      }
     RED.httpAdmin.post(API_URL_GET_BRIDGE_INFO, (req, res) => {
         const ip = req.body.ip;
         const apiClient = new ApiClient({ ip });
@@ -111,7 +128,11 @@ module.exports = function (RED) {
             });
     });
 
-    // body: { "ip": "xxx" }
+    // Get bridge token.
+    // params:
+    //      {
+    //          "ip": "xxx" - API server node IP
+    //      }
     RED.httpAdmin.post(API_URL_GET_BRIDGE_TOKEN, (req, res) => {
         const ip = req.body.ip;
         const apiClient = new ApiClient({ ip });
@@ -125,7 +146,11 @@ module.exports = function (RED) {
             })
     });
 
-    // body: { "id": "xxx" }
+    // Get device list.
+    // params:
+    //      {
+    //          "id": "xxx" - API server node ID
+    //      }
     RED.httpAdmin.post(API_URL_GET_DEVICE_LIST, (req, res) => {
         const id = req.body.id;
 
@@ -149,7 +174,13 @@ module.exports = function (RED) {
             });
     });
 
-    // body: { "id": "xxx", "deviceId": "xxx", "params": {} }
+    // Control device.
+    // params:
+    //      {
+    //          "id": "xxx" - API server node ID
+    //          "deviceId": "xxx" - device ID
+    //          "params": {} - device state params
+    //      }
     RED.httpAdmin.post(API_URL_CONTROL_DEVICE, (req, res) => {
         const id = req.body.id;
         const deviceId = req.body.deviceId;
