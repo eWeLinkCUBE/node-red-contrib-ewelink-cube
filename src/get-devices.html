@@ -7,7 +7,7 @@
             dom.get(0).options.length = 0;
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option>';
             for (var i = 0; i <= list.length - 1; i++) {
-                let content = type == 'category' ? list[i].display_category : list[i].name;
+                let content = type == 'category' ? list[i].display_category : ( list[i].name ? list[i].name : list[i].manufacturer + list[i].display_category );
                 let value = type == 'category' ? list[i].display_category : list[i].serial_number;
                 if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
                     optionStr += '<option' + ' value=' + value + '>' + content + '</option>';
@@ -29,18 +29,19 @@
                         tempList = [];
                         let deviceList = res.data.device_list;
                         for (var i = 0; i <= deviceList.length - 1; i++) {
-                            if (deviceList[i].display_category && deviceList[i].name) {
+                            if (deviceList[i].display_category) {
                                 let params = {
                                     serial_number: deviceList[i].serial_number,
                                     display_category: deviceList[i].display_category,
                                     name: deviceList[i].name,
+                                    manufacturer: deviceList[i].manufacturer,
                                 };
                                 tempList.push(params);
                             }
                         }
                         var categoryOption = renderOptions(tempList, 'category');
                         $('#node-input-category').append(categoryOption);
-                        if(tempVal){
+                        if (tempVal) {
                             $('#node-input-category').val(tempVal);
                         }
                     }
@@ -50,7 +51,6 @@
                 },
             });
         }
-
 
         RED.nodes.registerType('get-devices', {
             category: 'eWeLink Cube',
