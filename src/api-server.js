@@ -7,7 +7,12 @@ const {
     API_URL_GET_BRIDGE_INFO,
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
-    EVENT_SSE_ON_UPDATE_DEVICE_STATE
+    API_URL_CONTROL_DEVICE,
+    EVENT_SSE_ON_UPDATE_DEVICE_STATE,
+    EVENT_SSE_ON_ADD_DEVICE,
+    EVENT_SSE_ON_DELETE_DEVICE,
+    EVENT_SSE_ON_UPDATE_DEVICE_INFO,
+    EVENT_SSE_ON_UPDATE_DEVICE_ONLINE,
 } = require('./utils/const');
 
 module.exports = function (RED) {
@@ -36,12 +41,15 @@ module.exports = function (RED) {
             },
             onAddDevice(msg) {
                 console.log(msg);
+                eventBridge.emit(EVENT_SSE_ON_ADD_DEVICE, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onUpdateDeviceInfo(msg) {
                 console.log(msg);
+                eventBridge.emit(EVENT_SSE_ON_UPDATE_DEVICE_INFO, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onDeleteDevice(msg) {
                 console.log(msg);
+                eventBridge.emit(EVENT_SSE_ON_DELETE_DEVICE, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onUpdateDeviceState(msg) {
                 console.log(msg);
@@ -50,9 +58,9 @@ module.exports = function (RED) {
             },
             onUpdateDeviceOnline(msg) {
                 console.log(msg);
+                eventBridge.emit(EVENT_SSE_ON_UPDATE_DEVICE_ONLINE, JSON.stringify({ srcNodeId: config.id, msg }));
             }
         });
-
 
         // TODO: restart or delete
         // this.on('close')
@@ -121,11 +129,11 @@ module.exports = function (RED) {
     RED.httpAdmin.post(API_URL_GET_DEVICE_LIST, (req, res) => {
         const id = req.body.id;
 
+        const nodeData = nodeDataCache.getNodeData(id);
         const node = RED.nodes.getNode(id);
         let apiClient = null;
-        if (!node) {
-            // TODO: handle no nodeData
-            const nodeData = nodeDataCache.getNodeData(id);
+        // If cache hit, use cache data. Otherwise use node instance.
+        if (nodeData) {
             apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
         } else {
             apiClient = node.apiClient;
@@ -138,6 +146,32 @@ module.exports = function (RED) {
             .catch((err) => {
                 // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'getDeviceList() error' }));
+            });
+    });
+
+    // body: { "id": "xxx", "deviceId": "xxx", "params": {} }
+    RED.httpAdmin.post(API_URL_CONTROL_DEVICE, (req, res) => {
+        const id = req.body.id;
+        const deviceId = req.body.deviceId;
+        const params = req.body.params;
+
+        const nodeData = nodeDataCache.getNodeData(id);
+        const node = RED.nodes.getNode(id);
+        let apiClient = null;
+        // If cache hit, use cache data. Otherwise use node instance.
+        if (nodeData) {
+            apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
+        } else {
+            apiClient = node.apiClient;
+        }
+
+        apiClient.updateDeviceState(deviceId, params)
+            .then((data) => {
+                res.send(data);
+            })
+            .catch((err) => {
+                // TODO: handle err
+                res.send(JSON.stringify({ error: 500, msg: 'updateDeviceState() error' }));
             });
     });
 
