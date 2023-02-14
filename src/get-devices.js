@@ -1,6 +1,7 @@
 const ApiClient = require('./extern/libapi').default.ihostApi;
 const axios = require('axios');
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+const { API_URL_GET_DEVICE_LIST } = require('./utils/const');
 module.exports = function (RED) {
     function GetDevicesNode(config) {
         RED.nodes.createNode(this, config);
@@ -8,11 +9,11 @@ module.exports = function (RED) {
         this.on('input', async (msg) => {
             this.log('config-------------------------------->' + JSON.stringify(config));
             let message = [];
-            const baseUrl = 'http://127.0.0.1:1880';
-            const url = baseUrl + '/get-device-list';
+            const baseUrl = 'http://localhost:1880';
+            const url = baseUrl + API_URL_GET_DEVICE_LIST;
             let that = this;
             await axios
-                .post(url, { params: {} })
+                .post(url, { id: config.server })
                 .then(function (response) {
                     //Filter classification before filtering device
                     let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
