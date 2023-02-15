@@ -9,7 +9,7 @@ module.exports = function (RED) {
         function eventSseOnAddDeviceHandler(jsonData) {
             const data = JSON.parse(jsonData);
             if (config.server === data.srcNodeId) {
-                node.send({ payload: data.msg });
+                node.send({ payload: data.msg.data });
             }
         }
 

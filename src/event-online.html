@@ -1,118 +1,107 @@
-<script type="text/javascript">
-    (function () {
-        let tempList = [];
-        function renderOptions(list, type) {
-            if (!list.length || list.length < 1) return '';
-            let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
-            dom.get(0).options.length = 0;
-            var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option>';
-            for (var i = 0; i <= list.length - 1; i++) {
-                let content = type == 'category' ? list[i].display_category : list[i].name;
-                let value = type == 'category' ? list[i].display_category : list[i].serial_number;
-                if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
-                    optionStr += '<option' + ' value=' + value + '>' + content + '</option>';
-                }
-            }
-            return optionStr;
-        }
+<script type="text/html" data-template-name="event-online">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-server">Server</label>
+        <input type="text" id="node-input-server" placeholder="server" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-device">Device</label>
+        <select id="node-input-device" placeholder="Device" style="width:70%"></select>
+    </div>
+</script>
 
-        function getDeviceList() {
-            const server = $('#node-input-server').val();
-            const tempVal = $('#node-input-category').val();
+<script type="text/javascript">
+;(function () {
+    const DOM_ID_INPUT_DEVICE = '#node-input-device';
+    const DOM_ID_INPUT_SERVER = '#node-input-server';
+    const SERVER_EMPTY = '_ADD_';
+
+    function inputDeviceOnClickHandler() {
+        const server = $(DOM_ID_INPUT_SERVER).val();
+        if (server === SERVER_EMPTY) {
+            console.log('server empty');
+        } else {
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({ id: server }),
                 success(res) {
-                    if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
-                        tempList = [];
-                        let deviceList = res.data.device_list;
-                        for (var i = 0; i <= deviceList.length - 1; i++) {
-                            if (deviceList[i].display_category && deviceList[i].name) {
-                                let params = {
-                                    serial_number: deviceList[i].serial_number,
-                                    display_category: deviceList[i].display_category,
-                                    name: deviceList[i].name,
-                                };
-                                tempList.push(params);
+                    if (res.error !== 0) {
+                        console.log('req failed')
+                    } else {
+                        const deviceList = res.data.device_list;
+                        for (const device of deviceList) {
+                            const name = device.name || (device.manufacturer + device.display_category);
+                            const value = device.serial_number;
+                            $(DOM_ID_INPUT_DEVICE).append(`<option value="${value}">${name}</option>`);
+                        }
+                    }
+                },
+                error() {}
+            });
+
+        }
+    }
+
+    RED.nodes.registerType('event-online', {
+        category: 'eWeLink Cube',
+        color: '#4697ff',
+        defaults: {
+            name: {
+                value: '',
+            },
+            server: {
+                value: '',
+                required: true,
+                type: 'api-server',
+            },
+            device: {
+                value: '',
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: 'inject.svg',
+        paletteLabel: 'event: online',
+        label() {
+            return this.name || 'event-online';
+        },
+        oneditprepare() {
+            $(DOM_ID_INPUT_DEVICE).on('focus', inputDeviceOnClickHandler);
+
+            const node = this;
+            const server = node.server;
+            if (server === '') {
+                console.log('server empty');
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: 'ewelink-cube-api-v1/get-device-list',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({ id: server }),
+                    success(res) {
+                        if (res.error !== 0) {
+                            console.log('req failed')
+                        } else {
+                            const deviceList = res.data.device_list;
+                            for (const device of deviceList) {
+                                const name = device.name || (device.manufacturer + device.display_category);
+                                const value = device.serial_number;
+                                $(DOM_ID_INPUT_DEVICE).append(`<option value="${value}">${name}</option>`);
+                            }
+                            if (node.server) {
+                                $(DOM_ID_INPUT_DEVICE).val(node.device);
                             }
                         }
-                        var categoryOption = renderOptions(tempList, 'category');
-                        $('#node-input-category').append(categoryOption);
-                        if (tempVal) {
-                            $('#node-input-category').val(tempVal);
-                        }
-                    }
-                },
-                error(error) {
-                    console.log('network error', error);
-                },
-            });
+                    },
+                    error() {}
+                });
+            }
         }
-        RED.nodes.registerType('event-online', {
-            category: 'eWeLink Cube',
-            color: '#4697ff',
-            defaults: {
-                name: {
-                    value: '',
-                },
-                server: {
-                    value: '',
-                    required: true,
-                    type: 'api-server',
-                },
-                category: {
-                    value: '',
-                },
-                device: {
-                    value: '',
-                },
-            },
-            inputs: 0,
-            outputs: 1,
-            icon: 'inject.svg',
-            label() {
-                return this.name || 'event:online';
-            },
-            oneditprepare() {
-                $('#node-input-category').on('focus', () => {
-                    getDeviceList();
-                });
-                $('#node-input-category').on('change', () => {
-                    $('#node-input-device').empty();
-
-                    var categoryVal = $('#node-input-category').val();
-                    //Get deviceList by selected category
-                    let deviceList = [];
-                    for (var j = 0; j <= tempList.length - 1; j++) {
-                        if (categoryVal == tempList[j].display_category) {
-                            deviceList.push(tempList[j]);
-                        }
-                    }
-                    var deviceOption = renderOptions(deviceList, 'device');
-                    $('#node-input-device').append(deviceOption);
-                });
-            },
-        });
-    })();
-</script>
-
-<script type="text/html" data-template-name="event-online">
-    <div class="form-row">
-        <label for="node-input-name"> Name </label>
-        <input type="text" id="node-input-name" placeholder="Name" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"> Server </label>
-        <input type="text" id="node-input-server" placeholder="server" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-category"> Category </label>
-        <select id="node-input-category" placeholder="Category" style="width:70%"></select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-device"> Device </label>
-        <select id="node-input-device" placeholder="Device" style="width:70%"></select>
-    </div>
+    });
+})();
 </script>
