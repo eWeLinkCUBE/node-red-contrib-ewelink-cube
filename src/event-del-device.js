@@ -1,6 +1,5 @@
 const { eventBridge } = require('./utils/event');
 const { EVENT_SSE_ON_DELETE_DEVICE } = require('./utils/const');
-const _ = require('lodash');
 
 module.exports = function (RED) {
     function EventDelDeviceNode(config) {
@@ -9,15 +8,11 @@ module.exports = function (RED) {
 
         function eventSseOnDelDeviceHandler(jsonData) {
             const data = JSON.parse(jsonData);
-            const number = _.get(data, ['msg', 'data', 'endpoint','serial_number'], '');
-            node.send({ payload: data.msg });
             if (config.server === data.srcNodeId) {
-                if(config.device == ''){
-                    node.send({ payload: data.msg });
-                }
-
-                if(config.device === number){
-                    node.send({ payload: data.msg });
+                const deviceData = JSON.parse(data.msg.data);
+                // Empty device field means all.
+                if (!config.device || config.device === deviceData.endpoint.serial_number) {
+                    node.send({ payload: data.msg.data });
                 }
             }
         }
