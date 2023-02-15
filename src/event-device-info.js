@@ -8,14 +8,11 @@ module.exports = function (RED) {
 
         function eventSseOnUpdateDeviceHandler(jsonData) {
             const data = JSON.parse(jsonData);
-            const number = _.get(data, ['msg', 'data', 'endpoint','serial_number'], '');
             if (config.server === data.srcNodeId) {
-                if (config.device == '') {
-                    node.send({ payload: data.payload.name });
-                }
-
-                if (config.device === number) {
-                    node.send({ payload: data.payload.name });
+                const deviceData = JSON.parse(data.msg.data);
+                // Empty device field means all.
+                if (!config.device && config.device === deviceData.endpoint.serial_number) {
+                    node.send({ payload: data.msg.data });
                 }
             }
         }
