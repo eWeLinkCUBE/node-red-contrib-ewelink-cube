@@ -15,14 +15,6 @@
 
 <script type="text/javascript">
 ;(function () {
-    //RED.comms.subscribe('sse-open', (eventName, msg) => {
-    //    console.log('sse-open--------->', eventName, msg);
-    //});
-
-    //RED.comms.subscribe('sse-state', (eventName, msg) => {
-    //    console.log('sse-state--------->', eventName, msg);
-    //});
-
     RED.nodes.registerType('event-add-device', {
         category: 'eWeLink Cube',
         color: '#4697ff',
@@ -44,16 +36,7 @@
             return this.name || 'event-add-device';
         },
         oneditprepare() {
-            // DEBUG
-            const server = $('#node-input-server').val();
-            $('#node-input-name').on('click', () => {
-                $.ajax({
-                    type: 'POST',
-                    url: 'ewelink-cube-api-v1/get-device-list',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({ id: server }),
-                })
-            })
+            // TODO: subscribe event
         }
     });
 })();
