@@ -1,3 +1,18 @@
+<script type="text/html" data-template-name="event-del-device">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-server">Server</label>
+        <input type="text" id="node-input-server" placeholder="server" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-device">Device</label>
+        <select id="node-input-device" placeholder="Device" style="width:70%"></select>
+    </div>
+</script>
+
 <script type="text/javascript">
     (function () {
         let tempList = [];
@@ -79,19 +94,4 @@
             },
         });
     })();
-</script>
-
-<script type="text/html" data-template-name="event-del-device">
-    <div class="form-row">
-        <label for="node-input-name"> Name </label>
-        <input type="text" id="node-input-name" placeholder="Name" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"> Server </label>
-        <input type="text" id="node-input-server" placeholder="server" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-device"> Device </label>
-        <select id="node-input-device" placeholder="Device" style="width:70%" allowClear></select>
-    </div>
 </script>

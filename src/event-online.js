@@ -7,10 +7,20 @@ module.exports = function (RED) {
         const node = this;
 
         function eventSseOnUpdateDeviceOnlineHandler(jsonData) {
+            // data.msg template:
+            // {
+            //     "type": "device#v1updateDeviceOnline"
+            //     "lastEventId": ""
+            //     "origin": "http://192.168.2.20"
+            //     "data": "..."
+            // }
             const data = JSON.parse(jsonData);
             if (config.server === data.srcNodeId) {
-                // TODO: compare msg device and config.device
-                node.send({ payload: data.msg.data });
+                const deviceData = JSON.parse(data.msg.data);
+                // Empty device field means all.
+                if (!config.device || config.device === deviceData.endpoint.serial_number) {
+                    node.send({ payload: data.msg.data });
+                }
             }
         }
 

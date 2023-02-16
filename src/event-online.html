@@ -34,6 +34,9 @@
                         console.log('req failed')
                     } else {
                         const deviceList = res.data.device_list;
+                        // Clear select and insert an empty option.
+                        $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+                        $(DOM_ID_INPUT_DEVICE).append('<option value=""> </option>');
                         for (const device of deviceList) {
                             const name = device.name || (device.manufacturer + device.display_category);
                             const value = device.serial_number;
@@ -41,7 +44,9 @@
                         }
                     }
                 },
-                error() {}
+                error() {
+                    // TODO: handle error
+                }
             });
 
         }
@@ -88,6 +93,9 @@
                             console.log('req failed')
                         } else {
                             const deviceList = res.data.device_list;
+                            // Clear select and insert an empty option.
+                            $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+                            $(DOM_ID_INPUT_DEVICE).append('<option value=""> </option>');
                             for (const device of deviceList) {
                                 const name = device.name || (device.manufacturer + device.display_category);
                                 const value = device.serial_number;
@@ -98,7 +106,9 @@
                             }
                         }
                     },
-                    error() {}
+                    error() {
+                        // TODO: handle error
+                    }
                 });
             }
         }
