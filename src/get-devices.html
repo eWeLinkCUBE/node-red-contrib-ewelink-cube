@@ -5,10 +5,10 @@
             if (!list.length || list.length < 1) return '';
             let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
             dom.get(0).options.length = 0;
-            var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option>';
-            for (var i = 0; i <= list.length - 1; i++) {
-                let content = type == 'category' ? list[i].display_category : ( list[i].name ? list[i].name : list[i].manufacturer + list[i].display_category );
-                let value = type == 'category' ? list[i].display_category : list[i].serial_number;
+            var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
+            for (const item of list) {
+                let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
+                let value = type == 'category' ? item.display_category : item.serial_number;
                 if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
                     optionStr += '<option' + ' value=' + value + '>' + content + '</option>';
                 }
@@ -16,33 +16,51 @@
             return optionStr;
         }
 
-        function getDeviceList() {
+        function getDeviceList(node) {
             const server = $('#node-input-server').val();
-            const tempVal = $('#node-input-category').val();
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({ id: server }),
                 success(res) {
-                    if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
-                        tempList = [];
-                        let deviceList = res.data.device_list;
-                        for (var i = 0; i <= deviceList.length - 1; i++) {
-                            if (deviceList[i].display_category) {
-                                let params = {
-                                    serial_number: deviceList[i].serial_number,
-                                    display_category: deviceList[i].display_category,
-                                    name: deviceList[i].name,
-                                    manufacturer: deviceList[i].manufacturer,
-                                };
-                                tempList.push(params);
+                    if (res.error === 0) {
+                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                            tempList = [];
+                            let deviceList = res.data.device_list;
+                            for (const item of deviceList) {
+                                if (item.display_category !== 'sensor') {
+                                    let params = {
+                                        serial_number: item.serial_number,
+                                        display_category: item.display_category,
+                                        name: item.name,
+                                        manufacturer: item.manufacturer,
+                                    };
+                                    tempList.push(params);
+                                }
                             }
-                        }
-                        var categoryOption = renderOptions(tempList, 'category');
-                        $('#node-input-category').append(categoryOption);
-                        if (tempVal) {
-                            $('#node-input-category').val(tempVal);
+                            var categoryOption = renderOptions(tempList, 'category');
+                            $('#node-input-category').append(categoryOption);
+
+                            if (node.server) {
+                                $('#node-input-category').val(node.category);
+
+                                var categoryVal = $('#node-input-category').val();
+                                if(node.device){
+                                    let deviceList = [];
+                                    for (var j = 0; j <= tempList.length - 1; j++) {
+                                        if (categoryVal == tempList[j].display_category) {
+                                            deviceList.push(tempList[j]);
+                                        }
+                                    }
+
+                                    if(deviceList.length === 0)deviceList=tempList;
+
+                                    var deviceOption = renderOptions(deviceList, 'device');
+                                    $('#node-input-device').append(deviceOption);
+                                    $('#node-input-device').val(node.device);
+                                }
+                            }
                         }
                     }
                 },
@@ -78,22 +96,28 @@
                 return this.name || 'get device';
             },
             oneditprepare() {
+                const node=this;
+                getDeviceList(node);
                 $('#node-input-category').on('focus', () => {
-                    getDeviceList();
+                    getDeviceList(node);
                 });
                 $('#node-input-category').on('change', () => {
-                    $('#node-input-device').empty();
-
                     var categoryVal = $('#node-input-category').val();
-                    //Get deviceList by selected category
+                    $('#node-input-device').val('');
                     let deviceList = [];
                     for (var j = 0; j <= tempList.length - 1; j++) {
                         if (categoryVal == tempList[j].display_category) {
                             deviceList.push(tempList[j]);
                         }
                     }
+
+                    if(deviceList.length === 0)deviceList=tempList;
+
                     var deviceOption = renderOptions(deviceList, 'device');
                     $('#node-input-device').append(deviceOption);
+                    if (node.server) {
+                        $('#node-input-device').val(node.device);
+                    }
                 });
             },
         });

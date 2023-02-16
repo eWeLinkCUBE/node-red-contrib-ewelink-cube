@@ -1,14 +1,15 @@
 <script type="text/javascript">
     (function () {
         let tempList = [];
+        let List = [];
         function renderOptions(list, type) {
             if (!list.length || list.length < 1) return '';
             let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
             dom.get(0).options.length = 0;
-            var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option>';
-            for (var i = 0; i <= list.length - 1; i++) {
-                let content = type == 'category' ? list[i].display_category : list[i].name;
-                let value = type == 'category' ? list[i].display_category : list[i].serial_number;
+            var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
+            for (const item of list) {
+                let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
+                let value = type == 'category' ? item.display_category : item.serial_number;
                 if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
                     optionStr += '<option' + ' value=' + value + '>' + content + '</option>';
                 }
@@ -16,32 +17,59 @@
             return optionStr;
         }
 
-        function getDeviceList() {
+        function getDeviceList(node) {
             const server = $('#node-input-server').val();
-            const tempVal = $('#node-input-category').val();
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({ id: server }),
                 success(res) {
-                    if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
-                        tempList = [];
-                        let deviceList = res.data.device_list;
-                        for (var i = 0; i <= deviceList.length - 1; i++) {
-                            if (deviceList[i].display_category && deviceList[i].name) {
-                                let params = {
-                                    serial_number: deviceList[i].serial_number,
-                                    display_category: deviceList[i].display_category,
-                                    name: deviceList[i].name,
-                                };
-                                tempList.push(params);
+                    if (res.error === 0) {
+                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                            tempList = [];
+                            let deviceList = res.data.device_list;
+                            List = res.data.device_list;
+                            for (const item of deviceList) {
+                                if (item.display_category !== 'sensor') {
+                                    //remove seed
+                                    let params = {
+                                        serial_number: item.serial_number,
+                                        display_category: item.display_category,
+                                        name: item.name,
+                                        manufacturer: item.manufacturer,
+                                        state: item.state,
+                                    };
+                                    tempList.push(params);
+                                }
                             }
-                        }
-                        var categoryOption = renderOptions(tempList, 'category');
-                        $('#node-input-category').append(categoryOption);
-                        if (tempVal) {
-                            $('#node-input-category').val(tempVal);
+
+                            var categoryOption = renderOptions(tempList, 'category');
+                            $('#node-input-category').append(categoryOption);
+
+                            if (node.server) {
+                                $('#node-input-category').val(node.category);
+
+                                if (node.device) {
+                                    var categoryVal = $('#node-input-category').val();
+                                    let deviceList = [];
+                                    for (var j = 0; j <= tempList.length - 1; j++) {
+                                        if (categoryVal == tempList[j].display_category) {
+                                            deviceList.push(tempList[j]);
+                                        }
+                                    }
+
+                                    if(deviceList.length === 0)deviceList=tempList;
+
+                                    var deviceOption = renderOptions(deviceList, 'device');
+                                    $('#node-input-device').append(deviceOption);
+
+                                    $('#node-input-device').val(node.device);
+                                }
+                                if (node.state) {
+                                    $('#node-input-state').val(node.state);
+                                }
+                            }
                         }
                     }
                 },
@@ -49,6 +77,10 @@
                     console.log('network error', error);
                 },
             });
+        }
+
+        function delItem(delbtn) {
+            $(delbtn).parents('.main-area').remove();
         }
         RED.nodes.registerType('event-state', {
             category: 'eWeLink Cube',
@@ -79,26 +111,75 @@
                 return this.name || 'event-state';
             },
             oneditprepare() {
-                $('#node-input-category').on('focus', () => {
-                    getDeviceList();
-                });
-                $('#node-input-category').on('change', () => {
-                    $('#node-input-device').empty();
+                const node = this;
+                getDeviceList(node);
 
+                $('#node-input-category').on('focus', () => {
+                    getDeviceList(node);
+                });
+
+                $('#node-input-category').on('change', () => {
                     var categoryVal = $('#node-input-category').val();
-                    //Get deviceList by selected category
+                    $('#node-input-device').val('');
+                    $('#node-input-state').get(0).options.length = 0;
+
                     let deviceList = [];
                     for (var j = 0; j <= tempList.length - 1; j++) {
                         if (categoryVal == tempList[j].display_category) {
                             deviceList.push(tempList[j]);
                         }
                     }
+
+                    if(deviceList.length === 0)deviceList=tempList;
+
                     var deviceOption = renderOptions(deviceList, 'device');
                     $('#node-input-device').append(deviceOption);
                 });
+
+                $('#node-input-device').on('change', () => {
+                    $('#node-input-state').get(0).options.length = 0;
+                    let list = [];
+                    for (const ele of tempList) {
+                        if (ele.serial_number === $('#node-input-device').val()) {
+                            list.push(ele.state);
+                        }
+                    }
+                    if (list.length > 0) {
+                        const stateList = Object.keys(list[0]);
+                        let template = '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>';
+                        for (const item of stateList) {
+                            template += `<option value="${item}">${item}</option>`;
+                        }
+                        $('#node-input-state').append(template);
+                    }
+                });
+
+                $('#add-icon').on('click', addItem);
+
+                //todo:渲染和删除都通过数据来控制
+
+                function addItem() {
+                    $('#state').append(
+                        `<div id="main-area">
+                            <label for="node-input-state" style="visibility: hidden;"> State </label>
+                            <div class="right-area" style="margin-top:10px">
+                                <select class="node-input-state" name="node-input-state" style="width:322px">
+
+                                </select>
+                                <button class="del-icon" id="del-icon" onclick="delItem(this)">-</button>
+                            </div>
+                        </div>
+                        `
+                    );
+                    console.log(document.getElementById('state'));
+                }
             },
         });
     })();
+
+    function delItem(delbtn) {
+        $(delbtn).parents('#main-area').remove();
+    }
 </script>
 
 <script type="text/html" data-template-name="event-state">
@@ -118,8 +199,30 @@
         <label for="node-input-device"> Device </label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
-    <div class="form-row">
-        <label for="node-input-state"> state </label>
-        <select id="node-input-state" name="node-input-state" placeholder="state" style="width:70%"></select>
+    <div class="form-row" id="state">
+        <div id="main-area">
+            <label for="node-input-state"> State </label>
+            <div class="right-area">
+                <select placeholder="Select State" id="node-input-state" name="node-input-state" style="width:322px"></select>
+                <button class="add-icon" id="add-icon">+</button>
+                <!-- <span class="del-icon"></span> -->
+            </div>
+        </div>
     </div>
 </script>
+
+<style>
+    .right-area {
+        display: inline-block;
+    }
+    .add-icon,
+    .del-icon,
+    #del-icon {
+        display: inline-block;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        border-radius: 50%;
+    }
+</style>

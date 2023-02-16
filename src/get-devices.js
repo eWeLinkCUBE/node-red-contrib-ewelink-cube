@@ -15,25 +15,24 @@ module.exports = function (RED) {
             await axios
                 .post(url, { id: config.server })
                 .then(function (response) {
-                    //Filter classification before filtering device
                     let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
                     let tempList = [];
                     for (var i = 0; i < dataList.length - 1; i++) {
-                        if (config.device) {
+                        if (config.device && config.device !== 'all') {
                             if (dataList[i].serial_number == config.device) {
                                 tempList.push(dataList[i]);
                             }
                         }
 
-                        if (config.category && !config.device) {
+                        if (config.category && (config.device === '' || config.device === 'all')) {
                             if (dataList[i].display_category == config.category) {
                                 tempList.push(dataList[i]);
                             }
                         }
                     }
 
-                    if (!config.category && !config.device) {
-                        message = response.data;
+                    if (config.category === 'all' && (config.device === 'all' || config.device === '')) {
+                        message = dataList;
                     } else {
                         message = tempList;
                     }
