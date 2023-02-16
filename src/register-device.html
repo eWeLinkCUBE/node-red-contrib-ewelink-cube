@@ -1,4 +1,59 @@
+<script type="text/html" data-template-name="register-device">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server">Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device_id">Device ID</label>
+        <input type="text" id="node-input-device_id">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device_name">Device Name</label>
+        <input type="text" id="node-input-device_name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-category">Category</label>
+        <select name="node-input-category" id="node-input-category" style="width: 70%;"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-capabilities">Capabilities</label>
+        <select name="node-input-capabilities" id="node-input-capabilities" style="width: 70%;"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-manufacturer">Manufacturer</label>
+        <input type="text" id="node-input-manufacturer">
+    </div>
+    <div class="form-row">
+        <label for="node-input-model">Model</label>
+        <input type="text" id="node-input-model">
+    </div>
+    <div class="form-row">
+        <label for="node-input-firmware_version">FW version</label>
+        <input type="text" id="node-input-firmware_version">
+    </div>
+    <div class="form-row">
+        <label for="node-input-service_address">Service IP</label>
+        <input type="text" id="node-input-service_address">
+    </div>
+    <div class="form-row">
+        <label for="node-input-tags">Tags</label>
+        <input type="text" id="node-input-tags" style="width: 70%;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-state">State</label>
+        <input type="text" id="node-input-state" style="width: 70%;">
+    </div>
+</script>
+
 <script type="text/javascript">
+;(function () {
+    const DOM_ID_INPUT_TAGS = '#node-input-tags';
+    const DOM_ID_INPUT_STATE = '#node-input-state';
+
     RED.nodes.registerType('register-device', {
         category: 'eWeLink Cube',
         color: '#4697ff',
@@ -11,37 +66,46 @@
                 required: true,
                 type: 'api-server',
             },
-            deviceId: {
-                value:''
+            device_id: {
+                value: '',
+                required: true
             },
-            deviceName:{
-                value:''
+            device_name: {
+                value: '',
+                required: true
             },
-            category:{
-                value:''
+            category: {
+                value: '',
+                required: true
             },
-            capabilities:{
-                value:''
+            capabilities: {
+                value: '',
+                required: true
             },
-            manufacturer:{
-                value:''
+            manufacturer: {
+                value: '',
+                required: true
             },
-            model:{
-                value:''
+            model: {
+                value: '',
+                required: true
             },
-            fimware_version:{
-                value:''
+            firmware_version: {
+                value: '',
+                required: true
             },
-            service_address:{
-                value:''
+            service_address: {
+                value: '',
+                required: true
             },
-            tag:{
-                value:''
+            tags: {
+                value: '',
+                required: true
             },
-            state:{
-                value:''
+            state: {
+                value: '',
+                required: true
             }
-
         },
         inputs: 1,
         outputs: 1,
@@ -49,81 +113,19 @@
         label() {
             return this.name || 'register-device';
         },
-        paletteLabel: 'register device'
-    });
-</script>
+        paletteLabel: 'register device',
+        oneditprepare() {
+            $(DOM_ID_INPUT_TAGS).typedInput({
+                type: 'json',
+                types: ['json']
+            });
 
-<script type="text/html" data-template-name="register-device">
-    <div class="form-row">
-        <label for="node-input-name">
-            Name
-        </label>
-        <input type="text" id="node-input-name" placeholder="Name" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-server">
-            Server
-        </label>
-        <input type="text" id="node-input-server" placeholder="Server" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-deviceId">
-            deviceId
-        </label>
-        <input type="text" id="node-input-deviceId" placeholder="deviceId" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-deviceName">
-            deviceName
-        </label>
-        <input type="text" id="node-input-deviceName" placeholder="deviceName" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-category">
-            category
-        </label>
-        <input type="text" id="node-input-category" placeholder="category" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-capabilities">
-            capabilities
-        </label>
-        <input type="text" id="node-input-capabilities" placeholder="capabilities" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-manufacturer">
-            manufacturer
-        </label>
-        <input type="text" id="node-input-manufacturer" placeholder="manufacturer" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-model">
-            model
-        </label>
-        <input type="text" id="node-input-model" placeholder="model" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-fimware_version">
-            fimware_version
-        </label>
-        <input type="text" id="node-input-fimware_version" placeholder="fimware_version" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-service_address">
-            service_address
-        </label>
-        <input type="text" id="node-input-service_address" placeholder="service_address" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-tag">
-            tag
-        </label>
-        <input type="text" id="node-input-tag" placeholder="tag" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-state">
-            state
-        </label>
-        <input type="text" id="node-input-state" placeholder="state" />
-    </div>
+            $(DOM_ID_INPUT_STATE).typedInput({
+                type: 'json',
+                types: ['json']
+            });
+        }
+    });
+})();
+
 </script>
