@@ -49,25 +49,12 @@
 
                             if (node.server) {
                                 $('#node-input-category').val(node.category);
-
                                 if (node.device) {
-                                    var categoryVal = $('#node-input-category').val();
-                                    let deviceList = [];
-                                    for (var j = 0; j <= tempList.length - 1; j++) {
-                                        if (categoryVal == tempList[j].display_category) {
-                                            deviceList.push(tempList[j]);
-                                        }
-                                    }
-
-                                    if(deviceList.length === 0)deviceList=tempList;
-
-                                    var deviceOption = renderOptions(deviceList, 'device');
-                                    $('#node-input-device').append(deviceOption);
-
-                                    $('#node-input-device').val(node.device);
-                                }
-                                if (node.state) {
-                                    $('#node-input-state').val(node.state);
+                                    renderDeviceOpt(node);
+                                    //state
+                                    let template = getStateOption().template;
+                                    $('#node-input-state').append(template);
+                                    node.state && $('#node-input-state').val(node.state);
                                 }
                             }
                         }
@@ -79,9 +66,56 @@
             });
         }
 
-        function delItem(delbtn) {
-            $(delbtn).parents('.main-area').remove();
+        function renderDeviceOpt(node) {
+            var categoryVal = $('#node-input-category').val();
+            let deviceList = [];
+            for (const item of tempList) {
+                if (categoryVal === item.display_category) {
+                    deviceList.push(item);
+                }
+            }
+            if (deviceList.length === 0) deviceList = tempList;
+            var deviceOption = renderOptions(deviceList, 'device');
+            $('#node-input-device').append(deviceOption);
+            $('#node-input-device').val(node.device);
         }
+
+        function addItem() {
+            let template = getStateOption().template;
+            $('#state').append(
+                `<div id="main-area">
+                            <label for="node-input-state" style="visibility: hidden;"> State </label>
+                            <div class="right-area" style="margin-top:10px">
+                                <select class="node-input-state-class" name="node-input-state" style="width:322px">
+                                    ${template}
+                                </select>
+                                <button class="del-icon" id="del-icon" onclick="delItem(this)" style="background-color: red">-</button>
+                            </div>
+                        </div>
+                        `
+            );
+            console.log(document.getElementById('state'));
+        }
+
+        function getStateOption() {
+            let list = [];
+            for (const ele of tempList) {
+                if (ele.serial_number === $('#node-input-device').val()) {
+                    list.push(ele.state);
+                }
+            }
+            let template = '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>';
+            let stateLength = 0;
+            if (list.length > 0) {
+                const stateList = Object.keys(list[0]);
+                stateLength = stateList.length;
+                for (const item of stateList) {
+                    template += `<option value="${item}">${item}</option>`;
+                }
+            }
+            return { template, stateLength };
+        }
+
         RED.nodes.registerType('event-state', {
             category: 'eWeLink Cube',
             color: '#4697ff',
@@ -112,67 +146,34 @@
             },
             oneditprepare() {
                 const node = this;
-                getDeviceList(node);
+                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                    getDeviceList(node);
+                }
 
                 $('#node-input-category').on('focus', () => {
                     getDeviceList(node);
                 });
 
                 $('#node-input-category').on('change', () => {
-                    var categoryVal = $('#node-input-category').val();
+                    //delete state
+                    $('#state #main-area').eq(0).nextAll().remove();
+
                     $('#node-input-device').val('');
                     $('#node-input-state').get(0).options.length = 0;
 
-                    let deviceList = [];
-                    for (var j = 0; j <= tempList.length - 1; j++) {
-                        if (categoryVal == tempList[j].display_category) {
-                            deviceList.push(tempList[j]);
-                        }
-                    }
-
-                    if(deviceList.length === 0)deviceList=tempList;
-
-                    var deviceOption = renderOptions(deviceList, 'device');
-                    $('#node-input-device').append(deviceOption);
+                    renderDeviceOpt(node);
                 });
 
                 $('#node-input-device').on('change', () => {
+                    //delete state
+                    $('#state #main-area').eq(0).nextAll().remove();
+
                     $('#node-input-state').get(0).options.length = 0;
-                    let list = [];
-                    for (const ele of tempList) {
-                        if (ele.serial_number === $('#node-input-device').val()) {
-                            list.push(ele.state);
-                        }
-                    }
-                    if (list.length > 0) {
-                        const stateList = Object.keys(list[0]);
-                        let template = '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>';
-                        for (const item of stateList) {
-                            template += `<option value="${item}">${item}</option>`;
-                        }
-                        $('#node-input-state').append(template);
-                    }
+                    let template = getStateOption().template;
+                    $('#node-input-state').append(template);
                 });
 
                 $('#add-icon').on('click', addItem);
-
-                //todo:渲染和删除都通过数据来控制
-
-                function addItem() {
-                    $('#state').append(
-                        `<div id="main-area">
-                            <label for="node-input-state" style="visibility: hidden;"> State </label>
-                            <div class="right-area" style="margin-top:10px">
-                                <select class="node-input-state" name="node-input-state" style="width:322px">
-
-                                </select>
-                                <button class="del-icon" id="del-icon" onclick="delItem(this)">-</button>
-                            </div>
-                        </div>
-                        `
-                    );
-                    console.log(document.getElementById('state'));
-                }
             },
         });
     })();
@@ -204,8 +205,7 @@
             <label for="node-input-state"> State </label>
             <div class="right-area">
                 <select placeholder="Select State" id="node-input-state" name="node-input-state" style="width:322px"></select>
-                <button class="add-icon" id="add-icon">+</button>
-                <!-- <span class="del-icon"></span> -->
+                <button class="add-icon" id="add-icon" style="background-color: blue">+</button>
             </div>
         </div>
     </div>

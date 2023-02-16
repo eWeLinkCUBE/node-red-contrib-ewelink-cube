@@ -46,7 +46,7 @@
                                 $('#node-input-category').val(node.category);
 
                                 var categoryVal = $('#node-input-category').val();
-                                if(node.device){
+                                if (node.device) {
                                     let deviceList = [];
                                     for (var j = 0; j <= tempList.length - 1; j++) {
                                         if (categoryVal == tempList[j].display_category) {
@@ -54,7 +54,7 @@
                                         }
                                     }
 
-                                    if(deviceList.length === 0)deviceList=tempList;
+                                    if (deviceList.length === 0) deviceList = tempList;
 
                                     var deviceOption = renderOptions(deviceList, 'device');
                                     $('#node-input-device').append(deviceOption);
@@ -96,11 +96,15 @@
                 return this.name || 'get device';
             },
             oneditprepare() {
-                const node=this;
-                getDeviceList(node);
+                const node = this;
+                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                    getDeviceList(node);
+                }
+
                 $('#node-input-category').on('focus', () => {
                     getDeviceList(node);
                 });
+
                 $('#node-input-category').on('change', () => {
                     var categoryVal = $('#node-input-category').val();
                     $('#node-input-device').val('');
@@ -111,7 +115,7 @@
                         }
                     }
 
-                    if(deviceList.length === 0)deviceList=tempList;
+                    if (deviceList.length === 0) deviceList = tempList;
 
                     var deviceOption = renderOptions(deviceList, 'device');
                     $('#node-input-device').append(deviceOption);

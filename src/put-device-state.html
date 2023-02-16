@@ -116,7 +116,9 @@
                 });
 
                 const node = this;
-                getDeviceList(node);
+                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                    getDeviceList(node);
+                }
 
                 $('#node-input-category').on('focus', () => {
                     getDeviceList(node);
