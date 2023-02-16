@@ -8,6 +8,7 @@ const {
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
     API_URL_CONTROL_DEVICE,
+    API_URL_ADD_THIRDPARTY_DEVICE,
     EVENT_SSE_ON_UPDATE_DEVICE_STATE,
     EVENT_SSE_ON_ADD_DEVICE,
     EVENT_SSE_ON_DELETE_DEVICE,
@@ -224,6 +225,41 @@ module.exports = function (RED) {
             .catch((err) => {
                 // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'updateDeviceState() error' }));
+            });
+    });
+
+    // Add thirdparty device.
+    // params:
+    //       {
+    //           "id": "xxx" - API server node ID
+    //           "params": {} - thirdparty device params
+    //       }
+    RED.httpAdmin.post(API_URL_ADD_THIRDPARTY_DEVICE, (req, res) => {
+        const id = req.body.id;
+        const params = req.body.params;
+
+        const nodeData = nodeDataCache.getNodeData(id);
+        const node = RED.nodes.getNode(id);
+        let apiClient = null;
+        // If cache hit, use cache data. Otherwise use node instance.
+        if (nodeData) {
+            apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
+        } else {
+            if (!node || !node.apiClient) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server: info incomplete' });
+                res.send(JSON.stringify({ error: 2000, msg: 'api-server: info incomplete' }));
+                return;
+            }
+            apiClient = node.apiClient;
+        }
+
+        apiClient.syncDevices({ devices: params })
+            .then((data) => {
+                res.send(data);
+            })
+            .catch((err) => {
+                // TODO: handle err
+                res.send(JSON.stringify({ error: 500, msg: 'syncDevices() error' }));
             });
     });
 

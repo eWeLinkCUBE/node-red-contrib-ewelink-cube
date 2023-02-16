@@ -34,6 +34,11 @@ const API_URL_GET_DEVICE_LIST = `/${API_PREFIX}/get-device-list`;
 const API_URL_CONTROL_DEVICE = `/${API_PREFIX}/control-device`;
 
 /**
+ * API URL - add third party device
+ */
+const API_URL_ADD_THIRDPARTY_DEVICE = `/${API_PREFIX}/add-thirdparty-device`;
+
+/**
  * API URL - ihost callback
  */
 const API_URL_IHOST_CALLBACK = `/${API_PREFIX}/ihost-callback`;
@@ -76,6 +81,7 @@ module.exports = {
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
     API_URL_CONTROL_DEVICE,
+    API_URL_ADD_THIRDPARTY_DEVICE,
     API_URL_IHOST_CALLBACK,
     EVENT_SSE_ON_ADD_DEVICE,
     EVENT_SSE_ON_DELETE_DEVICE,
