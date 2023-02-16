@@ -17,13 +17,17 @@
                 <i class="fa fa-search"></i>
             </a>
         </div>
+        <div id="error-hint-input-ip" style="font-size: 12px; color: red; padding-left: 104px;"></div>
     </div>
     <div class="form-row">
         <label>
             <i class="fa fa-id-badge"></i>
             Token
         </label>
-        <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;" disabled>GET TOKEN</button>
+        <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;" disabled>
+            <i class="fa fa-search spinner"></i>
+            <span class="btn-text">GET TOKEN</span>
+        </button>
         <!-- Store token -->
         <input type="text" id="node-config-input-token" style="width: 0; height: 0; visibility: hidden;">
     </div>
@@ -35,9 +39,12 @@
     const DOM_ID_SEARCH_BTN = '#node-config-input-search-btn';
     const DOM_ID_SEARCH_BTN_ICON = `${DOM_ID_SEARCH_BTN} i`;
     const DOM_ID_GET_TOKEN_BTN = '#node-config-input-get-token-btn';
+    const DOM_ID_GET_TOKEN_BTN_ICON = `${DOM_ID_GET_TOKEN_BTN} i`;
+    const DOM_ID_GET_TOKEN_BTN_TEXT = `${DOM_ID_GET_TOKEN_BTN} .btn-text`;
     const DOM_ID_INPUT_NAME = '#node-config-input-name';
     const DOM_ID_INPUT_IP = '#node-config-input-ip';
     const DOM_ID_INPUT_TOKEN = '#node-config-input-token';
+    const DOM_ID_ERROR_HINT_INPUT_IP = '#error-hint-input-ip';
 
     /**
      * Set search button icon spin state.
@@ -47,6 +54,21 @@
             $(DOM_ID_SEARCH_BTN_ICON).addClass('spinner');
         } else {
             $(DOM_ID_SEARCH_BTN_ICON).removeClass('spinner');
+        }
+    }
+
+    /**
+     * Set get token button spin state.
+     */
+    function setGetTokenBtnSpin(val) {
+        if (val) {
+            disableGetTokenBtn();
+            $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'inline-block');
+            $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'none');
+        } else {
+            enableGetTokenBtn();
+            $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'none');
+            $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'inline-block');
         }
     }
 
@@ -70,15 +92,16 @@
     function searchBtnOnClickHandler() {
         const ip = $(DOM_ID_INPUT_IP).val().trim();
         if (!ip) {
-            console.log('no ip');
+            $(DOM_ID_ERROR_HINT_INPUT_IP).text('Please input IP');
             return;
         } else {
             const ipRegex = /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
             if (!ipRegex.test(ip)) {
-                console.log('ip invalid');
+                $(DOM_ID_ERROR_HINT_INPUT_IP).text('Invalid IP');
                 return;
             } else {
                 setSearchBtnIconSpin(true);
+                $(DOM_ID_ERROR_HINT_INPUT_IP).text('');
 
                 $.ajax({
                     type: 'POST',
@@ -86,19 +109,18 @@
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify({ ip }),
                     success(res) {
-                        console.log(res);
-                        setSearchBtnIconSpin(false);
                         if (typeof res !== 'object') {
                             console.log('not object');
                         } else if (res.error !== 0) {
-                            console.log('req failed');
+                            $(DOM_ID_ERROR_HINT_INPUT_IP).text(res.msg);
                         } else {
-                            console.log('success');
                             enableGetTokenBtn();
                         }
+                        setSearchBtnIconSpin(false);
                     },
                     error(err) {
-                        console.log(err);
+                        console.error(err);
+                        $(DOM_ID_ERROR_HINT_INPUT_IP).text('Request error');
                         setSearchBtnIconSpin(false);
                     }
                 });
@@ -113,6 +135,9 @@
         // $(tokenInputId).val('abcdef');
         const ip = $('#node-config-input-ip').val().trim();
         // TODO: check IP
+
+        setGetTokenBtnSpin(true);
+
         $.ajax({
             type: 'POST',
             url: `${API_PREFIX}/get-bridge-token`,
@@ -125,9 +150,11 @@
                 } else {
                     console.log('get token failed')
                 }
+                setGetTokenBtnSpin(false);
             },
             error(err) {
                 console.log(err);
+                setGetTokenBtnSpin(false);
             }
         })
     }
@@ -150,6 +177,9 @@
             return this.name || this.ip;
         },
         oneditprepare() {
+            // Hide get token button icon.
+            $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'none');
+
             // Set search button click event.
             $(DOM_ID_SEARCH_BTN).on('click', searchBtnOnClickHandler.bind(this));
 
