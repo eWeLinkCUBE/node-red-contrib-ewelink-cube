@@ -13,6 +13,7 @@ const {
     EVENT_SSE_ON_DELETE_DEVICE,
     EVENT_SSE_ON_UPDATE_DEVICE_INFO,
     EVENT_SSE_ON_UPDATE_DEVICE_ONLINE,
+    EVENT_NODE_RED_ERROR
 } = require('./utils/const');
 
 module.exports = function (RED) {
@@ -23,13 +24,23 @@ module.exports = function (RED) {
         const node = this;
         // Clean cache when user clicks deploy button.
         nodeDataCache.clean();
+        node.apiClient = null;
 
-        // TODO: check config.ip and config.token, use subscribe and emit.
+        const ip = config.ip.trim();
+        const token = config.token.trim();
+        if (!ip) {
+            RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server: no IP' });
+            return;
+        }
+        if (!token) {
+            RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server: no token' });
+            return;
+        }
 
         // Create API client and SSE connection.
         node.apiClient = new ApiClient({
-            ip: config.ip,
-            at: config.token
+            ip,
+            at: token
         });
         node.apiClient.initSSE();
         node.apiClient.mountSseFunc({
@@ -161,6 +172,11 @@ module.exports = function (RED) {
         if (nodeData) {
             apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
         } else {
+            if (!node || !node.apiClient) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server: info incomplete' });
+                res.send(JSON.stringify({ error: 2000, msg: 'api-server: info incomplete' }));
+                return;
+            }
             apiClient = node.apiClient;
         }
 
@@ -193,6 +209,11 @@ module.exports = function (RED) {
         if (nodeData) {
             apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
         } else {
+            if (!node || !node.apiClient) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server: info incomplete' });
+                res.send(JSON.stringify({ error: 2000, msg: 'api-server: info incomplete' }));
+                return;
+            }
             apiClient = node.apiClient;
         }
 
