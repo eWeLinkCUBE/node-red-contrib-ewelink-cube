@@ -9,7 +9,7 @@ module.exports = function (RED) {
         let message = '';
         this.on('input', async (msg) => {
             this.log('config————————————————————————————————————————————》' + JSON.stringify(config));
-            const baseUrl = 'http://localhost:1880';
+            const baseUrl = 'http://127.0.0.1:1880';
             const url = baseUrl + API_URL_CONTROL_DEVICE;
             let params = {
                 id: config.server,
@@ -19,10 +19,14 @@ module.exports = function (RED) {
             await axios
                 .post(url, params)
                 .then((res) => {
-                    message = 'success';
+                    if(res.data.error === 0){
+                        message = 'Success';
+                    }else{
+                        message = 'Error'
+                    }
                 })
                 .catch((error) => {
-                    message = 'error';
+                    message = 'Error';
                 });
             msg.payload = message;
             that.send(msg);

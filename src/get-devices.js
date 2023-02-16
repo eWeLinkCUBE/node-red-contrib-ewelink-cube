@@ -15,26 +15,28 @@ module.exports = function (RED) {
             await axios
                 .post(url, { id: config.server })
                 .then(function (response) {
-                    let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
-                    let tempList = [];
-                    for (var i = 0; i < dataList.length - 1; i++) {
-                        if (config.device && config.device !== 'all') {
-                            if (dataList[i].serial_number == config.device) {
-                                tempList.push(dataList[i]);
+                    if (response.data.error === 0) {
+                        let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
+                        let tempList = [];
+                        for (var i = 0; i < dataList.length - 1; i++) {
+                            if (config.device && config.device !== 'all') {
+                                if (dataList[i].serial_number == config.device) {
+                                    tempList.push(dataList[i]);
+                                }
+                            }
+
+                            if (config.category && (config.device === '' || config.device === 'all')) {
+                                if (dataList[i].display_category == config.category) {
+                                    tempList.push(dataList[i]);
+                                }
                             }
                         }
 
-                        if (config.category && (config.device === '' || config.device === 'all')) {
-                            if (dataList[i].display_category == config.category) {
-                                tempList.push(dataList[i]);
-                            }
+                        if (config.category === 'all' && (config.device === 'all' || config.device === '')) {
+                            message = dataList;
+                        } else {
+                            message = tempList;
                         }
-                    }
-
-                    if (config.category === 'all' && (config.device === 'all' || config.device === '')) {
-                        message = dataList;
-                    } else {
-                        message = tempList;
                     }
                 })
                 .catch(function (error) {
