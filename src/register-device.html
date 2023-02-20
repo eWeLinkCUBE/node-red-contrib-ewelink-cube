@@ -19,9 +19,11 @@
         <label for="node-input-category">Category</label>
         <select name="node-input-category" id="node-input-category" style="width: 70%;"></select>
     </div>
-    <div class="form-row">
-        <label for="node-input-capabilities">Capabilities</label>
-        <select name="node-input-capabilities" id="node-input-capabilities" style="width: 70%;"></select>
+    <div class="form-row" style="display: flex;">
+        <label for="node-input-capabilities" style="padding: 6px 3px 0 0;">Capabilities</label>
+        <input type="text" id="node-input-capabilities" style="width: 0; height: 0; display: none;">
+        <div id="capa-list" style="display: inline-block; width: 70%;">
+        </div>
     </div>
     <div class="form-row">
         <label for="node-input-manufacturer">Manufacturer</label>
@@ -51,8 +53,151 @@
 
 <script type="text/javascript">
 ;(function () {
+    const DOM_ID_INPUT_CATEGORY = '#node-input-category';
+    const DOM_ID_INPUT_CAPABILITIES = '#node-input-capabilities';
     const DOM_ID_INPUT_TAGS = '#node-input-tags';
     const DOM_ID_INPUT_STATE = '#node-input-state';
+    const DOM_ID_CAPA_LIST = '#capa-list';
+
+    // Device category list
+    const CATE_LIST = [
+        {
+            id: 0,
+            name: 'Plug',
+            value: 'plug'
+        },
+        {
+            id: 1,
+            name: 'Switch',
+            value: 'switch'
+        },
+        {
+            id: 2,
+            name: 'Light',
+            value: 'light'
+        },
+        {
+            id: 3,
+            name: 'Curtain',
+            value: 'curtain'
+        },
+        {
+            id: 4,
+            name: 'ContactSensor',
+            value: 'contactSensor'
+        },
+        {
+            id: 5,
+            name: 'MotionSensor',
+            value: 'motionSensor'
+        },
+        {
+            id: 6,
+            name: 'TemperatureSensor',
+            value: 'temperatureSensor'
+        },
+        {
+            id: 7,
+            name: 'HumiditySensor',
+            value: 'humiditySensor'
+        },
+        {
+            id: 8,
+            name: 'TemperatureAndHumiditySensor',
+            value: 'temperatureAndHumiditySensor'
+        },
+        {
+            id: 9,
+            name: 'WaterLeakDetector',
+            value: 'waterLeakDetector',
+        },
+        {
+            id: 10,
+            name: 'SmokeDetector',
+            value: 'smokeDetector',
+        },
+        {
+            id: 11,
+            name: 'Button',
+            value: 'button'
+        }
+    ];
+
+    // Device capability list
+    const CAPA_LIST = [
+        {
+            id: 0,
+            name: 'Power',
+            value: 'power'
+        },
+        {
+            id: 1,
+            name: 'Toggle',
+            value: 'toggle'
+        },
+        {
+            id: 2,
+            name: 'Brightness',
+            value: 'brightness'
+        },
+        {
+            id: 3,
+            name: 'Color Temperature',
+            value: 'color-temperature'
+        },
+        {
+            id: 4,
+            name: 'Color RGB',
+            value: 'color-rgb'
+        },
+        {
+            id: 5,
+            name: 'Percentage',
+            value: 'percentage'
+        },
+        {
+            id: 6,
+            name: 'Motor Control',
+            value: 'motor-control'
+        },
+        {
+            id: 7,
+            name: 'Motor Reverse',
+            value: 'motor-reverse'
+        },
+        /* Unsupported
+        {
+            id: 8,
+            name: 'Startup',
+            value: 'startup'
+        },
+        */
+        {
+            id: 9,
+            name: 'Motor CLB',
+            value: 'motor-clb'
+        },
+        {
+            id: 10,
+            name: 'Detect',
+            value: 'detect'
+        },
+        {
+            id: 11,
+            name: 'Battery',
+            value: 'battery'
+        },
+        {
+            id: 12,
+            name: 'Press',
+            value: 'press'
+        },
+        {
+            id: 13,
+            name: 'RSSI',
+            value: 'rssi'
+        },
+    ];
 
     RED.nodes.registerType('register-device', {
         category: 'eWeLink Cube',
@@ -124,8 +269,119 @@
                 type: 'json',
                 types: ['json']
             });
+
+            // Render category list.
+            for (const item of CATE_LIST) {
+                $(DOM_ID_INPUT_CATEGORY).append(`<option value="${item.value}">${item.name}</option>`);
+            }
+
+            // Render capability list.
+            let htmlStr = '';
+            for (const item of CAPA_LIST) {
+                htmlStr += `<option value="${item.value}">${item.name}</option>`;
+            }
+            htmlStr = '<select class="capa-select">' + htmlStr + '</select>';
+            htmlStr += '<span class="add-item-btn">+</span>';
+            htmlStr = '<div class="capa-list-item">' + htmlStr + '</div>';
+            $(DOM_ID_CAPA_LIST).append(htmlStr);
+
+            // Handle add button and del button onclick event.
+            $(DOM_ID_CAPA_LIST).on('click', (event) => {
+                const className = event.target.className;
+                if (className === 'add-item-btn') {         // Add a new item.
+                    const selectList = $(`${DOM_ID_CAPA_LIST} select`);
+                    const valList = [];
+                    for (let i = 0; i < selectList.length; i++) {
+                        valList.push(selectList[i].value);
+                    }
+
+                    // Render HTML
+                    let htmlStr = '';
+                    for (const item of CAPA_LIST) {
+                        if (!valList.includes(item.value)) {
+                            htmlStr += `<option value="${item.value}">${item.name}</option>`;
+                        }
+                    }
+                    if (htmlStr === '') {
+                        return;
+                    }
+                    htmlStr = '<select class="capa-select">' + htmlStr + '</select>';
+                    htmlStr += '<span class="del-item-btn">-</span>';
+
+                    // Get toggle number.
+                    let iToggle = htmlStr.indexOf('<option value="toggle">');
+                    if (iToggle !== -1) {
+                        htmlStr += '<br><span>Toggle No.</span><input type="text" id="capa-toggle" style="margin-top: 8px;" placeholder="1">';
+                    }
+
+                    htmlStr = '<div class="capa-list-item" style="margin-top: 8px;">' + htmlStr + '</div>';
+                    $(DOM_ID_CAPA_LIST).append(htmlStr);
+                } else if (className === 'del-item-btn') {  // Remove a item.
+                    $(event.target).parent().remove();
+                }
+            });
+
+            // Handle select onchange event.
+            $(DOM_ID_CAPA_LIST).on('change', (event) => {
+                const className = event.target.className;
+                if (className === 'capa-select') {
+                    const value = event.target.value;
+                    let htmlStr = '';
+                    if (value === 'toggle') {
+                        // Current value is toggle, add toggle elements.
+                        htmlStr = '<br><span>Toggle No.</span><input type="text" id="capa-toggle" style="margin-top: 8px;" placeholder="1">';
+                        $($(event.target).parent()).append(htmlStr);
+                    } else {
+                        const children = $($(event.target).parent()).children();
+                        const childNum = children.length;
+                        if (childNum > 2) {
+                            // Previous value is "toggle", remove toggle elements.
+                            for (let i = 2; i < childNum; i++) {
+                                children[i].remove();
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Handle select onfocusin event.
+            $(DOM_ID_CAPA_LIST).on('focusin', (event) => {
+                const className = event.target.className;
+                if (className === 'capa-select') {
+                    const selectList = $(`${DOM_ID_CAPA_LIST} select`);
+                    // Do not replace the first select.
+                    if (selectList.length === 1) {
+                        return;
+                    }
+                    const currentVal = event.target.value;
+                    const valList = [];
+                    for (let i = 0; i < selectList.length; i++) {
+                        if (selectList[i].value !== currentVal) {
+                            valList.push(selectList[i].value);
+                        }
+                    }
+
+                    // Render HTML
+                    let htmlStr = '';
+                    for (const item of CAPA_LIST) {
+                        if (!valList.includes(item.value)) {
+                            htmlStr += `<option value="${item.value}">${item.name}</option>`;
+                        }
+                    }
+                    if (htmlStr === '') {
+                        return;
+                    }
+
+                    $(event.target).children().remove();
+                    $(event.target).append(htmlStr);
+
+                    // Browser auto select "toggle" option.
+                    if (htmlStr.indexOf('<option value="toggle">') === 0) {
+                        $($(event.target).parent()).append('<br><span>Toggle No.</span><input type="text" id="capa-toggle" style="margin-top: 8px;" placeholder="1">');
+                    }
+                }
+            });
         }
     });
 })();
-
 </script>

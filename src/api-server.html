@@ -29,7 +29,7 @@
             <span class="btn-text">GET TOKEN</span>
         </button>
         <!-- Store token -->
-        <input type="text" id="node-config-input-token" style="width: 0; height: 0; visibility: hidden;">
+        <input type="text" id="node-config-input-token" style="width: 0; height: 0; display: none;">
     </div>
 </script>
 
@@ -158,6 +158,11 @@
             }
         })
     }
+
+    // Emit all error logs.
+    RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
+        RED.notify(payload.msg, { type: 'error' });
+    });
 
     RED.nodes.registerType('api-server', {
         category: 'config',

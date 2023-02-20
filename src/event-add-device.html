@@ -15,10 +15,6 @@
 
 <script type="text/javascript">
 ;(function () {
-    RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
-        RED.notify(payload.msg, { type: 'error' });
-    });
-
     RED.nodes.registerType('event-add-device', {
         category: 'eWeLink Cube',
         color: '#4697ff',

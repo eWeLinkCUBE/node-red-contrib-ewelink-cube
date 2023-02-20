@@ -201,7 +201,8 @@ module.exports = function (RED) {
     RED.httpAdmin.post(API_URL_CONTROL_DEVICE, (req, res) => {
         const id = req.body.id;
         const deviceId = req.body.deviceId;
-        const params = req.body.params;
+        // TODO: validate params
+        const params = JSON.parse(req.body.params);
 
         const nodeData = nodeDataCache.getNodeData(id);
         const node = RED.nodes.getNode(id);
@@ -218,7 +219,7 @@ module.exports = function (RED) {
             apiClient = node.apiClient;
         }
 
-        apiClient.updateDeviceState(deviceId, params)
+        apiClient.updateDeviceState(deviceId, { state: params })
             .then((data) => {
                 res.send(data);
             })

@@ -1,7 +1,11 @@
+const _ = require('lodash');
+const { v4 } = require('uuid');
 const axios = require('axios').default;
 const {
     API_URL_IHOST_CALLBACK,
-    API_URL_ADD_THIRDPARTY_DEVICE
+    API_URL_ADD_THIRDPARTY_DEVICE,
+    EVENT_NODE_RED_ERROR,
+    TAG_API_SERVER_NODE_ID
 } = require('./utils/const');
 
 module.exports = function (RED) {
@@ -10,15 +14,92 @@ module.exports = function (RED) {
         const node = this;
 
         node.on('input', () => {
+            const name = config.name.trim();
+            const server = config.server.trim();   // check server
+            const deviceId = config.device_id.trim();
+            const deviceName = config.device_name.trim();
+            const category = config.category.trim();
+            const capabilities = config.capabilities.trim();
+            const manufacturer = config.manufacturer.trim();
+            const model = config.model.trim();
+            const firmwareVersion = config.firmware_version.trim();
+            const serviceAddress = config.service_address.trim();
+            let tags = config.tags.trim();
+            let state = config.state.trim();
+
+            if (!server) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no server' });
+                return;
+            }
+
+            if (!deviceId) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no device ID' });
+                return;
+            }
+
+            if (!deviceName) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no device name' });
+                return;
+            }
+
+            if (!manufacturer) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no manufacturer' });
+                return;
+            }
+
+            if (!model) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no model' });
+                return;
+            }
+
+            if (!firmwareVersion) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no firmware version' });
+                return;
+            }
+
+            if (!serviceAddress) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no service address' });
+                return;
+            }
+
+            if (!tags) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no tags' });
+                return;
+            }
+
+            if (!state) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: no state' });
+                return;
+            }
+
+            try {
+                tags = JSON.parse(tags);
+            } catch (err) {
+                console.error(err);
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: tags should be JSON' })
+                return;
+            }
+
+            try {
+                state = JSON.parse(state);
+            } catch (err) {
+                console.error(err);
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: state should be JSON' })
+                return;
+            }
+
+            // Store API server node ID in tags
+            _.set(tags, TAG_API_SERVER_NODE_ID, server);
+
             const data = {
                 id: config.server,
                 params: [
                     {
-                        name: 'Test Device',
-                        third_serial_number: '1e99749b-ad04-492b-a4a8-ba5b23b768a1',
-                        manufacturer: 'sonoff',
-                        model: 'SD23-BL',
-                        firmware_version: '0.1.3',
+                        name,
+                        third_serial_number: deviceId,
+                        manufacturer,
+                        model,
+                        firmware_version: firmwareVersion,
                         display_category: 'switch',
                         capabilities: [
                             {
@@ -31,32 +112,48 @@ module.exports = function (RED) {
                                 powerState: 'on'
                             }
                         },
-                        tags: {},
+                        tags,
                         service_address: 'http://192.168.2.21:1880/ewelink-cube-api-v1/ihost-callback'
                     }
                 ]
             };
             axios.post(`http://127.0.0.1:1880${API_URL_ADD_THIRDPARTY_DEVICE}`, data)
                 .then((res) => {
+                    // TODO: handle success
                     console.log(res);
                 })
                 .catch((err) => {
+                    // TODO: handle fail
                     console.error(err);
                 });
         });
     }
 
     RED.httpAdmin.post(API_URL_IHOST_CALLBACK, (req, res) => {
-        res.send(JSON.stringify({
-            "event": {
-                "header": {
-                "name": "UpdateDeviceStatesResponse",
-                "message_id": "Unique identifier, preferably a version 4 UUID",
-                "version": "1"
+        // TODO: get node id from req, then send message to output.
+        const failedResponse = {
+            event: {
+                header: {
+                    name: 'ErrorResponse',
+                    message_id: v4(),
+                    version: '1'
                 },
-                "payload": {}
+                payload: {
+                    type: 'ENDPOINT_UNREACHABLE'
+                }
             }
-        }));
+        };
+        const successResponse = {
+            event: {
+                header: {
+                    name: 'UpdateDeviceStatesResponse',
+                    message_id: v4(),
+                    version: '1'
+                },
+                payload: {}
+            }
+        };
+        res.send(JSON.stringify(successResponse));
     });
 
     RED.nodes.registerType('register-device', RegisterDeviceNode);
