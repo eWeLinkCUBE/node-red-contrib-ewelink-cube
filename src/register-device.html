@@ -51,8 +51,148 @@
 
 <script type="text/javascript">
 ;(function () {
+    const DOM_ID_INPUT_CATEGORY = '#node-input-category';
+    const DOM_ID_INPUT_CAPABILITIES = '#node-input-capabilities';
     const DOM_ID_INPUT_TAGS = '#node-input-tags';
     const DOM_ID_INPUT_STATE = '#node-input-state';
+
+    // Device category list
+    const CATE_LIST = [
+        {
+            id: 0,
+            name: 'Plug',
+            value: 'plug'
+        },
+        {
+            id: 1,
+            name: 'Switch',
+            value: 'switch'
+        },
+        {
+            id: 2,
+            name: 'Light',
+            value: 'light'
+        },
+        {
+            id: 3,
+            name: 'Curtain',
+            value: 'curtain'
+        },
+        {
+            id: 4,
+            name: 'ContactSensor',
+            value: 'contactSensor'
+        },
+        {
+            id: 5,
+            name: 'MotionSensor',
+            value: 'motionSensor'
+        },
+        {
+            id: 6,
+            name: 'TemperatureSensor',
+            value: 'temperatureSensor'
+        },
+        {
+            id: 7,
+            name: 'HumiditySensor',
+            value: 'humiditySensor'
+        },
+        {
+            id: 8,
+            name: 'TemperatureAndHumiditySensor',
+            value: 'temperatureAndHumiditySensor'
+        },
+        {
+            id: 9,
+            name: 'WaterLeakDetector',
+            value: 'waterLeakDetector',
+        },
+        {
+            id: 10,
+            name: 'SmokeDetector',
+            value: 'smokeDetector',
+        },
+        {
+            id: 11,
+            name: 'Button',
+            value: 'button'
+        }
+    ];
+
+    // Device capability list
+    const CAPA_LIST = [
+        {
+            id: 0,
+            name: 'Power',
+            value: 'power'
+        },
+        {
+            id: 1,
+            name: 'Toggle',
+            value: 'toggle'
+        },
+        {
+            id: 2,
+            name: 'Brightness',
+            value: 'brightness'
+        },
+        {
+            id: 3,
+            name: 'Color Temperature',
+            value: 'color-temperature'
+        },
+        {
+            id: 4,
+            name: 'Color RGB',
+            value: 'color-rgb'
+        },
+        {
+            id: 5,
+            name: 'Percentage',
+            value: 'percentage'
+        },
+        {
+            id: 6,
+            name: 'Motor Control',
+            value: 'motor-control'
+        },
+        {
+            id: 7,
+            name: 'Motor Reverse',
+            value: 'motor-reverse'
+        },
+        {
+            id: 8,
+            name: 'Startup',
+            value: 'startup'
+        },
+        {
+            id: 9,
+            name: 'Motor CLB',
+            value: 'motor-clb'
+        },
+        {
+            id: 10,
+            name: 'Detect',
+            value: 'detect'
+        },
+        {
+            id: 11,
+            name: 'Battery',
+            value: 'battery'
+        },
+        {
+            id: 12,
+            name: 'Press',
+            value: 'press'
+        },
+        {
+            id: 13,
+            name: 'RSSI',
+            value: 'rssi'
+        },
+    ];
 
     RED.nodes.registerType('register-device', {
         category: 'eWeLink Cube',
@@ -124,6 +264,16 @@
                 type: 'json',
                 types: ['json']
             });
+
+            // Render category list.
+            for (const item of CATE_LIST) {
+                $(DOM_ID_INPUT_CATEGORY).append(`<option value="${item.value}">${item.name}</option>`);
+            }
+
+            // Render capability list.
+            for (const item of CAPA_LIST) {
+                $(DOM_ID_INPUT_CAPABILITIES).append(`<option value="${item.value}">${item.name}</option>`);
+            }
         }
     });
 })();
