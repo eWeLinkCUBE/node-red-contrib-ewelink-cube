@@ -1,64 +1,400 @@
 <script type="text/javascript">
-    RED.nodes.registerType('control-device', {
-        category: 'eWeLink Cube',
-        color: '#4697ff',
-        defaults: {
-            name: {
-                value: '',
-            },
-            server: {
-                value: '',
-                required: true,
-                type: 'api-server',
-            },
-            category: {
-                value: '',
-            },
-            device: {
-                value: '',
-            },
-            action:{
-                value:''
+    let tempList = [];
+    // colour
+    const COLOR_RGB = 'color-rgb';
+    // Color temperature
+    const COLOR_TEMPERATURE = 'color-temperature';
+    // brightness
+    const BRIGHTNESS = 'brightness';
+    //power
+    const STARTUP = 'startup';
+
+    (function () {
+        function renderOptions(list, type) {
+            if (!list.length || list.length < 1) return '';
+            let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
+            dom.get(0).options.length = 0;
+            var optionStr =
+                '<option selected="selected" disabled="disabled" style="display:none" value="">' + (type === 'category' ? '</option><option value="all">ALL</option>' : '');
+            for (const item of list) {
+                let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
+                let value = type == 'category' ? item.display_category : item.serial_number;
+                if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
+                    optionStr += '<option' + ' value=' + value + '>' + content + '</option>';
+                }
             }
-        },
-        inputs: 1,
-        outputs: 1,
-        icon: 'feed.svg',
-        label() {
-            return this.name || 'control-device';
-        },
-    });
+            return optionStr;
+        }
+
+        function getDeviceList(node) {
+            const server = $('#node-input-server').val();
+            $.ajax({
+                type: 'POST',
+                url: 'ewelink-cube-api-v1/get-device-list',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ id: server }),
+                success(res) {
+                    if (res.error === 0) {
+                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                            tempList = [];
+                            let deviceList = res.data.device_list;
+
+                            for (const item of deviceList) {
+                                if (item.display_category !== 'sensor') {
+                                    //remove seed
+                                    let params = {
+                                        serial_number: item.serial_number,
+                                        display_category: item.display_category,
+                                        name: item.name,
+                                        manufacturer: item.manufacturer,
+                                        state: item.state,
+                                        capabilities: item.capabilities,
+                                    };
+                                    tempList.push(params);
+                                }
+                            }
+
+                            var categoryOption = renderOptions(tempList, 'category');
+                            $('#node-input-category').append(categoryOption);
+
+                            if (node.server) {
+                                $('#node-input-category').val(node.category);
+                                if (node.device) {
+                                    renderDeviceOpt(node);
+                                }
+                            }
+                        }
+                    }
+                },
+                error(error) {
+                    console.log('network error', error);
+                },
+            });
+        }
+
+        function renderDeviceOpt(node) {
+            var categoryVal = $('#node-input-category').val();
+            let deviceList = [];
+            for (const item of tempList) {
+                if (categoryVal === item.display_category) {
+                    deviceList.push(item);
+                }
+            }
+            if (deviceList.length === 0) deviceList = tempList;
+            var deviceOption = renderOptions(deviceList, 'device');
+            $('#node-input-device').append(deviceOption);
+            $('#node-input-device').val(node.device);
+        }
+
+        RED.nodes.registerType('control-device', {
+            category: 'eWeLink Cube',
+            color: '#4697ff',
+            defaults: {
+                name: {
+                    value: '',
+                },
+                server: {
+                    value: '',
+                    required: true,
+                    type: 'api-server',
+                },
+                category: {
+                    value: '',
+                },
+                device: {
+                    value: '',
+                    required: true,
+                },
+                action: {
+                    value: '',
+                },
+            },
+            inputs: 1,
+            outputs: 1,
+            icon: 'feed.svg',
+            label() {
+                return this.name || 'control-device';
+            },
+            oneditprepare() {
+                RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
+                    RED.notify(payload.msg, { type: 'error' });
+                });
+                const node = this;
+                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                    getDeviceList(node);
+                }
+
+                $('#node-input-category').on('focus', () => {
+                    getDeviceList(node);
+                });
+
+                $('#node-input-category').on('change', () => {
+                    var categoryVal = $('#node-input-category').val();
+                    $('#node-input-device').val('');
+                    let deviceList = [];
+                    for (const item of tempList) {
+                        if (categoryVal == item.display_category) {
+                            deviceList.push(item);
+                        }
+                    }
+                    if (deviceList.length === 0) deviceList = tempList;
+                    var deviceOption = renderOptions(deviceList, 'device');
+                    $('#node-input-device').append(deviceOption);
+                    if (node.server) {
+                        $('#node-input-device').val(node.device);
+                    }
+                });
+
+                $('#node-input-device').on('change', () => {
+                    getDeviceType();
+                });
+            },
+        });
+    })();
+
+    function getDeviceType() {
+        $('.main-area').empty();
+        const categoryVal = $('#node-input-category').val();
+        const deviceVal = $('#node-input-device').val();
+        let device = {};
+        if (deviceVal) {
+            device = tempList.find((item) => item.serial_number === deviceVal);
+        } else {
+            // RED.notify('please Select device', { type: 'error' });
+            return;
+        }
+        const res = categoryComponentMapping(categoryVal || device.display_category, device);
+        $('.main-area').append(res);
+    }
+
+    function categoryComponentMapping(display_category, device) {
+        let template = '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>';
+        switch (display_category) {
+            case 'plug':
+                for (const item of conditionDeviceDropDown[display_category].selector) {
+                    template += `<option value=${item.value}>${item.label}</option>`;
+                }
+                return;
+                `
+                    <select class="node-input-plug" style="width:70%">
+                        ${template}
+                    </select>
+                `;
+            case 'curtain':
+            case 'light':
+                let tempStr = '';
+                const capabilities = device.capabilities;
+                const color_rgb = capabilities.some((item) => item.capability === COLOR_RGB);
+                const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE);
+                // if(color_rgb && color_tempature){
+                //     //5
+                // }
+                // if(!color_rgb && color_tempature){
+                //     //2
+                // }
+                // if(!color_rgb && !color_tempature){
+                //     //1
+                // }
+                return (tempStr+
+                    `
+                        <div class="device">
+                            <span class="device-name">Action1</span>
+                            <select class="switch-select">
+                                ${renderOptionByList(lightSelect.switch)}
+                            </select>
+                        </div>
+                        <div class="device">
+                            <span class="device-name">Action2</span>
+                            <select class="half-action">${renderOptionByList(lightSelect.selector)}</select>
+                            <input class="half-action" maxlength="3" οnkeyup="value=value.replace(/[^\d]/g,'')"/>
+                        </div>
+                        <div class="device">
+                            <span class="device-name">Action3</span>
+                            <select class="half-action">${renderOptionByList(lightSelect.selector)}</select>
+                            <input class="half-action" maxlength="3"/>
+                        </div>
+                        <div class="device">
+                            <span class="device-name">Action3</span>
+                            <select class="half-action">${renderOptionByList(lightSelect.selector)}</select>
+                            <input class="half-action" maxlength="3"/>
+                        </div>
+                     `);
+            case 'switch':
+                let params = [];
+                let temp = '';
+                const toggle = device.state.toggle;
+                if (!toggle) {
+                    params.push(device.state.power);
+                } else {
+                    params = Object.values(toggle); //object
+                }
+                params.forEach((item, index) => {
+                    temp += `
+                            <div class='device'>
+                                <span class="device-name">swtich${index + 1}</span>
+                                <select class="switch-select">
+                                    ${renderOptionByList(operationSwitchSelect.multi)}
+                                </select>
+                            </div>
+                        `;
+                });
+                return temp;
+            default:
+                return '';
+        }
+    }
+
+    /** switch */
+    const operationSwitchSelect = {
+        multi: [
+            {
+                name: 'on',
+                value: 'on',
+            },
+            {
+                name: 'off',
+                value: 'off',
+            },
+            {
+                name: 'keep',
+                value: 'keep',
+            },
+            {
+                name: 'reverse',
+                value: 'reverse',
+            },
+        ],
+        single: [
+            {
+                name: 'on',
+                value: 'on',
+            },
+            {
+                name: 'off',
+                value: 'off',
+            },
+            {
+                name: 'reverse',
+                value: 'reverse',
+            },
+        ],
+    };
+    const lightSelect = {
+        switch:[
+            {
+                name: 'on',
+                value: 'on',
+            },
+            {
+                name: 'off',
+                value: 'off',
+            },
+        ],
+        selector:[
+            {
+                name: 'color',
+                value: 'color',
+            },
+            {
+                name: 'brightness',
+                value: 'brightness',
+            },
+            {
+                name: 'color-temputer',
+                value: 'color-temputer',
+            },
+        ]
+    }
+    function renderOptionByList(List) {
+        if (!List || List.length < 1) return;
+        let templateStr = '<option selected="selected" disabled="disabled" style="display:none" value="">';
+        for (const item of List) {
+            templateStr += '<option' + ' value=' + item.value + '>' + item.name + '</option>';
+        }
+        return templateStr;
+    }
 </script>
 
 <script type="text/html" data-template-name="control-device">
     <div class="form-row">
-        <label for="node-input-name">
-            Name
-        </label>
+        <label for="node-input-name"> Name </label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
-        <label for="node-input-server">
-            Server
-        </label>
+        <label for="node-input-server"> Server </label>
         <input type="text" id="node-input-server" placeholder="Server" />
     </div>
     <div class="form-row">
-        <label for="node-input-category">
-            Category
-        </label>
+        <label for="node-input-list"> List </label>
+        <input type="text" id="node-input-list"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-category"> Category </label>
         <select id="node-input-category" placeholder="Category" style="width:70%"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-device">
-            Device
-        </label>
+        <label for="node-input-device"> Device </label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
-    <div class="form-row">
-        <label for="node-input-action">
-            Action
-        </label>
-        <select id="node-input-action" placeholder="Action" style="width:70%"></select>
+    <div id="action">
+        <header id="header">
+            <span>Action</span>
+            <button id="add-btn" onclick="getDeviceType()">+</button>
+        </header>
+        <div class="main-area">
+
+        </div>
     </div>
 </script>
+<style>
+    #action {
+        width: 426px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+    #header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+        height: 46px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #add-btn {
+        display: inline-block;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        border-radius: 50%;
+        border: none;
+        background-color: #333bff;
+        color: white;
+    }
+
+    .main-area {
+        padding: 10px 10px 0 10px;
+    }
+
+    .device {
+        display: flex;
+        justify-content: space-between;
+        width: 95%;
+        margin: 0 40px 10px 10px;
+        line-height: 34px;
+    }
+    .device-name {
+        display: inline-block;
+        width: 20%;
+        text-align: left;
+    }
+    .switch-select {
+        width: 305px !important;
+    }
+    .half-action{
+        display: inline-block;
+        width: 140px!important;
+        margin-right: 10px;
+    }
+</style>
