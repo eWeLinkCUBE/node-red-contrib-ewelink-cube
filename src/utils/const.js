@@ -71,7 +71,12 @@ const EVENT_SSE_ON_UPDATE_DEVICE_ONLINE = 'EVENT_SSE_ON_UPDATE_DEVICE_ONLINE';
 /**
  * Node-RED error event
  */
-const EVENT_NODE_RED_ERROR = 'EVENT_NODE_RED_ERROR'
+const EVENT_NODE_RED_ERROR = 'EVENT_NODE_RED_ERROR';
+
+/**
+ * Register device node tag item
+ */
+const TAG_API_SERVER_NODE_ID = '__api_server_node_id';
 
 module.exports = {
     API_PREFIX,
@@ -88,5 +93,6 @@ module.exports = {
     EVENT_SSE_ON_UPDATE_DEVICE_INFO,
     EVENT_SSE_ON_UPDATE_DEVICE_ONLINE,
     EVENT_SSE_ON_UPDATE_DEVICE_STATE,
-    EVENT_NODE_RED_ERROR
+    EVENT_NODE_RED_ERROR,
+    TAG_API_SERVER_NODE_ID
 };

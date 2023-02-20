@@ -1,9 +1,11 @@
+const _ = require('lodash');
 const { v4 } = require('uuid');
 const axios = require('axios').default;
 const {
     API_URL_IHOST_CALLBACK,
     API_URL_ADD_THIRDPARTY_DEVICE,
     EVENT_NODE_RED_ERROR,
+    TAG_API_SERVER_NODE_ID
 } = require('./utils/const');
 
 module.exports = function (RED) {
@@ -70,12 +72,6 @@ module.exports = function (RED) {
                 return;
             }
 
-            const apiServerNode = RED.nodes.getNode(server);
-            if (!apiServerNode) {
-                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: server not exists' });
-                return;
-            }
-
             try {
                 tags = JSON.parse(tags);
             } catch (err) {
@@ -91,6 +87,9 @@ module.exports = function (RED) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'register-device: state should be JSON' })
                 return;
             }
+
+            // Store API server node ID in tags
+            _.set(tags, TAG_API_SERVER_NODE_ID, server);
 
             const data = {
                 id: config.server,
@@ -113,7 +112,7 @@ module.exports = function (RED) {
                                 powerState: 'on'
                             }
                         },
-                        tags: {},
+                        tags,
                         service_address: 'http://192.168.2.21:1880/ewelink-cube-api-v1/ihost-callback'
                     }
                 ]
