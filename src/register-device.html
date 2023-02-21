@@ -22,8 +22,7 @@
     <div class="form-row" style="display: flex;">
         <label for="node-input-capabilities" style="padding: 6px 3px 0 0;">Capabilities</label>
         <input type="text" id="node-input-capabilities" style="width: 0; height: 0; display: none;">
-        <div id="capa-list" style="display: inline-block; width: 70%;">
-        </div>
+        <div id="capa-list" style="display: inline-block; width: 70%;"></div>
     </div>
     <div class="form-row">
         <label for="node-input-manufacturer">Manufacturer</label>
@@ -260,6 +259,7 @@
         },
         paletteLabel: 'register device',
         oneditprepare() {
+            const TOGGLE_SELECT_HTML_STR = '<br><span>Toggle No.</span><select id="capa-toggle-select" style="margin-top: 8px;"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>';
             $(DOM_ID_INPUT_TAGS).typedInput({
                 type: 'json',
                 types: ['json']
@@ -276,14 +276,38 @@
             }
 
             // Render capability list.
-            let htmlStr = '';
-            for (const item of CAPA_LIST) {
-                htmlStr += `<option value="${item.value}">${item.name}</option>`;
+            const capaJsonData = $(DOM_ID_INPUT_CAPABILITIES).val();
+            if (capaJsonData === '') {
+                let htmlStr = '';
+                for (const item of CAPA_LIST) {
+                    htmlStr += `<option value="${item.value}">${item.name}</option>`;
+                }
+                htmlStr = '<select class="capa-select">' + htmlStr + '</select>';
+                htmlStr += '<span class="add-item-btn">+</span>';
+                htmlStr = '<div class="capa-list-item">' + htmlStr + '</div>';
+                $(DOM_ID_CAPA_LIST).append(htmlStr);
+            } else {
+                const capaData = JSON.parse(capaJsonData);
+                let htmlStr = '';
+                for (let i = 0; i < capaData.values.length; i++) {
+                    htmlStr += '<div class="capa-list-item" style="margin-top: 8px;">';
+                    const found = CAPA_LIST.find((item) => item.value === capaData.values[i]);
+                    htmlStr += `<select class="capa-select"><option value="${found.value}">${found.name}</option></select>`;
+
+                    if (i === 0) {
+                        htmlStr += '<span class="add-item-btn">+</span>';
+                    } else {
+                        htmlStr += '<span class="del-item-btn">-</span>';
+                    }
+
+                    if (capaData.values[i] === 'toggle') {
+                        htmlStr += TOGGLE_SELECT_HTML_STR;
+                    }
+                    htmlStr += '</div>';
+                }
+                $(DOM_ID_CAPA_LIST).append(htmlStr);
+                $('#capa-toggle-select').val(JSON.parse(capaJsonData).toggleNum);
             }
-            htmlStr = '<select class="capa-select">' + htmlStr + '</select>';
-            htmlStr += '<span class="add-item-btn">+</span>';
-            htmlStr = '<div class="capa-list-item">' + htmlStr + '</div>';
-            $(DOM_ID_CAPA_LIST).append(htmlStr);
 
             // Handle add button and del button onclick event.
             $(DOM_ID_CAPA_LIST).on('click', (event) => {
@@ -311,7 +335,7 @@
                     // Get toggle number.
                     let iToggle = htmlStr.indexOf('<option value="toggle">');
                     if (iToggle !== -1) {
-                        htmlStr += '<br><span>Toggle No.</span><input type="text" id="capa-toggle" style="margin-top: 8px;" placeholder="1">';
+                        htmlStr += TOGGLE_SELECT_HTML_STR;
                     }
 
                     htmlStr = '<div class="capa-list-item" style="margin-top: 8px;">' + htmlStr + '</div>';
@@ -329,7 +353,7 @@
                     let htmlStr = '';
                     if (value === 'toggle') {
                         // Current value is toggle, add toggle elements.
-                        htmlStr = '<br><span>Toggle No.</span><input type="text" id="capa-toggle" style="margin-top: 8px;" placeholder="1">';
+                        htmlStr = TOGGLE_SELECT_HTML_STR;
                         $($(event.target).parent()).append(htmlStr);
                     } else {
                         const children = $($(event.target).parent()).children();
@@ -376,11 +400,27 @@
                     $(event.target).append(htmlStr);
 
                     // Browser auto select "toggle" option.
-                    if (htmlStr.indexOf('<option value="toggle">') === 0) {
-                        $($(event.target).parent()).append('<br><span>Toggle No.</span><input type="text" id="capa-toggle" style="margin-top: 8px;" placeholder="1">');
+                    if (htmlStr.indexOf('<option value="toggle">') === 0 && $('select#capa-toggle-select').length === 0) {
+                        $($(event.target).parent()).append(TOGGLE_SELECT_HTML_STR);
                     }
                 }
             });
+        },
+        oneditsave() {
+            // Save capabilities data.
+            const capaList = $(`${DOM_ID_CAPA_LIST} select`);
+            const capaData = {
+                toggleNum: '1',
+                values: []
+            };
+            for (let i = 0; i < capaList.length; i++) {
+                if (capaList[i].id === 'capa-toggle-select') {
+                    capaData.toggleNum = capaList[i].value;
+                } else {
+                    capaData.values.push(capaList[i].value);
+                }
+            }
+            $(DOM_ID_INPUT_CAPABILITIES).val(JSON.stringify(capaData));
         }
     });
 })();
