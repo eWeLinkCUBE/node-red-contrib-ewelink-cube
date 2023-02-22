@@ -82,6 +82,8 @@
                     deviceList.push(item);
                 }
             }
+            // let deviceList = tempList.find((item) =>categoryVal === item.display_category);
+
             if (deviceList.length === 0) deviceList = tempList;
             var deviceOption = renderOptions(deviceList, 'device');
             $('#node-input-device').append(deviceOption);
@@ -100,8 +102,8 @@
                     required: true,
                     type: 'api-server',
                 },
-                list:{
-                    value:''
+                list: {
+                    value: '',
                 },
                 category: {
                     value: '',
@@ -132,6 +134,9 @@
                 $('#node-input-category').on('focus', () => {
                     getDeviceList(node);
                 });
+
+                getDeviceType();
+
                 $('#node-input-category').on('change', () => {
                     var categoryVal = $('#node-input-category').val();
                     $('.main-area').empty();
@@ -148,6 +153,7 @@
                     if (node.server) {
                         $('#node-input-device').val(node.device);
                     }
+                    getDeviceType();
                 });
 
                 $('#node-input-device').on('change', () => {
@@ -155,7 +161,6 @@
                 });
             },
             oneditsave: function () {
-                console.log('----------------');
             },
         });
     })();
@@ -183,6 +188,48 @@
         }
         const res = categoryComponentMapping(device);
         $('.main-area').append(res);
+
+        //Initialize assignment
+        initialization(device);
+    }
+
+    function initialization(device) {
+        const params = JSON.parse($('#node-input-list').val());
+        const deviceVal = $('#node-input-device').val();
+        if (params.deviceId === deviceVal) {
+            switch (device.display_category) {
+                case 'curtain':
+                    $('#curtain').val(params.curtain);
+                    break;
+                case 'plug':
+                case 'switch':
+                    const toggle = device.state.toggle;
+                    if (!toggle) {
+                        $('#single-switch').val(params.single);
+                    } else {
+                        $('.multi-swtich').each(function (index, item) {
+                            $(this).val(params.multi[index + 1]);
+                        });
+                    }
+                    break;
+                case 'light':
+                    $('#power').val(params.light.power);
+                    $('#brightness').val(params.light.brightness);
+                    $('#FiveOrTwoLight').val(params.light.type);
+                    changeMode();
+
+                    if(params.light.type === COLOR_RGB){
+                        $('#light-color').val(params.light.colorOrTemp);
+                    }
+
+                    if(params.light.type === COLOR_TEMPERATURE){
+                        $('#light-temp').val(params.light.colorOrTemp);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
     //category mapping
     function categoryComponentMapping(device) {
@@ -247,41 +294,31 @@
                                 type="number"
                                 class="switch-select"
                                 placeholder='亮度百分比(0%-100%)'
-                                οnkeyup="value=value.replace(/[^\d]/g,'')"
                                 style="width:328px!important"
                                 id="brightness"
                                 onchange="changeLight()"
                             />
                         </div>
 
-                        <div class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'}">
+                        <div id='colorAndtemp' class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'}">
                             <select
                                 class="half-action"
                                 style="width:64px!important;margin-right:22px"
                                 id="FiveOrTwoLight"
+                                onchange="changeMode()"
                             >
                                 <option value='color-temperature'>色温</option>
                                 <option value='color-rgb' style="display:${color_rgb ? 'block' : 'none'}">颜色</option>
                             </select>
                             <input
-                                oninput="if(value>100)value=100;if(value<0)value=0"
-                                type="number"
-                                id="light-color"
-                                class="switch-select"
-                                onblur="changeLight()"
-                                placeholder='16进制RGB值(如#FF0000)'
-                                style="width:328px!important;display:${
-                                color_rgb ? 'block' : 'none'
-                            }"/>
-                            </div>
-                            `;
-                            // <input
-                            //     id="light-temp"
-                            //     class="switch-select"
-                            //     onchange="changeLight()"
-                            //     placeholder='色温百分比 (0%-100%)'
-                            //     style="display:${color_tempature ? 'block' : 'none'}"
-                            // />
+                                id='light-temp'
+                                oninput='if(value>100)value=100;if(value<0)value=0'
+                                type='number'
+                                class='switch-select'
+                                onblur='changeLight()'
+                                placeholder='色温百分比 (0%-100%)'
+                            />
+                        </div>`;
             default:
                 return '';
         }
@@ -290,7 +327,8 @@
     function curtainChange(val) {
         $('#node-input-list').val('');
         const curtain = $('#curtain').val();
-        const params = { curtain: curtain };
+        const deviceVal = $('#node-input-device').val();
+        const params = { type:'curtain',curtain: curtain, deviceId: deviceVal };
         if (curtain) {
             $('#node-input-list').val(JSON.stringify(params));
         }
@@ -298,48 +336,105 @@
     //plug、Switch
     function changeSwitch(value, type) {
         $('#node-input-list').val('');
+        const deviceVal = $('#node-input-device').val();
         let params = {};
         if (type === 'single') {
             const singleVal = $('#single-switch').val();
-            params = { single: singleVal };
-            if(singleVal){
+            params = { type:'single',single: singleVal, deviceId: deviceVal };
+            if (singleVal) {
                 $('#node-input-list').val(JSON.stringify(params));
             }
         } else if (type === 'multi') {
-            const multiVal =$('.multi-swtich');
-            let multi ={};
-            $('.multi-swtich').each(function(index,item){
-                if($(this).val()){
-                    multi[(index+1)]=$(this).val();
-                    params.multi=multi;
+            const multiVal = $('.multi-swtich');
+            let multi = {};
+            $('.multi-swtich').each(function (index, item) {
+                if ($(this).val()) {
+                    multi[index + 1] = $(this).val();
+                    params.multi = multi;
+                    params.deviceId = deviceVal;
+                    params.type="multi";
                 }
             });
             $('#node-input-list').val(JSON.stringify(params));
         }
+        console.log('params>>>>>>>>>>>>>>>>>>>>>',params);
+    }
+
+    function changeMode() {
+        const type = $('#FiveOrTwoLight').val();
+        $('#light-color').remove();
+        $('#light-temp').remove();
+        $('.color-box').remove();
+
+        if (type === COLOR_TEMPERATURE) {
+            $('#colorAndtemp').append(
+                `<input
+                    id="light-temp"
+                    oninput="if(value>100)value=100;if(value<0)value=0"
+                    type="number"
+                    class="switch-select"
+                    onblur="changeLight()"
+                    placeholder='色温百分比 (0%-100%)'
+                />
+                `
+            );
+        } else {
+            $('#colorAndtemp').append(
+                `<input
+                    id="light-color"
+                    class="switch-select"
+                    onblur="changeLight()"
+                    placeholder='16进制RGB值(如#FF0000)'
+                    style="width:322px!important"
+                    onchange="setColor(this)"
+                    style="width:510px!important"
+                />
+                <i class="color-box"></i>
+                `
+            );
+        }
     }
     //light
-    function changeLight(){
+    function changeLight() {
         const deviceVal = $('#node-input-device').val();
         let device = tempList.find((item) => item.serial_number === deviceVal);
-        console.log('device--------------------->',device);
         const powerVal = $('#power').val();
-        const brightness =$('#brightness').val();
+        const brightness = $('#brightness').val();
 
         //judge light type by capabilities
         const capabilities = device.capabilities;
         const color_rgb = capabilities.some((item) => item.capability === COLOR_RGB); //5
         const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE); //2
-        const colorOrTemp = '';
-        if(color_tempature && color_rgb){//5
-            const type = $('#FiveOrTwoLight').val();
-            if(type === 'color-temperature'){
+        let colorOrTemp = '';
+        const lightType = $('#FiveOrTwoLight').val();
+        if (color_tempature && color_rgb) {
+            if (lightType === COLOR_TEMPERATURE) {
                 colorOrTemp = $('#light-temp').val();
-            }else if(type === 'color-rgb'){
+            } else if (lightType === COLOR_RGB) {
                 colorOrTemp = $('#light-color').val();
             }
-        }else if(color_tempature && !color_rgb){//2
+        } else if (color_tempature && !color_rgb) {
             colorOrTemp = $('#light-temp').val();
         }
+        const params = {
+            type:'light',
+            deviceId: deviceVal,
+            light: {
+                power: powerVal,
+                brightness: brightness,
+                type:lightType,
+                colorOrTemp: colorOrTemp,
+            },
+        };
+        if (deviceVal) {
+            $('#node-input-list').val(JSON.stringify(params));
+        }
+        console.log('>>>>>>>>>>>>>>>>>>>', powerVal, brightness, lightType, colorOrTemp);
+    }
+
+    function setColor(value){
+        const colorVal = $('#light-color').val();
+        $('.color-box').css("background-color", colorVal);
     }
 
     /** switch */
@@ -413,7 +508,7 @@
     </div>
     <div class="form-row">
         <label for="node-input-list"> List </label>
-        <input type="text" id="node-input-list" />
+        <input type="text" id="node-input-list"/>
     </div>
     <div class="form-row">
         <label for="node-input-category"> Category </label>
@@ -468,15 +563,22 @@
     }
     .device-name {
         display: inline-block;
-        width: 20%;
+        width: 85px;
         text-align: left;
     }
-    .switch-select ,.multi-swtich{
+    .switch-select,
+    .multi-swtich {
         width: 328px !important;
     }
     .half-action {
         display: inline-block;
         width: 140px !important;
         margin-right: 10px;
+    }
+    .color-box{
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        margin-left: 5px;
     }
 </style>
