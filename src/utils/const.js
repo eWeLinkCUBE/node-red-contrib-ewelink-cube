@@ -78,6 +78,64 @@ const EVENT_NODE_RED_ERROR = 'EVENT_NODE_RED_ERROR';
  */
 const TAG_API_SERVER_NODE_ID = '__api_server_node_id';
 
+/**
+ * Capabilities map
+ */
+const CAPA_MAP = [
+    {
+        capability: 'power',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'toggle',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'brightness',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'color-temperature',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'color-rgb',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'percentage',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'motor-control',
+        permission: 'readWrite'
+    },
+    {
+        capability: 'motor-reverse',
+        permission: 'read'
+    },
+    {
+        capability: 'motor-clb',
+        permission: 'read'
+    },
+    {
+        capability: 'detect',
+        permission: 'read'
+    },
+    {
+        capability: 'battery',
+        permission: 'read'
+    },
+    {
+        capability: 'press',
+        permission: 'read'
+    },
+    {
+        capability: 'rssi',
+        permission: 'read'
+    },
+];
+
 module.exports = {
     API_PREFIX,
     API_URL_CACHE_ADD_API_SERVER_NODE,
@@ -94,5 +152,6 @@ module.exports = {
     EVENT_SSE_ON_UPDATE_DEVICE_ONLINE,
     EVENT_SSE_ON_UPDATE_DEVICE_STATE,
     EVENT_NODE_RED_ERROR,
-    TAG_API_SERVER_NODE_ID
+    TAG_API_SERVER_NODE_ID,
+    CAPA_MAP
 };

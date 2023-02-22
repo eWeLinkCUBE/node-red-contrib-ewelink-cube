@@ -5,8 +5,41 @@ const {
     API_URL_IHOST_CALLBACK,
     API_URL_ADD_THIRDPARTY_DEVICE,
     EVENT_NODE_RED_ERROR,
-    TAG_API_SERVER_NODE_ID
+    TAG_API_SERVER_NODE_ID,
+    CAPA_MAP
 } = require('./utils/const');
+
+/**
+ * Build capabilities array.
+ *
+ * @param {string} capaJsonData Capabilities data
+ */
+function buildCapabilities(capaJsonData) {
+    // capaData example:
+    // {
+    //     toggleNum: '1',
+    //     values: ['power']
+    // }
+    const capaData = JSON.parse(capaJsonData);
+    const toggleNum = parseInt(capaData.toggleNum);
+    const result = [];
+    for (const value of capaData.values) {
+        const found = _.find(CAPA_MAP, { capability: value });
+        if (!found) {
+            continue;
+        } else {
+            if (value === 'toggle') {
+                for (let i = 0; i < toggleNum; i++) {
+                    _.set(found, { name: `${i+1}` });
+                    result.push(found);
+                }
+            } else {
+                result.push(found);
+            }
+        }
+    }
+    return result;
+}
 
 module.exports = function (RED) {
     function RegisterDeviceNode(config) {
@@ -100,20 +133,11 @@ module.exports = function (RED) {
                         manufacturer,
                         model,
                         firmware_version: firmwareVersion,
-                        display_category: 'switch',
-                        capabilities: [
-                            {
-                                capability: 'power',
-                                permission: 'readWrite'
-                            }
-                        ],
-                        state: {
-                            power: {
-                                powerState: 'on'
-                            }
-                        },
+                        display_category: category,
+                        capabilities: buildCapabilities(capabilities),
+                        state,
                         tags,
-                        service_address: 'http://192.168.2.21:1880/ewelink-cube-api-v1/ihost-callback'
+                        service_address: `http://${serviceAddress}:1880/${API_URL_IHOST_CALLBACK}`
                     }
                 ]
             };
@@ -121,6 +145,7 @@ module.exports = function (RED) {
                 .then((res) => {
                     // TODO: handle success
                     console.log(res);
+                    node.send({ payload: res.data });
                 })
                 .catch((err) => {
                     // TODO: handle fail
