@@ -39,17 +39,11 @@
                                 }
                             }
 
-                            if (node.server) {
-                                renderDeviceOpt(node,type);
-                                const deviceVal = $('#node-input-device').val();
-                                if(deviceVal && deviceVal!=='all'){
-                                    $('#node-input-state').get(0).options.length = 0;
-                                    let template = getStateOption(INIT_ITEM).template;
-                                    $('#node-input-state').append(template);
-                                    node.state && $('#node-input-state').val(node.state);
-                                }
+                            renderDeviceOpt(node, type);
+                            const deviceVal = $('#node-input-device').val();
+                            if (deviceVal && deviceVal !== 'all') {
+                                renderState(node);
                             }
-
                             type === 'FRIST' && node.list && $('.node-input-state-class').remove() && renderStateSelect();
                         }
                     }
@@ -60,12 +54,19 @@
             });
         }
 
-        function renderDeviceOpt(node,type) {
-            var deviceVal = $('#node-input-device').val();
-            var deviceOption = renderOptions(tempList);
+        //render device
+        function renderDeviceOpt(node, type) {
+            const deviceOption = renderOptions(tempList);
             $('#node-input-device').append(deviceOption);
-            $('#node-input-device').val(node.device);
             type === 'FRIST' && $('#node-input-device').val(node.device);
+        }
+
+        //render state
+        function renderState(node){
+            $('#node-input-state').get(0).options.length = 0;
+            let template = getStateOption(INIT_ITEM).template;
+            $('#node-input-state').append(template);
+            node.state && $('#node-input-state').val(node.state);
         }
 
         function addItem() {
@@ -167,11 +168,9 @@
                 return this.name || 'event-state';
             },
             oneditprepare() {
-                RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
-                    RED.notify(payload.msg, { type: 'error' });
-                });
                 const node = this;
-                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                const server =  $('#node-input-server').val();
+                if ( server && server !== '_ADD_') {
                     getDeviceList(node, 'FRIST');
                 }
                 $('#node-input-device').on('focus', () => {

@@ -78,14 +78,7 @@
         //render device option
         function renderDeviceOpt(node) {
             var categoryVal = $('#node-input-category').val();
-            let deviceList = [];
-            for (const item of tempList) {
-                if (categoryVal === item.display_category) {
-                    deviceList.push(item);
-                }
-            }
-            // let deviceList = tempList.find((item) =>categoryVal === item.display_category);
-
+            let deviceList = tempList.find((item) =>categoryVal === item.display_category) || [];
             if (deviceList.length === 0) deviceList = tempList;
             var deviceOption = renderOptions(deviceList, 'device');
             $('#node-input-device').append(deviceOption);
@@ -125,9 +118,6 @@
                 return this.name || 'control-device';
             },
             oneditprepare() {
-                RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
-                    RED.notify(payload.msg, { type: 'error' });
-                });
                 const node = this;
                 const serverVal = $('#node-input-server').val();
                 if (serverVal && serverVal !== '_ADD_') {
@@ -159,8 +149,6 @@
                 $('#node-input-device').on('change', () => {
                     renderActionByType();
                 });
-            },
-            oneditsave: function () {
             },
         });
     })();
