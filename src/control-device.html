@@ -190,6 +190,8 @@
     }
 
     function initialization(device) {
+        const listVal = $('#node-input-list').val();
+        if(!listVal)return;
         const params = JSON.parse($('#node-input-list').val());
         const deviceVal = $('#node-input-device').val();
         if (params.deviceId === deviceVal) {
@@ -282,7 +284,7 @@
                             </select>
                         </div>
 
-                        <div class="device" style="position:relative">
+                        <div class="device brightness" style="position:relative">
                             <span class="device-name">亮度</span>
                             <input
                                 oninput="if(value>100)value=100;if(value<0)value=0"
@@ -293,10 +295,10 @@
                                 id="brightness"
                                 onchange="changeLight()"
                             />
-                            <i id="clear" onClick="$('#brightness').val('')">×</i>
+                            <i class="clear" onClick="$('#brightness').val('');changeLight()">×</i>
                         </div>
 
-                        <div id='colorAndtemp' class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'}">
+                        <div id='colorAndtemp' class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'};position:relative">
                             <select
                                 class="half-action"
                                 style="width:64px!important;margin-right:22px"
@@ -314,6 +316,7 @@
                                 onblur='changeLight()'
                                 placeholder='色温百分比 (0%-100%)'
                             />
+                            <i class="clear" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
                         </div>`;
             default:
                 return '';
@@ -381,11 +384,10 @@
                     class="switch-select"
                     onblur="changeLight()"
                     placeholder='16进制RGB值(如#FF0000)'
-                    style="width:322px!important"
                     onchange="setColor(this)"
-                    style="width:510px!important"
-                    onkeyup="value=value.replace(/[^#(\d|A-F|a-f)]/g,'')"
-                    maxlength="6"
+                    style="width:110%!important"
+                    onkeyup="value=value.replace(/[^#\dA-Fa-f/g,'')"
+                    maxlength="8"
                 />
                 <i class="color-box"></i>
                 `
@@ -542,7 +544,7 @@
         color: white;
     }
     .main-area {
-        padding: 10px 10px 0 6px;
+        padding: 10px 0px 0 6px;
     }
 
     .device {
@@ -571,22 +573,27 @@
         width: 30px;
         height: 30px;
         margin-left: 5px;
+        margin-top: 2px;
     }
-    #clear{
+    .clear{
         position: absolute;
         display: none;
         top:7px;
-        right:35px;
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
+        right:50px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
         border-radius: 50%;
-        background-color: red;
+        background-color: #FFFF;
         text-align: center;
-        color: #FFFF;
+        color: #ccc;
         cursor: pointer;
+        border:1px solid #ccc;
     }
-    #brightness:hover #clear{
+    .brightness:hover .clear{
+        display: block;
+    }
+    #colorAndtemp:hover .clear{
         display: block;
     }
 </style>

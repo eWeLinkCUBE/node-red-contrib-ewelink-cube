@@ -12,6 +12,9 @@ module.exports = function (RED) {
                 const playload = JSON.parse(JSON.stringify(deviceData.payload));
                 const KeyName = Object.keys(playload).join('');
                 let list = config.list+config.state;
+                if(config.device === 'all' || !config.device){
+                    node.send({ payload: data.msg.data });
+                }
                 if(config.device === deviceData.endpoint.serial_number && (config.state || config.list)){
                     if(list.indexOf(KeyName)!== -1 || config.state === 'all'){
                         node.send({ payload: data.msg.data });
