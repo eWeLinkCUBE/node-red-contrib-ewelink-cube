@@ -6,7 +6,7 @@
         function renderOptions(list) {
             if (!list.length || list.length < 1) return '';
             $('#node-input-device').get(0).options.length = 0;
-            var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option>';
+            var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
             for (const item of list) {
                 optionStr += '<option' + ' value=' + item.serial_number + '>' + (item.name || item.manufacturer + item.display_category) + '</option>';
             }
@@ -40,13 +40,14 @@
                             }
 
                             if (node.server) {
-                                type === 'FRIST' && $('#node-input-device').val(node.device);
-                                renderDeviceOpt(node);
-                                //state
-                                $('#node-input-state').get(0).options.length = 0;
-                                let template = getStateOption(INIT_ITEM).template;
-                                $('#node-input-state').append(template);
-                                node.state && $('#node-input-state').val(node.state);
+                                renderDeviceOpt(node,type);
+                                const deviceVal = $('#node-input-device').val();
+                                if(deviceVal && deviceVal!=='all'){
+                                    $('#node-input-state').get(0).options.length = 0;
+                                    let template = getStateOption(INIT_ITEM).template;
+                                    $('#node-input-state').append(template);
+                                    node.state && $('#node-input-state').val(node.state);
+                                }
                             }
 
                             type === 'FRIST' && node.list && $('.node-input-state-class').remove() && renderStateSelect();
@@ -59,11 +60,12 @@
             });
         }
 
-        function renderDeviceOpt(node) {
+        function renderDeviceOpt(node,type) {
             var deviceVal = $('#node-input-device').val();
             var deviceOption = renderOptions(tempList);
             $('#node-input-device').append(deviceOption);
             $('#node-input-device').val(node.device);
+            type === 'FRIST' && $('#node-input-device').val(node.device);
         }
 
         function addItem() {
@@ -165,20 +167,18 @@
                 return this.name || 'event-state';
             },
             oneditprepare() {
+                RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
+                    RED.notify(payload.msg, { type: 'error' });
+                });
                 const node = this;
                 if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
                     getDeviceList(node, 'FRIST');
                 }
-
                 $('#node-input-device').on('focus', () => {
                     getDeviceList(node, 'FOCUS');
                 });
-
                 $('#node-input-device').on('change', () => {
-                    // $('#node-input-list').val('');
-                    //delete state
                     $('#state #main-area').eq(0).nextAll().remove();
-
                     $('#node-input-state').get(0).options.length = 0;
                     let template = getStateOption(INIT_ITEM).template;
                     $('#node-input-state').append(template);
@@ -189,7 +189,6 @@
                         $('#node-input-list').val('');
                     }
                 });
-
                 $('#add-icon').on('click', addItem);
             },
         });

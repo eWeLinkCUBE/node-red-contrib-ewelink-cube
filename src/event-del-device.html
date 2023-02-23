@@ -16,10 +16,10 @@
 <script type="text/javascript">
     (function () {
         let tempList = [];
-        function renderOptions(list, type) {
+        function renderOptions(list) {
             if (!list.length || list.length < 1) return '';
             $('#node-input-device').get(0).options.length = 0;
-            var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option>';
+            var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option></option><option value="all">ALL</option>';
             for (const item of list) {
                 optionStr += '<option' + ' value=' + item.serial_number + '>' + (item.name || item.manufacturer + item.display_category) + '</option>';
             }

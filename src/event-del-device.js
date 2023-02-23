@@ -11,7 +11,7 @@ module.exports = function (RED) {
             if (config.server === data.srcNodeId) {
                 const deviceData = JSON.parse(data.msg.data);
                 // Empty device field means all.
-                if (!config.device || config.device === deviceData.endpoint.serial_number) {
+                if (!config.device || config.device === deviceData.endpoint.serial_number || config.device === 'all') {
                     node.send({ payload: data.msg.data });
                 }
             }
