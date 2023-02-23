@@ -1,0 +1,7 @@
+{
+    "event-add-device": {
+        "label": {
+            "name": "名称"
+        }
+    }
+}

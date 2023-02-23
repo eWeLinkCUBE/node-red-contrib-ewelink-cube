@@ -1,0 +1,7 @@
+{
+    "event-del-device": {
+        "label": {
+            "name": "Name"
+        }
+    }
+}

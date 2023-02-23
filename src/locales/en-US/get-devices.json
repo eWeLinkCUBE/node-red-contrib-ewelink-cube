@@ -1,0 +1,7 @@
+{
+    "get-devices": {
+        "label": {
+            "name": "Name"
+        }
+    }
+}

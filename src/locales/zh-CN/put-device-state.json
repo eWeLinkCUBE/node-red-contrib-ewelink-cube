@@ -1,0 +1,7 @@
+{
+    "put-device-state": {
+        "label": {
+            "name": "名称"
+        }
+    }
+}
