@@ -63,6 +63,8 @@
                                 $('#node-input-category').val(node.category);
                                 if (node.device) {
                                     renderDeviceOpt(node);
+                                    //render action
+                                    renderActionByType();
                                 }
                             }
                         }
@@ -135,8 +137,6 @@
                     getDeviceList(node);
                 });
 
-                getDeviceType();
-
                 $('#node-input-category').on('change', () => {
                     var categoryVal = $('#node-input-category').val();
                     $('.main-area').empty();
@@ -153,11 +153,11 @@
                     if (node.server) {
                         $('#node-input-device').val(node.device);
                     }
-                    getDeviceType();
+                    renderActionByType();
                 });
 
                 $('#node-input-device').on('change', () => {
-                    getDeviceType();
+                    renderActionByType();
                 });
             },
             oneditsave: function () {
@@ -176,19 +176,15 @@
     }
 
     //category device
-    function getDeviceType() {
+    function renderActionByType() {
         $('.main-area').empty();
         const deviceVal = $('#node-input-device').val();
         let device = {};
         if (deviceVal) {
             device = tempList.find((item) => item.serial_number === deviceVal);
-        } else {
-            // RED.notify('please Select device', { type: 'error' });
-            return;
         }
         const res = categoryComponentMapping(device);
         $('.main-area').append(res);
-
         //Initialize assignment
         initialization(device);
     }
@@ -220,8 +216,8 @@
 
                     if(params.light.type === COLOR_RGB){
                         $('#light-color').val(params.light.colorOrTemp);
+                        setColor();
                     }
-
                     if(params.light.type === COLOR_TEMPERATURE){
                         $('#light-temp').val(params.light.colorOrTemp);
                     }
@@ -279,7 +275,6 @@
                 const capabilities = device.capabilities;
                 const color_rgb = capabilities.some((item) => item.capability === COLOR_RGB); //5
                 const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE); //2
-
                 return `<div class="device">
                             <span class="device-name">开关</span>
                             <select class="switch-select" id="power" onchange="changeLight()">
@@ -287,7 +282,7 @@
                             </select>
                         </div>
 
-                        <div class="device">
+                        <div class="device" style="position:relative">
                             <span class="device-name">亮度</span>
                             <input
                                 oninput="if(value>100)value=100;if(value<0)value=0"
@@ -298,6 +293,7 @@
                                 id="brightness"
                                 onchange="changeLight()"
                             />
+                            <i id="clear" onClick="$('#brightness').val('')">×</i>
                         </div>
 
                         <div id='colorAndtemp' class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'}">
@@ -388,6 +384,8 @@
                     style="width:322px!important"
                     onchange="setColor(this)"
                     style="width:510px!important"
+                    onkeyup="value=value.replace(/[^#(\d|A-F|a-f)]/g,'')"
+                    maxlength="6"
                 />
                 <i class="color-box"></i>
                 `
@@ -406,12 +404,14 @@
         const color_rgb = capabilities.some((item) => item.capability === COLOR_RGB); //5
         const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE); //2
         let colorOrTemp = '';
+        let hslStr = '';
         const lightType = $('#FiveOrTwoLight').val();
         if (color_tempature && color_rgb) {
             if (lightType === COLOR_TEMPERATURE) {
                 colorOrTemp = $('#light-temp').val();
             } else if (lightType === COLOR_RGB) {
                 colorOrTemp = $('#light-color').val();
+                hslStr = $(".color-box").css("background-color");
             }
         } else if (color_tempature && !color_rgb) {
             colorOrTemp = $('#light-temp').val();
@@ -421,9 +421,10 @@
             deviceId: deviceVal,
             light: {
                 power: powerVal,
-                brightness: brightness,
+                brightness,
                 type:lightType,
-                colorOrTemp: colorOrTemp,
+                colorOrTemp,
+                hslStr
             },
         };
         if (deviceVal) {
@@ -482,16 +483,6 @@
             {
                 name: 'off',
                 value: 'off',
-            },
-        ],
-        selector: [
-            {
-                name: 'color',
-                value: 'color',
-            },
-            {
-                name: 'color-temputer',
-                value: 'color-temputer',
             },
         ],
     };
@@ -580,5 +571,22 @@
         width: 30px;
         height: 30px;
         margin-left: 5px;
+    }
+    #clear{
+        position: absolute;
+        display: none;
+        top:7px;
+        right:35px;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border-radius: 50%;
+        background-color: red;
+        text-align: center;
+        color: #FFFF;
+        cursor: pointer;
+    }
+    #brightness:hover #clear{
+        display: block;
     }
 </style>

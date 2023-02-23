@@ -33,12 +33,22 @@ module.exports = function (RED) {
                                         };
                                         Object.assign(data.params, temperature);
                                     } else if (list.light.type === 'color-rgb') {
-                                        let rgb = {
-                                            'color-rgb': {
-                                                rgb: list.light[item],
-                                            },
-                                        };
-                                        Object.assign(data.params, rgb);
+                                        try{
+                                            if(list.light.hslStr){
+                                                const [red, green, blue] = list.light.hslStr.match(/\d+/g).map(Number);
+                                                let rgb = {
+                                                    'color-rgb': {
+                                                        red,
+                                                        green,
+                                                        blue
+                                                    },
+                                                };
+                                                Object.assign(data.params, rgb);
+                                            }
+                                        }catch(error){
+                                            console.log('error',error);
+                                        }
+
                                     }
                                 }
                             }
