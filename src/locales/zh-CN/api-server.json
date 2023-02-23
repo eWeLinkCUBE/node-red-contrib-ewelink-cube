@@ -1,0 +1,15 @@
+{
+    "api-server": {
+        "label": {
+            "name": "名称",
+            "ip": "IP 地址",
+            "token": "密钥"
+        },
+        "message": {
+            "get_token": "获取密钥",
+            "please_input_ip": "请输入 IP 地址",
+            "invalid_ip": "无效的 IP 地址",
+            "request_failed": "请求失败"
+        }
+    }
+}

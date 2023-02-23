@@ -1,0 +1,15 @@
+{
+    "api-server": {
+        "label": {
+            "name": "Name",
+            "ip": "IP",
+            "token": "Token"
+        },
+        "message": {
+            "get_token": "GET TOKEN",
+            "please_input_ip": "Please input IP",
+            "invalid_ip": "Invalid IP",
+            "request_failed": "Request failed"
+        }
+    }
+}

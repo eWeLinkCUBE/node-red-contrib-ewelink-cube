@@ -2,14 +2,14 @@
     <div class="form-row">
         <label for="node-config-input-name">
             <i class="fa fa-tag"></i>
-            Name
+            <span data-i18n="api-server.label.name"></span>
         </label>
         <input type="text" id="node-config-input-name">
     </div>
     <div class="form-row">
         <label for="node-config-input-ip">
             <i class="fa fa-server"></i>
-            IP
+            <span data-i18n="api-server.label.ip"></span>
         </label>
         <div style="display: inline-flex; width: 70%;">
             <input type="text" id="node-config-input-ip" style="width: 100%; margin-right: 10px;">
@@ -22,14 +22,15 @@
     <div class="form-row">
         <label>
             <i class="fa fa-id-badge"></i>
-            Token
+            <span data-i18n="api-server.label.token"></span>
         </label>
         <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;" disabled>
             <i class="fa fa-search spinner"></i>
-            <span class="btn-text">GET TOKEN</span>
+            <span class="btn-text" data-i18n="api-server.message.get_token"></span>
         </button>
         <!-- Store token -->
         <input type="text" id="node-config-input-token" style="width: 0; height: 0; display: none;">
+        <div id="error-hint-get-token" style="font-size: 12px; color: red; padding-left: 104px;"></div>
     </div>
 </script>
 
@@ -45,6 +46,7 @@
     const DOM_ID_INPUT_IP = '#node-config-input-ip';
     const DOM_ID_INPUT_TOKEN = '#node-config-input-token';
     const DOM_ID_ERROR_HINT_INPUT_IP = '#error-hint-input-ip';
+    const DOM_ID_ERROR_HINT_GET_TOKEN = '#error-hint-get-token';
 
     /**
      * Set search button icon spin state.
@@ -90,14 +92,15 @@
      * Search button click event handler.
      */
     function searchBtnOnClickHandler() {
+        const node = this;
         const ip = $(DOM_ID_INPUT_IP).val().trim();
         if (!ip) {
-            $(DOM_ID_ERROR_HINT_INPUT_IP).text('Please input IP');
+            $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.please_input_ip'));
             return;
         } else {
             const ipRegex = /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
             if (!ipRegex.test(ip)) {
-                $(DOM_ID_ERROR_HINT_INPUT_IP).text('Invalid IP');
+                $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.invalid_ip'));
                 return;
             } else {
                 setSearchBtnIconSpin(true);
@@ -112,7 +115,7 @@
                         if (typeof res !== 'object') {
                             console.log('not object');
                         } else if (res.error !== 0) {
-                            $(DOM_ID_ERROR_HINT_INPUT_IP).text(res.msg);
+                            $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.request_failed'));
                         } else {
                             enableGetTokenBtn();
                         }
@@ -120,7 +123,7 @@
                     },
                     error(err) {
                         console.error(err);
-                        $(DOM_ID_ERROR_HINT_INPUT_IP).text('Request error');
+                        $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.request_failed'));
                         setSearchBtnIconSpin(false);
                     }
                 });
@@ -132,10 +135,14 @@
      * Get token button click event handler.
      */
     function getTokenBtnOnClickHandler() {
-        // $(tokenInputId).val('abcdef');
+        const node = this;
         const ip = $('#node-config-input-ip').val().trim();
-        // TODO: check IP
+        if (!ip) {
+            $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.please_input_ip'));
+            return;
+        }
 
+        $(DOM_ID_ERROR_HINT_INPUT_IP).text('');
         setGetTokenBtnSpin(true);
 
         $.ajax({
@@ -146,9 +153,10 @@
             success(res) {
                 console.log(res);
                 if (res.error === 0) {
+                    $(DOM_ID_ERROR_HINT_GET_TOKEN).text('');
                     $(DOM_ID_INPUT_TOKEN).val(res.data.token);
                 } else {
-                    console.log('get token failed')
+                    $(DOM_ID_ERROR_HINT_GET_TOKEN).text(node._('api-server.message.request_failed'));
                 }
                 setGetTokenBtnSpin(false);
             },
