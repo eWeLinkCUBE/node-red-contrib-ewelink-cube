@@ -1,7 +1,48 @@
 {
     "register-device": {
         "label": {
-            "name": "名称"
+            "name": "名称",
+            "server": "服务器",
+            "device_id": "设备 ID",
+            "device_name": "设备名称",
+            "category": "设备类别",
+            "capabilities": "设备能力",
+            "manufacturer": "制造商",
+            "model": "设备型号",
+            "fw_version": "固件版本",
+            "service_ip": "服务 IP",
+            "tags": "标签",
+            "state": "设备状态",
+            "toggle_num": "通道数"
+        },
+        "category": {
+            "plug": "插座",
+            "switch": "开关",
+            "light": "灯",
+            "curtain": "窗帘",
+            "contact_sensor": "Contact 传感器",
+            "motion_sensor": "Motion 传感器",
+            "temperature_sensor": "温度传感器",
+            "humidity_sensor": "湿度传感器",
+            "temperature_and_humidity_sensor": "温湿度传感器",
+            "water_leak_detector": "Water Leak Detector",
+            "smoke_detector": "Smoke Detector",
+            "button": "按钮"
+        },
+        "capability": {
+            "power": "Power",
+            "toggle": "Toggle",
+            "brightness": "亮度",
+            "color_temperature": "色温",
+            "color_rgb": "颜色",
+            "percentage": "Percentage",
+            "motor_control": "Motor Control",
+            "motor_reverse": "Motor Reverse",
+            "motor_clb": "Motor CLB",
+            "detect": "Detect",
+            "battery": "Battery",
+            "press": "Press",
+            "rssi": "RSSI"
         }
     }
 }
