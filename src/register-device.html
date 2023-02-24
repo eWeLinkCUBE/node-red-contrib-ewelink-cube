@@ -3,48 +3,59 @@
         <label for="node-input-name" data-i18n="register-device.label.name"></label>
         <input type="text" id="node-input-name">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-server" data-i18n="register-device.label.server"></label>
         <input type="text" id="node-input-server">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-device_id" data-i18n="register-device.label.device_id"></label>
         <input type="text" id="node-input-device_id">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-device_name" data-i18n="register-device.label.device_name"></label>
         <input type="text" id="node-input-device_name">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-category" data-i18n="register-device.label.category"></label>
         <select name="node-input-category" id="node-input-category" style="width: 70%;"></select>
     </div>
-    <div class="form-row" style="display: flex;">
+    <div class="form-row" style="display: flex;position:relative">
+        <span class="require">*</span>
         <label for="node-input-capabilities" style="padding: 6px 3px 0 0;" data-i18n="register-device.label.capabilities"></label>
         <input type="text" id="node-input-capabilities" style="width: 0; height: 0; display: none;">
         <div id="capa-list" style="display: inline-block; width: 70%;"></div>
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-manufacturer" data-i18n="register-device.label.manufacturer"></label>
         <input type="text" id="node-input-manufacturer">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-model" data-i18n="register-device.label.model"></label>
         <input type="text" id="node-input-model">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-firmware_version" data-i18n="register-device.label.fw_version"></label>
         <input type="text" id="node-input-firmware_version">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-service_address" data-i18n="register-device.label.service_ip"></label>
         <input type="text" id="node-input-service_address">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-tags" data-i18n="register-device.label.tags"></label>
         <input type="text" id="node-input-tags" style="width: 70%;">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-state" data-i18n="register-device.label.state"></label>
         <input type="text" id="node-input-state" style="width: 70%;">
     </div>
@@ -450,5 +461,12 @@
     }
     .form-row #capa-list .del-item-btn {
         background-color: #ff335d;
+    }
+    .require{
+        position:absolute;
+        left: -8px;
+        top: 10px;
+        color: red;
+        font-size: 20px;
     }
 </style>

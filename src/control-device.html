@@ -4,6 +4,7 @@
     const COLOR_RGB = 'color-rgb';
     // Color temperature
     const COLOR_TEMPERATURE = 'color-temperature';
+    let outer_node = null;
 
     (function () {
         //render option
@@ -120,6 +121,7 @@
             },
             oneditprepare() {
                 const node = this;
+                outer_node=node;
                 const serverVal = $('#node-input-server').val();
                 if (serverVal && serverVal !== '_ADD_') {
                     getDeviceList(node);
@@ -203,7 +205,7 @@
                     $('#power').val(params.light.power);
                     $('#brightness').val(params.light.brightness);
                     $('#FiveOrTwoLight').val(params.light.type);
-                    changeMode(node);
+                    changeMode();
 
                     if (params.light.type === COLOR_RGB) {
                         $('#light-color').val(params.light.colorOrTemp);
@@ -412,7 +414,7 @@
                     type="number"
                     class="switch-select"
                     onblur="changeLight()"
-                    placeholder='色温百分比 (0%-100%)'
+                    placeholder='${outer_node._('control-device.label.colourPercent')} (0%-100%)'
                 />
                 `
             );
@@ -422,7 +424,7 @@
                     id="light-color"
                     class="switch-select"
                     onblur="changeLight()"
-                    placeholder='16进制RGB值(如#FF0000)'
+                    placeholder='${outer_node._('control-device.label.hexRgbValue')}'
                     onchange="setColor(this)"
                     style="width:110%!important"
                     onkeyup="value=value.replace(/[^#\dA-Fa-f/g,'')"
@@ -485,11 +487,12 @@
         <label for="node-input-name" data-i18n="control-device.label.name"></label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-server" data-i18n="control-device.label.server"></label>
         <input type="text" id="node-input-server" placeholder="Server" />
     </div>
-    <div class="form-row">
+    <div class="form-row" style="display:none">
         <label for="node-input-list"> List </label>
         <input type="text" id="node-input-list" />
     </div>
@@ -497,7 +500,8 @@
         <label for="node-input-category" data-i18n="control-device.label.category"></label>
         <select id="node-input-category" placeholder="Category" style="width:70%"></select>
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-device" data-i18n="control-device.label.device"></label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
@@ -585,5 +589,12 @@
     }
     #colorAndtemp:hover .clear {
         display: block;
+    }
+    .require{
+        position:absolute;
+        left: -8px;
+        top: 10px;
+        color: red;
+        font-size: 20px;
     }
 </style>

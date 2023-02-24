@@ -3,7 +3,8 @@
         <label for="node-input-name">Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position:relative">
+        <span class="require">*</span>
         <label for="node-input-server">Server</label>
         <input type="text" id="node-input-server" placeholder="server" />
     </div>
@@ -95,3 +96,13 @@
         });
     })();
 </script>
+
+<style>
+    .require{
+        position:absolute;
+        left: -8px;
+        top: 10px;
+        color: red;
+        font-size: 20px;
+    }
+</style>
