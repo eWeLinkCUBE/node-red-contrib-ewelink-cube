@@ -1,7 +1,9 @@
 {
     "event-del-device": {
         "label": {
-            "name": "Name"
+            "name": "Name",
+            "server": "Server",
+            "device": "Device"
         }
     }
 }

@@ -1,7 +1,9 @@
 {
     "event-del-device": {
         "label": {
-            "name": "名称"
+            "name": "名称",
+            "server": "服务器",
+            "device": "设备"
         }
     }
 }
