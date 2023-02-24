@@ -1,7 +1,10 @@
 {
     "event-state": {
         "label": {
-            "name": "Name"
+            "name": "Name",
+            "server":"Server",
+            "device":"Device",
+            "state":"State"
         }
     }
 }

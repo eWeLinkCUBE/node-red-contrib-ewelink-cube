@@ -4,10 +4,6 @@
     const COLOR_RGB = 'color-rgb';
     // Color temperature
     const COLOR_TEMPERATURE = 'color-temperature';
-    // brightness
-    const BRIGHTNESS = 'brightness';
-    //power
-    const STARTUP = 'startup';
 
     (function () {
         //render option
@@ -64,7 +60,7 @@
                                 if (node.device) {
                                     renderDeviceOpt(node);
                                     //render action
-                                    renderActionByType();
+                                    renderActionByType(node);
                                 }
                             }
                         }
@@ -78,7 +74,12 @@
         //render device option
         function renderDeviceOpt(node) {
             var categoryVal = $('#node-input-category').val();
-            let deviceList = tempList.find((item) =>categoryVal === item.display_category) || [];
+            let deviceList = [];
+            for (const item of tempList) {
+                if (categoryVal == item.display_category) {
+                    deviceList.push(item);
+                }
+            }
             if (deviceList.length === 0) deviceList = tempList;
             var deviceOption = renderOptions(deviceList, 'device');
             $('#node-input-device').append(deviceOption);
@@ -143,20 +144,20 @@
                     if (node.server) {
                         $('#node-input-device').val(node.device);
                     }
-                    renderActionByType();
+                    renderActionByType(node);
                 });
 
                 $('#node-input-device').on('change', () => {
-                    renderActionByType();
+                    renderActionByType(node);
                 });
             },
         });
     })();
 
     //render option
-    function renderOptionByList(List) {
+    function renderOptionByList(List, node) {
         if (!List || List.length < 1) return;
-        let templateStr = '<option selected="selected" value="">未选择</option>'; //disabled="disabled"
+        let templateStr = `<option selected="selected" value="">${node._('control-device.label.notSelect')}</option>`;
         for (const item of List) {
             templateStr += '<option' + ' value=' + item.value + '>' + item.name + '</option>';
         }
@@ -164,22 +165,22 @@
     }
 
     //category device
-    function renderActionByType() {
+    function renderActionByType(node) {
         $('.main-area').empty();
         const deviceVal = $('#node-input-device').val();
         let device = {};
         if (deviceVal) {
             device = tempList.find((item) => item.serial_number === deviceVal);
         }
-        const res = categoryComponentMapping(device);
+        const res = categoryComponentMapping(device, node);
         $('.main-area').append(res);
         //Initialize assignment
-        initialization(device);
+        initialization(device, node);
     }
 
-    function initialization(device) {
+    function initialization(device, node) {
         const listVal = $('#node-input-list').val();
-        if(!listVal)return;
+        if (!listVal) return;
         const params = JSON.parse($('#node-input-list').val());
         const deviceVal = $('#node-input-device').val();
         if (params.deviceId === deviceVal) {
@@ -202,13 +203,13 @@
                     $('#power').val(params.light.power);
                     $('#brightness').val(params.light.brightness);
                     $('#FiveOrTwoLight').val(params.light.type);
-                    changeMode();
+                    changeMode(node);
 
-                    if(params.light.type === COLOR_RGB){
+                    if (params.light.type === COLOR_RGB) {
                         $('#light-color').val(params.light.colorOrTemp);
                         setColor();
                     }
-                    if(params.light.type === COLOR_TEMPERATURE){
+                    if (params.light.type === COLOR_TEMPERATURE) {
                         $('#light-temp').val(params.light.colorOrTemp);
                     }
                     break;
@@ -218,15 +219,65 @@
         }
     }
     //category mapping
-    function categoryComponentMapping(device) {
+    function categoryComponentMapping(device, node) {
+        /** switch */
+        const switchSelect = {
+            multi: [
+                {
+                    name: node._('control-device.SelectOption.on'),
+                    value: 'on',
+                },
+                {
+                    name: node._('control-device.SelectOption.off'),
+                    value: 'off',
+                },
+                {
+                    name: node._('control-device.SelectOption.keep'),
+                    value: 'keep',
+                },
+                {
+                    name: node._('control-device.SelectOption.reverse'),
+                    value: 'reverse',
+                },
+            ],
+            single: [
+                {
+                    name: node._('control-device.SelectOption.on'),
+                    value: 'on',
+                },
+                {
+                    name: node._('control-device.SelectOption.off'),
+                    value: 'off',
+                },
+                {
+                    name: node._('control-device.SelectOption.reverse'),
+                    value: 'reverse',
+                },
+            ],
+        };
+
+        // light
+        const lightSelect = {
+            switch: [
+                {
+                    name: node._('control-device.SelectOption.on'),
+                    value: 'on',
+                },
+                {
+                    name: node._('control-device.SelectOption.off'),
+                    value: 'off',
+                },
+            ],
+        };
+
         switch (device.display_category) {
             case 'curtain':
                 return `<div class='device'>
-                            <span class="device-name">百分比控制</span>
+                            <span class="device-name">${node._('control-device.label.percentControl')}</span>
                             <input
                                 oninput="if(value>100)value=100;if(value<0)value=0"
                                 type="number"
-                                placeholder="百分比值 (0%~100%)"
+                                placeholder="${node._('control-device.label.percentValue')}(0%~100%)"
                                 style="width:328px"
                                 onblur="curtainChange(this)"
                                 id="curtain"
@@ -241,9 +292,9 @@
                     params.push(device.state.power);
                     return (temp += `
                             <div class='device'>
-                                <span class="device-name">开关</span>
+                                <span class="device-name">${node._('control-device.label.switch')}</span>
                                 <select id="single-switch" class="switch-select" onchange="changeSwitch(this,'single')">
-                                    ${renderOptionByList(operationSwitchSelect.single)}
+                                    ${renderOptionByList(switchSelect.single, node)}
                                 </select>
                             </div>
                         `);
@@ -254,7 +305,7 @@
                             <div class='device'>
                                 <span class="device-name">swtich${index + 1}</span>
                                 <select class="multi-swtich" onchange="changeSwitch(this,'multi')">
-                                    ${renderOptionByList(operationSwitchSelect.multi)}
+                                    ${renderOptionByList(switchSelect.multi, node)}
                                 </select>
                             </div>
                         `;
@@ -266,19 +317,19 @@
                 const color_rgb = capabilities.some((item) => item.capability === COLOR_RGB); //5
                 const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE); //2
                 return `<div class="device">
-                            <span class="device-name">开关</span>
+                            <span class="device-name">${node._('control-device.label.switch')}</span>
                             <select class="switch-select" id="power" onchange="changeLight()">
-                                ${renderOptionByList(lightSelect.switch)}
+                                ${renderOptionByList(lightSelect.switch, node)}
                             </select>
                         </div>
 
                         <div class="device brightness" style="position:relative">
-                            <span class="device-name">亮度</span>
+                            <span class="device-name">${node._('control-device.label.brightness')}</span>
                             <input
                                 oninput="if(value>100)value=100;if(value<0)value=0"
                                 type="number"
                                 class="switch-select"
-                                placeholder='亮度百分比(0%-100%)'
+                                placeholder='${node._('control-device.label.brightnessPercent')}(0%-100%)'
                                 style="width:328px!important"
                                 id="brightness"
                                 onchange="changeLight()"
@@ -291,10 +342,10 @@
                                 class="half-action"
                                 style="width:64px!important;margin-right:22px"
                                 id="FiveOrTwoLight"
-                                onchange="changeMode()"
+                                onchange='changeMode()'
                             >
-                                <option value='color-temperature'>色温</option>
-                                <option value='color-rgb' style="display:${color_rgb ? 'block' : 'none'}">颜色</option>
+                                <option value='color-temperature'>${node._('control-device.label.colourTemperature')}</option>
+                                <option value='color-rgb' style="display:${color_rgb ? 'block' : 'none'}">${node._('control-device.label.color')}</option>
                             </select>
                             <input
                                 id='light-temp'
@@ -302,7 +353,7 @@
                                 type='number'
                                 class='switch-select'
                                 onblur='changeLight()'
-                                placeholder='色温百分比 (0%-100%)'
+                                placeholder='${node._('control-device.label.colourPercent')}(0%-100%)'
                             />
                             <i class="clear" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
                         </div>`;
@@ -311,11 +362,11 @@
         }
     }
     //curtain
-    function curtainChange(val) {
+    function curtainChange(val, node) {
         $('#node-input-list').val('');
         const curtain = $('#curtain').val();
         const deviceVal = $('#node-input-device').val();
-        const params = { type:'curtain',curtain: curtain, deviceId: deviceVal };
+        const params = { type: 'curtain', curtain: curtain, deviceId: deviceVal };
         if (curtain) {
             $('#node-input-list').val(JSON.stringify(params));
         }
@@ -327,7 +378,7 @@
         let params = {};
         if (type === 'single') {
             const singleVal = $('#single-switch').val();
-            params = { type:'single',single: singleVal, deviceId: deviceVal };
+            params = { type: 'single', single: singleVal, deviceId: deviceVal };
             if (singleVal) {
                 $('#node-input-list').val(JSON.stringify(params));
             }
@@ -339,12 +390,12 @@
                     multi[index + 1] = $(this).val();
                     params.multi = multi;
                     params.deviceId = deviceVal;
-                    params.type="multi";
+                    params.type = 'multi';
                 }
             });
             $('#node-input-list').val(JSON.stringify(params));
         }
-        console.log('params>>>>>>>>>>>>>>>>>>>>>',params);
+        console.log('params>>>>>>>>>>>>>>>>>>>>>', params);
     }
 
     function changeMode() {
@@ -401,20 +452,20 @@
                 colorOrTemp = $('#light-temp').val();
             } else if (lightType === COLOR_RGB) {
                 colorOrTemp = $('#light-color').val();
-                hslStr = $(".color-box").css("background-color");
+                hslStr = $('.color-box').css('background-color');
             }
         } else if (color_tempature && !color_rgb) {
             colorOrTemp = $('#light-temp').val();
         }
         const params = {
-            type:'light',
+            type: 'light',
             deviceId: deviceVal,
             light: {
                 power: powerVal,
                 brightness,
-                type:lightType,
+                type: lightType,
                 colorOrTemp,
-                hslStr
+                hslStr,
             },
         };
         if (deviceVal) {
@@ -423,85 +474,36 @@
         console.log('>>>>>>>>>>>>>>>>>>>', powerVal, brightness, lightType, colorOrTemp);
     }
 
-    function setColor(value){
+    function setColor(value) {
         const colorVal = $('#light-color').val();
-        $('.color-box').css("background-color", colorVal);
+        $('.color-box').css('background-color', colorVal);
     }
-
-    /** switch */
-    const operationSwitchSelect = {
-        multi: [
-            {
-                name: 'on',
-                value: 'on',
-            },
-            {
-                name: 'off',
-                value: 'off',
-            },
-            {
-                name: 'keep',
-                value: 'keep',
-            },
-            {
-                name: 'reverse',
-                value: 'reverse',
-            },
-        ],
-        single: [
-            {
-                name: 'on',
-                value: 'on',
-            },
-            {
-                name: 'off',
-                value: 'off',
-            },
-            {
-                name: 'reverse',
-                value: 'reverse',
-            },
-        ],
-    };
-    // light
-    const lightSelect = {
-        switch: [
-            {
-                name: 'on',
-                value: 'on',
-            },
-            {
-                name: 'off',
-                value: 'off',
-            },
-        ],
-    };
 </script>
 
 <script type="text/html" data-template-name="control-device">
     <div class="form-row">
-        <label for="node-input-name"> Name </label>
+        <label for="node-input-name" data-i18n="control-device.label.name"></label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
-        <label for="node-input-server"> Server </label>
+        <label for="node-input-server" data-i18n="control-device.label.server"></label>
         <input type="text" id="node-input-server" placeholder="Server" />
     </div>
-    <div class="form-row" style="display:none">
+    <div class="form-row">
         <label for="node-input-list"> List </label>
-        <input type="text" id="node-input-list"/>
+        <input type="text" id="node-input-list" />
     </div>
     <div class="form-row">
-        <label for="node-input-category"> Category </label>
+        <label for="node-input-category" data-i18n="control-device.label.category"></label>
         <select id="node-input-category" placeholder="Category" style="width:70%"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-device"> Device </label>
+        <label for="node-input-device" data-i18n="control-device.label.device"></label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
     <div id="action">
         <header id="header">
-            <span>Action</span>
+            <span data-i18n="control-device.action.action"></span>
         </header>
         <div class="main-area"></div>
     </div>
@@ -556,32 +558,32 @@
         width: 140px !important;
         margin-right: 10px;
     }
-    .color-box{
+    .color-box {
         display: inline-block;
         width: 30px;
         height: 30px;
         margin-left: 5px;
         margin-top: 2px;
     }
-    .clear{
+    .clear {
         position: absolute;
         display: none;
-        top:7px;
-        right:50px;
+        top: 7px;
+        right: 50px;
         width: 18px;
         height: 18px;
         line-height: 18px;
         border-radius: 50%;
-        background-color: #FFFF;
+        background-color: #ffff;
         text-align: center;
         color: #ccc;
         cursor: pointer;
-        border:1px solid #ccc;
+        border: 1px solid #ccc;
     }
-    .brightness:hover .clear{
+    .brightness:hover .clear {
         display: block;
     }
-    #colorAndtemp:hover .clear{
+    #colorAndtemp:hover .clear {
         display: block;
     }
 </style>
