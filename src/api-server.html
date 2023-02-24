@@ -12,7 +12,7 @@
             <span data-i18n="api-server.label.ip"></span>
         </label>
         <div style="display: inline-flex; width: 70%;">
-            <input type="text" id="node-config-input-ip" style="width: 100%; margin-right: 10px;">
+            <input type="text" id="node-config-input-ip" style="width: 100%; margin-right: 10px;" placeholder="localhost">
             <a class="red-ui-button" id="node-config-input-search-btn">
                 <i class="fa fa-search"></i>
             </a>
@@ -188,9 +188,14 @@
             }
         },
         label() {
-            return this.name || this.ip;
+            return this.name || this.ip || 'Token';
         },
         oneditprepare() {
+            // Set default name if input field is empty.
+            if ($(DOM_ID_INPUT_NAME).val() === '') {
+                $(DOM_ID_INPUT_NAME).val('Token');
+            }
+
             // Hide get token button icon.
             $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'none');
 
