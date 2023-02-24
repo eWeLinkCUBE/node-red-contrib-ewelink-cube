@@ -45,31 +45,26 @@ module.exports = function (RED) {
         });
         node.apiClient.initSSE();
         node.apiClient.mountSseFunc({
-            onopen(msg) {
-                console.log(msg);
+            onopen() {
+                node.log('SSE connection success');
             },
-            onerror(msg) {
-                console.log(msg);
+            onerror(err) {
+                node.warn('SSE connection failed');
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server:' + err.message });
             },
             onAddDevice(msg) {
-                console.log(msg);
                 eventBridge.emit(EVENT_SSE_ON_ADD_DEVICE, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onUpdateDeviceInfo(msg) {
-                console.log(msg);
                 eventBridge.emit(EVENT_SSE_ON_UPDATE_DEVICE_INFO, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onDeleteDevice(msg) {
-                console.log(msg);
                 eventBridge.emit(EVENT_SSE_ON_DELETE_DEVICE, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onUpdateDeviceState(msg) {
-                console.log(msg);
-                // RED.comms.publish('sse-state', 'state state');
                 eventBridge.emit(EVENT_SSE_ON_UPDATE_DEVICE_STATE, JSON.stringify({ srcNodeId: config.id, msg }));
             },
             onUpdateDeviceOnline(msg) {
-                console.log(msg);
                 eventBridge.emit(EVENT_SSE_ON_UPDATE_DEVICE_ONLINE, JSON.stringify({ srcNodeId: config.id, msg }));
             }
         });
@@ -135,7 +130,6 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'getBridgeInfo() error' }));
             });
     });
@@ -153,7 +147,6 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'getBridgeAT() error' }));
             })
     });
@@ -186,7 +179,6 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'getDeviceList() error' }));
             });
     });
@@ -201,7 +193,6 @@ module.exports = function (RED) {
     RED.httpAdmin.post(API_URL_CONTROL_DEVICE, (req, res) => {
         const id = req.body.id;
         const deviceId = req.body.deviceId;
-        // TODO: validate params
         const params = JSON.parse(req.body.params);
 
         const nodeData = nodeDataCache.getNodeData(id);
@@ -224,7 +215,6 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'updateDeviceState() error' }));
             });
     });
@@ -259,7 +249,6 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                // TODO: handle err
                 res.send(JSON.stringify({ error: 500, msg: 'syncDevices() error' }));
             });
     });

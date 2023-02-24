@@ -9,7 +9,9 @@
             "get_token": "获取密钥",
             "please_input_ip": "请输入 IP 地址",
             "invalid_ip": "无效的 IP 地址",
-            "request_failed": "请求失败"
+            "request_failed": "请求失败",
+            "get_token_success": "获取密钥成功",
+            "connect_success": "连接成功"
         }
     }
 }
