@@ -1,7 +1,9 @@
 {
     "event-device-info": {
         "label": {
-            "name": "Name"
+            "name": "Name",
+            "server":"Server",
+            "device":"Device"
         }
     }
 }

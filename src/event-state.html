@@ -39,17 +39,11 @@
                                 }
                             }
 
-                            if (node.server) {
-                                renderDeviceOpt(node,type);
-                                const deviceVal = $('#node-input-device').val();
-                                if(deviceVal && deviceVal!=='all'){
-                                    $('#node-input-state').get(0).options.length = 0;
-                                    let template = getStateOption(INIT_ITEM).template;
-                                    $('#node-input-state').append(template);
-                                    node.state && $('#node-input-state').val(node.state);
-                                }
+                            renderDeviceOpt(node, type);
+                            const deviceVal = $('#node-input-device').val();
+                            if (deviceVal && deviceVal !== 'all') {
+                                renderState(node);
                             }
-
                             type === 'FRIST' && node.list && $('.node-input-state-class').remove() && renderStateSelect();
                         }
                     }
@@ -60,17 +54,24 @@
             });
         }
 
-        function renderDeviceOpt(node,type) {
-            var deviceVal = $('#node-input-device').val();
-            var deviceOption = renderOptions(tempList);
+        //render device
+        function renderDeviceOpt(node, type) {
+            const deviceOption = renderOptions(tempList);
             $('#node-input-device').append(deviceOption);
-            $('#node-input-device').val(node.device);
             type === 'FRIST' && $('#node-input-device').val(node.device);
+        }
+
+        //render state
+        function renderState(node){
+            $('#node-input-state').get(0).options.length = 0;
+            let template = getStateOption(INIT_ITEM).template;
+            $('#node-input-state').append(template);
+            node.state && $('#node-input-state').val(node.state);
         }
 
         function addItem() {
             if ($('#state').children().length >= getStateOption(ADD_ITEM).stateLength) {
-                // RED.notify('Limit exceeded', { type: 'error' });
+                RED.notify('Limit exceeded', { type: 'error' });
                 return;
             }
             let template = getStateOption(ADD_ITEM).template;
@@ -123,7 +124,7 @@
             }
             let template =
                 '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>' +
-                (type === 'INIT_ITEM' ? '<option value="all">ALL</option>' : '');
+                (type === INIT_ITEM ? '<option value="all">ALL</option>' : '');
             let stateLength = 0;
             if (list.length > 0) {
                 const stateList = Object.keys(list[0]);
@@ -167,11 +168,9 @@
                 return this.name || 'event-state';
             },
             oneditprepare() {
-                RED.comms.subscribe('EVENT_NODE_RED_ERROR', (topic, payload) => {
-                    RED.notify(payload.msg, { type: 'error' });
-                });
                 const node = this;
-                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                const server =  $('#node-input-server').val();
+                if ( server && server !== '_ADD_') {
                     getDeviceList(node, 'FRIST');
                 }
                 $('#node-input-device').on('focus', () => {
@@ -218,11 +217,11 @@
 
 <script type="text/html" data-template-name="event-state">
     <div class="form-row">
-        <label for="node-input-name"> Name </label>
+        <label for="node-input-name" data-i18n="event-state.label.name"></label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
-        <label for="node-input-server"> Server </label>
+        <label for="node-input-server" data-i18n="event-state.label.server"></label>
         <input type="text" id="node-input-server" placeholder="server" />
     </div>
     <div class="form-row" style="display: none;">
@@ -230,12 +229,12 @@
         <input type="text" id="node-input-list" />
     </div>
     <div class="form-row">
-        <label for="node-input-device"> Device </label>
+        <label for="node-input-device" data-i18n="event-state.label.device"></label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
     <div class="form-row" id="state">
         <div id="main-area">
-            <label for="node-input-state"> State </label>
+            <label for="node-input-state" data-i18n="event-state.label.state"></label>
             <div class="right-area">
                 <select placeholder="Select State" id="node-input-state" name="node-input-state" style="width:322px"></select>
                 <button class="add-icon" id="add-icon" style="background-color: #333BFF">+</button>

@@ -1,6 +1,5 @@
 const ApiClient = require('./extern/libapi').default.ihostApi;
 const axios = require('axios');
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 const { API_URL_GET_DEVICE_LIST } = require('./utils/const');
 module.exports = function (RED) {
     function GetDevicesNode(config) {
@@ -18,16 +17,16 @@ module.exports = function (RED) {
                     if (response.data.error === 0) {
                         let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
                         let tempList = [];
-                        for (var i = 0; i < dataList.length - 1; i++) {
+                        for (const item of dataList) {
                             if (config.device && config.device !== 'all') {
-                                if (dataList[i].serial_number == config.device) {
-                                    tempList.push(dataList[i]);
+                                if (item.serial_number == config.device) {
+                                    tempList.push(item);
                                 }
                             }
 
                             if (config.category && (config.device === '' || config.device === 'all')) {
-                                if (dataList[i].display_category == config.category) {
-                                    tempList.push(dataList[i]);
+                                if (item.display_category == config.category) {
+                                    tempList.push(item);
                                 }
                             }
                         }

@@ -93,11 +93,12 @@
             outputs: 1,
             icon: ' white-globe.svg',
             label() {
-                return this.name || 'get device';
+                return this.name || 'get-devices';
             },
             oneditprepare() {
                 const node = this;
-                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                const server = $('#node-input-server').val();
+                if ( server && server !== '_ADD_') {
                     getDeviceList(node);
                 }
 
@@ -114,9 +115,7 @@
                             deviceList.push(tempList[j]);
                         }
                     }
-
                     if (deviceList.length === 0) deviceList = tempList;
-
                     var deviceOption = renderOptions(deviceList, 'device');
                     $('#node-input-device').append(deviceOption);
                     if (node.server) {
@@ -130,19 +129,19 @@
 
 <script type="text/html" data-template-name="get-devices">
     <div class="form-row">
-        <label for="node-input-name"> Name </label>
+        <label for="node-input-name" data-i18n="get-devices.label.name"></label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
-        <label for="node-input-server"> Server </label>
+        <label for="node-input-server" data-i18n="get-devices.label.server"></label>
         <input type="text" id="node-input-server" placeholder="server" />
     </div>
     <div class="form-row">
-        <label for="node-input-category"> Category </label>
+        <label for="node-input-category" data-i18n="get-devices.label.category"></label>
         <select id="node-input-category" placeholder="Category" style="width:70%"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-device"> Device </label>
+        <label for="node-input-device" data-i18n="get-devices.label.device"></label>
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
 </script>

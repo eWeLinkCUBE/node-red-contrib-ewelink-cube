@@ -53,12 +53,11 @@
                                 if (node.device) {
                                     var categoryVal = $('#node-input-category').val();
                                     let deviceList = [];
-                                    for (var j = 0; j <= tempList.length - 1; j++) {
-                                        if (categoryVal == tempList[j].display_category) {
-                                            deviceList.push(tempList[j]);
+                                    for(const item of tempList){
+                                        if(categoryVal == item.display_category){
+                                            deviceList.push(item);
                                         }
                                     }
-
                                     if (deviceList.length === 0) deviceList = tempList;
 
                                     var deviceOption = renderOptions(deviceList, 'device');
@@ -116,7 +115,8 @@
                 });
 
                 const node = this;
-                if ($('#node-input-server').val() && $('#node-input-server').val() !== '_ADD_') {
+                const server = $('#node-input-server').val();
+                if ( server && server !== '_ADD_') {
                     getDeviceList(node);
                 }
 
@@ -147,23 +147,23 @@
 
 <script type="text/html" data-template-name="put-device-state">
     <div class="form-row">
-        <label for="node-input-name"> Name </label>
+        <label for="node-input-name" data-i18n="put-device-state.label.name"></label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
     <div class="form-row">
-        <label for="node-input-server"> Server </label>
+        <label for="node-input-server" data-i18n="put-device-state.label.server"> Server </label>
         <input type="text" id="node-input-server" placeholder="server" />
     </div>
     <div class="form-row">
-        <label for="node-input-category"> Category </label>
+        <label for="node-input-category" data-i18n="put-device-state.label.category"> Category </label>
         <select id="node-input-category" name="node-input-category" style="width:70%"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-device"> Device </label>
+        <label for="node-input-device" data-i18n="put-device-state.label.device"> Device </label>
         <select id="node-input-device" name="node-input-device" style="width:70%"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-state"> state </label>
+        <label for="node-input-state" data-i18n="put-device-state.label.state"> state </label>
         <input id="node-input-state" style="width:70%" />
     </div>
 </script>

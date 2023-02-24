@@ -1,7 +1,10 @@
 {
     "get-devices": {
         "label": {
-            "name": "Name"
+            "name": "Name",
+            "server":"Server",
+            "category":"Category",
+            "device":"Device"
         }
     }
 }

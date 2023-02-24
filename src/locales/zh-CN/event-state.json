@@ -1,7 +1,10 @@
 {
     "event-state": {
         "label": {
-            "name": "名称"
+            "name": "名称",
+            "server":"服务器",
+            "device":"设备",
+            "state":"状态"
         }
     }
 }

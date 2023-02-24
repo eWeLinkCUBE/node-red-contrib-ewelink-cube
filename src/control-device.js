@@ -9,12 +9,13 @@ module.exports = function (RED) {
         this.on('input', async (msg) => {
             node.log('config>>>>>>>>>>>>>>>' + JSON.stringify(config));
             const params = JSON.parse(JSON.stringify(config));
-            const list = JSON.parse(params.list);
             let data = {
                 id:config.server,
                 deviceId:config.device,
                 params:{}
             };
+            if(params.list === '')return;
+            const list = JSON.parse(params.list);
             if (params.device === list.deviceId) {
                 switch (list.type) {
                     case 'light':
