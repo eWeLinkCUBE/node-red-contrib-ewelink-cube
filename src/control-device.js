@@ -88,11 +88,7 @@ module.exports = function (RED) {
                 .post(url, data)
                 .then((res) => {
                     node.log('res>>>>>>>>>>>>>>>>>>>'+JSON.stringify(res.data));
-                    if (res.data.error === 0) {
-                        message = 'Device control succeeded ';
-                    } else {
-                        message = 'Device control failed ';
-                    }
+                    message = res.data;
                 })
                 .catch((error) => {
                     message = 'NetWork Error';

@@ -14,4 +14,39 @@
 ## 输出
 
 设备列表信息。
+
+示例：
+``` javascript
+    "device_list":  [
+      {
+        "serial_number": "ABCDEFGHIJK",
+        "third_serial_number": "third_serial_number",
+        "name": "我的设备",
+        "manufacturer": "SONOFF",
+        "model": "BASICZBR3",
+        "firmware_version": "1.1.0",
+        "display_category": "switch",
+        "capabilities": [
+          {
+            "capability": "power",
+            "permission": "readWrite"
+          },
+          {
+            "capability": "rssi",
+            "permission": "read"
+          }
+        ],
+        "protocal": "zigbee",
+        "state": {
+          "power": {
+            "powerState": "on"
+          }
+        },
+        "tags": {
+          "key": "value"
+        },
+        "online": true
+      }
+    ],
+```
 </script>
