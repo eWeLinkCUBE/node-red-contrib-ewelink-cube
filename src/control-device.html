@@ -24,6 +24,9 @@
             return optionStr;
         }
 
+        //Unsupported device type
+        const  supportedDeviceList =['plug','switch','curtain','light'];
+
         //Get deviceList
         function getDeviceList(node) {
             const server = $('#node-input-server').val();
@@ -39,8 +42,7 @@
                             let deviceList = res.data.device_list;
 
                             for (const item of deviceList) {
-                                if (item.display_category !== 'sensor') {
-                                    //remove seed
+                                if(supportedDeviceList.includes(item.display_category)){
                                     let params = {
                                         serial_number: item.serial_number,
                                         display_category: item.display_category,
@@ -233,14 +235,14 @@
                     name: node._('control-device.SelectOption.off'),
                     value: 'off',
                 },
-                {
-                    name: node._('control-device.SelectOption.keep'),
-                    value: 'keep',
-                },
-                {
-                    name: node._('control-device.SelectOption.reverse'),
-                    value: 'reverse',
-                },
+                // {
+                //     name: node._('control-device.SelectOption.keep'),
+                //     value: 'keep',
+                // },
+                // {
+                //     name: node._('control-device.SelectOption.reverse'),
+                //     value: 'reverse',
+                // },
             ],
             single: [
                 {
@@ -251,10 +253,10 @@
                     name: node._('control-device.SelectOption.off'),
                     value: 'off',
                 },
-                {
-                    name: node._('control-device.SelectOption.reverse'),
-                    value: 'reverse',
-                },
+                // {
+                //     name: node._('control-device.SelectOption.reverse'),
+                //     value: 'reverse',
+                // },
             ],
         };
 
@@ -332,7 +334,6 @@
                                 type="number"
                                 class="switch-select"
                                 placeholder='${node._('control-device.label.brightnessPercent')}(0%-100%)'
-                                style="width:328px!important"
                                 id="brightness"
                                 onchange="changeLight()"
                             />
@@ -342,7 +343,7 @@
                         <div id='colorAndtemp' class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'};position:relative">
                             <select
                                 class="half-action"
-                                style="width:64px!important;margin-right:22px"
+                                style="width:90px!important;margin-right:12px"
                                 id="FiveOrTwoLight"
                                 onchange='changeMode()'
                             >
@@ -354,6 +355,7 @@
                                 oninput='if(value>100)value=100;if(value<0)value=0'
                                 type='number'
                                 class='switch-select'
+                                style='calc(100% - 102px)'
                                 onblur='changeLight()'
                                 placeholder='${node._('control-device.label.colourPercent')}(0%-100%)'
                             />
@@ -413,6 +415,7 @@
                     oninput="if(value>100)value=100;if(value<0)value=0"
                     type="number"
                     class="switch-select"
+                    style='calc(100% - 102px)'
                     onblur="changeLight()"
                     placeholder='${outer_node._('control-device.label.colourPercent')} (0%-100%)'
                 />
@@ -423,10 +426,10 @@
                 `<input
                     id="light-color"
                     class="switch-select"
+                    style='calc(100% - 102px);margin-left:2px'
                     onblur="changeLight()"
                     placeholder='${outer_node._('control-device.label.hexRgbValue')}'
                     onchange="setColor(this)"
-                    style="width:110%!important"
                     onkeyup="value=value.replace(/[^#\dA-Fa-f/g,'')"
                     maxlength="8"
                 />
@@ -514,7 +517,7 @@
 </script>
 <style>
     #action {
-        width: 466px;
+        width: 92.8%;
         border: 1px solid #ccc;
         border-radius: 8px;
     }
@@ -522,7 +525,7 @@
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        padding: 0 15px;
+        padding: 0 15px 0 10px;
         height: 46px;
         border-bottom: 1px solid #ccc;
     }
@@ -538,24 +541,24 @@
         color: white;
     }
     .main-area {
-        padding: 10px 0px 0 6px;
+        padding: 10px 0px 0 0;
     }
 
     .device {
         display: flex;
         justify-content: flex-start;
-        width: 95%;
-        margin: 0 40px 10px 10px;
+        width: 90%;
+        margin: 0 0px 10px 10px;
         line-height: 34px;
     }
     .device-name {
         display: inline-block;
-        width: 85px;
+        width: 102px !important;
         text-align: left;
     }
     .switch-select,
     .multi-swtich {
-        width: 328px !important;
+        width: calc(100% - 102px) !important;
     }
     .half-action {
         display: inline-block;
@@ -563,6 +566,8 @@
         margin-right: 10px;
     }
     .color-box {
+        position: absolute;
+        right: -32px;
         display: inline-block;
         width: 30px;
         height: 30px;
@@ -573,7 +578,7 @@
         position: absolute;
         display: none;
         top: 7px;
-        right: 50px;
+        right: 25px;
         width: 18px;
         height: 18px;
         line-height: 18px;
@@ -592,9 +597,12 @@
     }
     .require{
         position:absolute;
-        left: -8px;
+        left: 0px!important;
         top: 10px;
         color: red;
         font-size: 20px;
+    }
+    .form-row{
+        padding-left: 10px;
     }
 </style>

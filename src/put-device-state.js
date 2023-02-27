@@ -8,7 +8,6 @@ module.exports = function (RED) {
         let that = this;
         let message = '';
         this.on('input', async (msg) => {
-            this.log('config————————————————————————————————————————————》' + JSON.stringify(config));
             const baseUrl = 'http://127.0.0.1:1880';
             const url = baseUrl + API_URL_CONTROL_DEVICE;
             let params = {
@@ -19,14 +18,10 @@ module.exports = function (RED) {
             await axios
                 .post(url, params)
                 .then((res) => {
-                    if(res.data.error === 0){
-                        message = 'Success';
-                    }else{
-                        message = 'Error'
-                    }
+                    message = res.data;
                 })
                 .catch((error) => {
-                    message = 'Error';
+                    message = 'Network Error';
                 });
             msg.payload = message;
             that.send(msg);
