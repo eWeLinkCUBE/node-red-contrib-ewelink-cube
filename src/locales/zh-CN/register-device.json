@@ -20,29 +20,29 @@
             "switch": "开关",
             "light": "灯",
             "curtain": "窗帘",
-            "contact_sensor": "Contact 传感器",
-            "motion_sensor": "Motion 传感器",
+            "contact_sensor": "门磁",
+            "motion_sensor": "PIR传感器",
             "temperature_sensor": "温度传感器",
             "humidity_sensor": "湿度传感器",
             "temperature_and_humidity_sensor": "温湿度传感器",
-            "water_leak_detector": "Water Leak Detector",
-            "smoke_detector": "Smoke Detector",
-            "button": "按钮"
+            "water_leak_detector": "水浸传感器",
+            "smoke_detector": "烟雾传感器",
+            "button": "无线按键"
         },
         "capability": {
-            "power": "Power",
-            "toggle": "Toggle",
-            "brightness": "亮度",
-            "color_temperature": "色温",
-            "color_rgb": "颜色",
-            "percentage": "Percentage",
-            "motor_control": "Motor Control",
-            "motor_reverse": "Motor Reverse",
-            "motor_clb": "Motor CLB",
-            "detect": "Detect",
-            "battery": "Battery",
-            "press": "Press",
-            "rssi": "RSSI"
+            "power": "电源控制",
+            "toggle": "子组件开关控制器",
+            "brightness": "亮度控制",
+            "color_temperature": "色温控制",
+            "color_rgb": "颜色控制",
+            "percentage": "范围调节",
+            "motor_control": "电机控制",
+            "motor_reverse": "电机反转",
+            "motor_clb": "电机校准检测",
+            "detect": "状态检测",
+            "battery": "剩余电池检测",
+            "press": "按键检测",
+            "rssi": "无线信号强度检测"
         }
     }
 }

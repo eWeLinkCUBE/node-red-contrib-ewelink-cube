@@ -6,7 +6,8 @@
         </label>
         <input type="text" id="node-config-input-name">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="position: relative;">
+        <span class="require">*</span>
         <label for="node-config-input-ip">
             <i class="fa fa-server"></i>
             <span data-i18n="api-server.label.ip"></span>
@@ -24,7 +25,7 @@
             <i class="fa fa-id-badge"></i>
             <span data-i18n="api-server.label.token"></span>
         </label>
-        <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;" disabled>
+        <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;background-color: #ccc;color: #ffff!important;" disabled>
             <i class="fa fa-search spinner"></i>
             <span class="btn-text" data-i18n="api-server.message.get_token"></span>
         </button>
@@ -79,6 +80,7 @@
      */
     function enableGetTokenBtn() {
         $(DOM_ID_GET_TOKEN_BTN).prop('disabled', false);
+        $(DOM_ID_GET_TOKEN_BTN).css('background-color','#1890ff');
     }
 
     /**
@@ -238,3 +240,13 @@
     });
 })();
 </script>
+
+<style>
+    .require{
+        position:absolute;
+        left: -8px;
+        top: 10px;
+        color: red;
+        font-size: 20px;
+    }
+</style>
