@@ -31,8 +31,9 @@ function buildCapabilities(capaJsonData) {
         } else {
             if (value === 'toggle') {
                 for (let i = 0; i < toggleNum; i++) {
-                    _.set(found, { name: `${i+1}` });
-                    result.push(found);
+                    const copy = _.cloneDeep(found);
+                    _.set(copy, 'name', `${i+1}`);
+                    result.push(copy);
                 }
             } else {
                 result.push(found);
@@ -125,22 +126,23 @@ module.exports = function (RED) {
             _.set(tags, TAG_API_SERVER_NODE_ID, server);
             _.set(tags, TAG_REG_DEV_NODE_ID, node.id);
 
+            const params = [
+                {
+                    name: deviceName,
+                    third_serial_number: deviceId,
+                    manufacturer,
+                    model,
+                    firmware_version: firmwareVersion,
+                    display_category: category,
+                    capabilities: buildCapabilities(capabilities),
+                    state,
+                    tags,
+                    service_address: `http://${serviceAddress}:1880${API_URL_IHOST_CALLBACK}`
+                }
+            ]
             const data = {
                 id: config.server,
-                params: [
-                    {
-                        name: deviceName,
-                        third_serial_number: deviceId,
-                        manufacturer,
-                        model,
-                        firmware_version: firmwareVersion,
-                        display_category: category,
-                        capabilities: buildCapabilities(capabilities),
-                        state,
-                        tags,
-                        service_address: `http://${serviceAddress}:1880${API_URL_IHOST_CALLBACK}`
-                    }
-                ]
+                params: JSON.stringify(params)
             };
             axios.post(`http://127.0.0.1:1880${API_URL_ADD_THIRDPARTY_DEVICE}`, data)
                 .then((res) => {

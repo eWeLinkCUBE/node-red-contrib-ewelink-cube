@@ -223,11 +223,11 @@ module.exports = function (RED) {
     // params:
     //       {
     //           "id": "xxx" - API server node ID
-    //           "params": {} - thirdparty device params
+    //           "params": "xxx" - thirdparty device params
     //       }
     RED.httpAdmin.post(API_URL_ADD_THIRDPARTY_DEVICE, (req, res) => {
         const id = req.body.id;
-        const params = req.body.params;
+        const params = JSON.parse(req.body.params);
 
         const nodeData = nodeDataCache.getNodeData(id);
         const node = RED.nodes.getNode(id);
