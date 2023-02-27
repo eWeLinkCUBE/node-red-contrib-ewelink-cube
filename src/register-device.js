@@ -48,7 +48,7 @@ module.exports = function (RED) {
         const node = this;
 
         node.on('input', () => {
-            const server = config.server.trim();   // check server
+            const server = config.server.trim();
             const deviceId = config.device_id.trim();
             const deviceName = config.device_name.trim();
             const category = config.category.trim();
@@ -144,13 +144,10 @@ module.exports = function (RED) {
             };
             axios.post(`http://127.0.0.1:1880${API_URL_ADD_THIRDPARTY_DEVICE}`, data)
                 .then((res) => {
-                    // TODO: handle success
-                    console.log(res);
                     node.send({ payload: res.data });
                 })
                 .catch((err) => {
-                    // TODO: handle fail
-                    console.error(err);
+                    node.error(err);
                 });
         });
     }

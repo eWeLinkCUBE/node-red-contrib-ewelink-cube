@@ -12,7 +12,7 @@
             <span data-i18n="api-server.label.ip"></span>
         </label>
         <div style="display: inline-flex; width: 70%;">
-            <input type="text" id="node-config-input-ip" style="width: 100%; margin-right: 10px;">
+            <input type="text" id="node-config-input-ip" style="width: 100%; margin-right: 10px;" placeholder="localhost">
             <a class="red-ui-button" id="node-config-input-search-btn">
                 <i class="fa fa-search"></i>
             </a>
@@ -117,6 +117,7 @@
                         } else if (res.error !== 0) {
                             $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.request_failed'));
                         } else {
+                            RED.notify(node._('api-server.message.connect_success'), { type: 'success '});
                             enableGetTokenBtn();
                         }
                         setSearchBtnIconSpin(false);
@@ -155,6 +156,7 @@
                 if (res.error === 0) {
                     $(DOM_ID_ERROR_HINT_GET_TOKEN).text('');
                     $(DOM_ID_INPUT_TOKEN).val(res.data.token);
+                    RED.notify(node._('api-server.message.get_token_success'), { type: 'success '});
                 } else {
                     $(DOM_ID_ERROR_HINT_GET_TOKEN).text(node._('api-server.message.request_failed'));
                 }
@@ -188,9 +190,14 @@
             }
         },
         label() {
-            return this.name || this.ip;
+            return this.name || this.ip || 'Token';
         },
         oneditprepare() {
+            // Set default name if input field is empty.
+            if ($(DOM_ID_INPUT_NAME).val() === '') {
+                $(DOM_ID_INPUT_NAME).val('Token');
+            }
+
             // Hide get token button icon.
             $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'none');
 
