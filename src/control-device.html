@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
 <script type="text/javascript">
     let tempList = [];
     // colour
@@ -5,6 +6,8 @@
     // Color temperature
     const COLOR_TEMPERATURE = 'color-temperature';
     let outer_node = null;
+    //colorpicker
+    let colorPicker = null;
 
     (function () {
         //render option
@@ -25,7 +28,7 @@
         }
 
         //Unsupported device type
-        const  supportedDeviceList =['plug','switch','curtain','light'];
+        const supportedDeviceList = ['plug', 'switch', 'curtain', 'light'];
 
         //Get deviceList
         function getDeviceList(node) {
@@ -42,7 +45,7 @@
                             let deviceList = res.data.device_list;
 
                             for (const item of deviceList) {
-                                if(supportedDeviceList.includes(item.display_category)){
+                                if (supportedDeviceList.includes(item.display_category)) {
                                     let params = {
                                         serial_number: item.serial_number,
                                         display_category: item.display_category,
@@ -91,7 +94,7 @@
 
         RED.nodes.registerType('control-device', {
             category: 'eWeLink Cube',
-            color: '#4697ff',
+            color: '#9487FB',
             defaults: {
                 name: {
                     value: '',
@@ -117,13 +120,13 @@
             },
             inputs: 1,
             outputs: 1,
-            icon: 'feed.svg',
+            icon: 'font-awesome/fa-toggle-off',
             label() {
                 return this.name || 'control-device';
             },
             oneditprepare() {
                 const node = this;
-                outer_node=node;
+                outer_node = node;
                 const serverVal = $('#node-input-server').val();
                 if (serverVal && serverVal !== '_ADD_') {
                     getDeviceList(node);
@@ -210,11 +213,16 @@
                     changeMode();
 
                     if (params.light.type === COLOR_RGB) {
-                        $('#light-color').val(params.light.colorOrTemp);
-                        setColor();
+                        if(params.light.colorOrTemp){
+                            $('#light-color').val(params.light.colorOrTemp);
+                            setColor();
+                            colorPicker.color.hexString=params.light.colorOrTemp;
+                        }
                     }
                     if (params.light.type === COLOR_TEMPERATURE) {
-                        $('#light-temp').val(params.light.colorOrTemp);
+                        if(params.light.colorOrTemp){
+                            $('#light-temp').val(params.light.colorOrTemp);
+                        }
                     }
                     break;
                 default:
@@ -359,7 +367,7 @@
                                 onblur='changeLight()'
                                 placeholder='${node._('control-device.label.colourPercent')}(0%-100%)'
                             />
-                            <i class="clear" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
+                            <i class="clear" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();" style="right:10px">×</i>
                         </div>`;
             default:
                 return '';
@@ -407,6 +415,7 @@
         $('#light-color').remove();
         $('#light-temp').remove();
         $('.color-box').remove();
+        $('.picker').remove();
 
         if (type === COLOR_TEMPERATURE) {
             $('#colorAndtemp').append(
@@ -423,19 +432,42 @@
             );
         } else {
             $('#colorAndtemp').append(
-                `<input
+                `
+                <i class="color-box"></i>
+                <input
                     id="light-color"
                     class="switch-select"
-                    style='calc(100% - 102px);margin-left:2px'
+                    style='width: calc((100% - 114px)/2)!important;margin-left:12px'
                     onblur="changeLight()"
                     placeholder='${outer_node._('control-device.label.hexRgbValue')}'
                     onchange="setColor(this)"
                     onkeyup="value=value.replace(/[^#\dA-Fa-f/g,'')"
                     maxlength="8"
+                    disabled
                 />
-                <i class="color-box"></i>
                 `
             );
+            $('.main-area').append(
+                `<div class="picker">
+                    <div class="colorPicker"></div>
+                </div>`
+            );
+            colorPicker = new iro.ColorPicker('.colorPicker', {
+                width: 210,
+                color: 'rgb(255, 15, 39)',
+                borderWidth: 1,
+                borderColor: '#fff',
+                wheelLightness: false,
+            });
+            colorPicker.on('color:change', function (color) {
+                // console.log('>>>>>>>>>>>>>',color.hexString,color.rgbString,color.hslString);
+                $('#light-color').val(color.hexString);
+                setColor();
+                changeLight();
+            });
+
+
+            // colorPicker.color.rgb = { r: 255, g: 255, b: 255 }
         }
     }
     //light
@@ -481,6 +513,9 @@
 
     function setColor(value) {
         const colorVal = $('#light-color').val();
+        if(colorVal){
+            colorPicker.color.hexString=colorVal;
+        }
         $('.color-box').css('background-color', colorVal);
     }
 </script>
@@ -566,13 +601,9 @@
         margin-right: 10px;
     }
     .color-box {
-        position: absolute;
-        right: -32px;
         display: inline-block;
-        width: 30px;
-        height: 30px;
-        margin-left: 5px;
-        margin-top: 2px;
+        width: calc((100% - 114px)/2)!important;
+        height: 34px;
     }
     .clear {
         position: absolute;
@@ -595,14 +626,22 @@
     #colorAndtemp:hover .clear {
         display: block;
     }
-    .require{
-        position:absolute;
-        left: 0px!important;
+    .require {
+        position: absolute;
+        left: 0px !important;
         top: 10px;
         color: red;
         font-size: 20px;
     }
-    .form-row{
+    .form-row {
         padding-left: 10px;
+    }
+    .IroSlider{
+        display: none!important;
+    }
+    .IroWheel{
+        margin:0 auto;
+        margin-top: 16px;
+        margin-bottom: 16px;
     }
 </style>
