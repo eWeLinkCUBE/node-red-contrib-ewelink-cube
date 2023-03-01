@@ -1,30 +1,30 @@
 const ApiClient = require('./extern/libapi').default.ihostApi;
+const {API_URL_CONTROL_DEVICE,EVENT_NODE_RED_ERROR} = require('./utils/const');
 const axios = require('axios');
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-const { API_URL_CONTROL_DEVICE } = require('./utils/const');
 module.exports = function (RED) {
     function PutDeviceStateNode(config) {
         RED.nodes.createNode(this, config);
-        let that = this;
-        let message = '';
-        this.on('input', async (msg) => {
-            const baseUrl = 'http://127.0.0.1:1880';
-            const url = baseUrl + API_URL_CONTROL_DEVICE;
+        const node = this;
+
+        node.on('input', () => {
+            const server = config.server.trim();
+            if (!server) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'put-state-device: no server' });
+                return;
+            }
+
             let params = {
                 id: config.server,
                 deviceId: config.device,
                 params: config.state,
             };
-            await axios
-                .post(url, params)
-                .then((res) => {
-                    message = res.data;
-                })
-                .catch((error) => {
-                    message = 'Network Error';
-                });
-            msg.payload = message;
-            that.send(msg);
+            axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, params)
+            .then((res) => {
+                node.send({ payload: res.data });
+            })
+            .catch((error) => {
+                node.error(err);
+            });
         });
     }
 

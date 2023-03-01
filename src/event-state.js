@@ -14,6 +14,7 @@ module.exports = function (RED) {
                 let list = config.list+config.state;
                 if(config.device === 'all' || !config.device){
                     node.send({ payload: data.msg.data });
+                    return;
                 }
                 if(config.device === deviceData.endpoint.serial_number && (config.state || config.list)){
                     if(list.indexOf(KeyName)!== -1 || config.state === 'all'){

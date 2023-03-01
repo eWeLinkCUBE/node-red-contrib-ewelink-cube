@@ -22,11 +22,11 @@
 
     (function () {
         let tempList = [];
-        function renderOptions(list) {
-            if (!list.length || list.length < 1) return '';
+        function renderOptions(optionList) {
+            if (!optionList.length || optionList.length < 1) return '';
             $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option></option><option value="all">ALL</option>';
-            for (const item of list) {
+            for (const item of optionList) {
                 optionStr += '<option' + ' value=' + item.serial_number + '>' + (item.name || item.manufacturer + item.display_category) + '</option>';
             }
             return optionStr;

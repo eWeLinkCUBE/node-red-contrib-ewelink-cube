@@ -1,13 +1,18 @@
 <script type="text/javascript">
     (function () {
+        const DOM_ID_INPUT_DEVICE = '#node-input-device';
+        const DOM_ID_INPUT_SERVER = '#node-input-server';
+        const DOM_ID_INPUT_STATE = '#node-input-state';
+        const DOM_ID_INPUT_CATEGORY = '#node-input-category';
+        const SERVER_EMPTY = '_ADD_';
+
         let tempList = [];
-        let List = [];
-        function renderOptions(list, type) {
-            if (!list.length || list.length < 1) return '';
-            let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
+        function renderOptions(optionList, type) {
+            if (!optionList.length || optionList.length < 1) return '';
+            let dom = type == 'category' ? $(DOM_ID_INPUT_CATEGORY) : $(DOM_ID_INPUT_DEVICE);
             dom.get(0).options.length = 0;
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
-            for (const item of list) {
+            for (const item of optionList) {
                 let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
                 let value = type == 'category' ? item.display_category : item.serial_number;
                 if (type == 'device' || (type == 'category' && optionStr.indexOf(content) == -1)) {
@@ -18,7 +23,7 @@
         }
 
         function getDeviceList(node) {
-            const server = $('#node-input-server').val();
+            const server = $(DOM_ID_INPUT_SERVER).val();
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
@@ -29,7 +34,6 @@
                         if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
                             tempList = [];
                             let deviceList = res.data.device_list;
-                            List = res.data.device_list;
                             for (const item of deviceList) {
                                 if (item.display_category !== 'sensor') {
                                     //remove seed
@@ -45,13 +49,13 @@
                             }
 
                             var categoryOption = renderOptions(tempList, 'category');
-                            $('#node-input-category').append(categoryOption);
+                            $(DOM_ID_INPUT_CATEGORY).append(categoryOption);
 
                             if (node.server) {
-                                $('#node-input-category').val(node.category);
+                                node.category && $(DOM_ID_INPUT_CATEGORY).val(node.category);
 
                                 if (node.device) {
-                                    var categoryVal = $('#node-input-category').val();
+                                    var categoryVal = $(DOM_ID_INPUT_CATEGORY).val();
                                     let deviceList = [];
                                     for(const item of tempList){
                                         if(categoryVal == item.display_category){
@@ -61,12 +65,12 @@
                                     if (deviceList.length === 0) deviceList = tempList;
 
                                     var deviceOption = renderOptions(deviceList, 'device');
-                                    $('#node-input-device').append(deviceOption);
+                                    $(DOM_ID_INPUT_DEVICE).append(deviceOption);
 
-                                    $('#node-input-device').val(node.device);
+                                    $(DOM_ID_INPUT_DEVICE).val(node.device);
                                 }
                                 if (node.state) {
-                                    $('#node-input-state').val(node.state);
+                                    $(DOM_ID_INPUT_STATE).val(node.state);
                                 }
                             }
                         }
@@ -109,24 +113,24 @@
                 return this.name || 'put-device-state';
             },
             oneditprepare() {
-                $('#node-input-state').typedInput({
+                $(DOM_ID_INPUT_STATE).typedInput({
                     type: 'json',
                     types: ['json'],
                 });
 
                 const node = this;
-                const server = $('#node-input-server').val();
-                if ( server && server !== '_ADD_') {
+                const server = $(DOM_ID_INPUT_SERVER).val();
+                if ( server && server !== SERVER_EMPTY) {
                     getDeviceList(node);
                 }
 
-                $('#node-input-category').on('focus', () => {
+                $(DOM_ID_INPUT_CATEGORY).on('focus', () => {
                     getDeviceList(node);
                 });
 
-                $('#node-input-category').on('change', () => {
-                    var categoryVal = $('#node-input-category').val();
-                    $('#node-input-device').val('');
+                $(DOM_ID_INPUT_CATEGORY).on('change', () => {
+                    var categoryVal = $(DOM_ID_INPUT_CATEGORY).val();
+                    $(DOM_ID_INPUT_DEVICE).val('');
 
                     let deviceList = [];
                     for (const item of tempList) {
@@ -138,7 +142,7 @@
                     if (deviceList.length === 0) deviceList = tempList;
 
                     var deviceOption = renderOptions(deviceList, 'device');
-                    $('#node-input-device').append(deviceOption);
+                    $(DOM_ID_INPUT_DEVICE).append(deviceOption);
                 });
             },
         });
