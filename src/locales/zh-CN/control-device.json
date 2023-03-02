@@ -17,7 +17,7 @@
             "hexRgbValue":"16进制RGB值(如#FF0000)"
         },
         "action":{
-            "action":"必填项"
+            "action":"动作"
         },
         "SelectOption":{
             "on":"打开",

@@ -28,7 +28,7 @@ module.exports = function (RED) {
                 node.send({ payload: res.data });
             })
             .catch((error) => {
-                node.error(err);
+                node.error(error);
             });
         });
     }

@@ -91,7 +91,8 @@
                     data: JSON.stringify({ id: server }),
                     success(res) {
                         if (res.error !== 0) {
-                            console.log('req failed')
+                            console.log('req failed');
+                            RED.notify(`${node._('event-online.message.connect_fail')}`, { type: 'error' });
                         } else {
                             const deviceList = res.data.device_list;
                             // Clear select and insert an empty option.
@@ -108,6 +109,7 @@
                         }
                     },
                     error(err) {
+                        RED.notify(`${node._('event-online.message.connect_fail')}`, { type: 'error' });
                         console.error(err);
                     }
                 });

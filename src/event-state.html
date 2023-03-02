@@ -81,9 +81,12 @@
                             }
                             node.list && $('.node-input-state-class').remove() && $('#main-area').eq(0).nextAll().remove() && renderAddtionState();
                         }
+                    }else{
+                        RED.notify(`${node._('event-state.message.connect_fail')}`, { type: 'error' });
                     }
                 },
                 error(error) {
+                    RED.notify(`${node._('event-state.message.connect_fail')}`, { type: 'error' });
                     console.log('network error', error);
                 },
             });

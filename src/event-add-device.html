@@ -31,6 +31,25 @@
         icon: 'font-awesome/fa-plus-square-o',
         label() {
             return this.name || 'event-add-device';
+        },
+        oneditprepare() {
+            const server = $('#node-input-server').val();
+            const node = this;
+            $.ajax({
+                type: 'POST',
+                url: 'ewelink-cube-api-v1/get-device-list',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ id: server }),
+                success(res) {
+                    if (res.error !== 0) {
+                        RED.notify(`${node._('event-add-device.message.connect_fail')}`, { type: 'error' });
+                    }
+                },
+                error(error) {
+                    RED.notify(`${node._('event-add-device.message.connect_fail')}`, { type: 'error' });
+                    console.log('network error', error);
+                },
+            });
         }
     });
 })();

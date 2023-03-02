@@ -43,9 +43,12 @@
                                 $(DOM_ID_INPUT_DEVICE).val(node.device);
                             }
                         }
+                    }else{
+                        RED.notify(`${node._('event-device-info.message.connect_fail')}`, { type: 'error' });
                     }
                 },
                 error(error) {
+                    RED.notify(`${node._('event-device-info.message.connect_fail')}`, { type: 'error' });
                     console.log('network error', error);
                 },
             });
