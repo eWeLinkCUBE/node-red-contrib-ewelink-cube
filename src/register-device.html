@@ -130,6 +130,7 @@
         },
         paletteLabel: 'register device',
         oneditprepare() {
+            debugger
             const server = $('#node-input-server').val();
             if (server !== '_ADD_') {
                 $.ajax({
@@ -304,6 +305,9 @@
             // Render category list.
             for (const item of CATE_LIST) {
                 $(DOM_ID_INPUT_CATEGORY).append(`<option value="${item.value}">${item.name}</option>`);
+            }
+            if (node.category) {
+                $(DOM_ID_INPUT_CATEGORY).val(node.category);
             }
 
             // Render capability list.
