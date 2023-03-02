@@ -71,11 +71,11 @@
                             }
                         }
                     }else{
-                        // node._('control-device.message.connect_fail')
+                        RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
                     }
                 },
                 error(error) {
-                    // node._('control-device.message.connect_fail')
+                    RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
                     console.log('network error', error);
                 },
             });
@@ -582,7 +582,8 @@
         <select id="node-input-device" placeholder="Device" style="width:70%"></select>
     </div>
     <div id="action">
-        <header id="header">
+        <header id="header" style="position:relative">
+            <span class="require" style="top:16px!important">*</span>
             <span data-i18n="control-device.action.action"></span>
         </header>
         <div class="main-area"></div>

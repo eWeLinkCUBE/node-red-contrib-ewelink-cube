@@ -74,9 +74,12 @@
                                 }
                             }
                         }
+                    }else{
+                        RED.notify(`${node._('put-device-state.message.connect_fail')}`, { type: 'error' });
                     }
                 },
                 error(error) {
+                    RED.notify(`${node._('put-device-state.message.connect_fail')}`, { type: 'error' });
                     console.log('network error', error);
                 },
             });

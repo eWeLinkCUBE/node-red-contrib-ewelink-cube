@@ -31,7 +31,7 @@ module.exports = function (RED) {
                             }
                         }
 
-                        if (config.category === 'all' && (config.device === 'all' || config.device === '')) {
+                        if ((config.category === 'all' || config.category ==='') && (config.device === 'all' || config.device === '')) {
                             message = dataList;
                         } else {
                             message = tempList;

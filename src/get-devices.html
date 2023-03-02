@@ -62,9 +62,12 @@
                                 }
                             }
                         }
+                    }else{
+                        RED.notify(`${node._('get-devices.message.connect_fail')}`, { type: 'error' });
                     }
                 },
                 error(error) {
+                    RED.notify(`${node._('get-devices.message.connect_fail')}`, { type: 'error' });
                     console.log('network error', error);
                 },
             });

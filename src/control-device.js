@@ -112,7 +112,7 @@ module.exports = function (RED) {
                 }
             })
             .catch((error) => {
-                node.error(err);
+                node.error(error);
             });
         });
     }
