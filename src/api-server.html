@@ -107,7 +107,7 @@
             return;
         } else {
             const ipRegex = /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
-            if (!ipRegex.test(ip) && ip !== 'ihost' && ip !== 'ihost.local') {
+            if (!ipRegex.test(ip) && ip !== 'ihost' && ip !== 'ihost.local' && ip !== 'eWelinkSmartPanel' && ip !== 'NSPanelPro' && ip !== 'eWeLinkSmartPanel') {
                 $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.invalid_ip'));
                 return;
             } else {
