@@ -8,6 +8,7 @@
     let outer_node = null;
     //colorpicker
     let colorPicker = null;
+    const SERVER_EMPTY = '_ADD_';
 
     (function () {
         //render option
@@ -71,11 +72,15 @@
                             }
                         }
                     }else{
-                        RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
+                        if(server && server!==SERVER_EMPTY){
+                            RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
+                        }
                     }
                 },
                 error(error) {
-                    RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
+                    if(server && server!==SERVER_EMPTY){
+                        RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
+                    }
                     console.log('network error', error);
                 },
             });

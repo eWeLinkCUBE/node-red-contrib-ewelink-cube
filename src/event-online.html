@@ -92,7 +92,9 @@
                     success(res) {
                         if (res.error !== 0) {
                             console.log('req failed');
-                            RED.notify(`${node._('event-online.message.connect_fail')}`, { type: 'error' });
+                            if(server && server!==SERVER_EMPTY){
+                                RED.notify(`${node._('event-online.message.connect_fail')}`, { type: 'error' });
+                            }
                         } else {
                             const deviceList = res.data.device_list;
                             // Clear select and insert an empty option.
@@ -109,7 +111,9 @@
                         }
                     },
                     error(err) {
-                        RED.notify(`${node._('event-online.message.connect_fail')}`, { type: 'error' });
+                        if(server && server!==SERVER_EMPTY){
+                            RED.notify(`${node._('event-online.message.connect_fail')}`, { type: 'error' });
+                        }
                         console.error(err);
                     }
                 });

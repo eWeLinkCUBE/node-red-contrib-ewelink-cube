@@ -7,8 +7,17 @@ module.exports = function (RED) {
 
         node.on('input', () => {
             const server = config.server.trim();
+            let state = config.state.trim();
             if (!server) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'put-state-device: no server' });
+                return;
+            }
+
+            try {
+                state = JSON.parse(state);
+            } catch (err) {
+                console.error(err);
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'put-state-device: state should be JSON' })
                 return;
             }
 
