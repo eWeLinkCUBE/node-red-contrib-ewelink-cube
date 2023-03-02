@@ -221,8 +221,8 @@
                             $('#light-color').val(params.light.colorOrTemp);
                             colorPicker.color.hexString=params.light.colorOrTemp;
                         }else{
-                            $('#light-color').val('#ff002f');
-                            colorPicker.color.hexString='#ff002f';
+                            $('#light-color').val('#ff0000');
+                            colorPicker.color.hexString='#ff0000';
                         }
                         setColor();
                     }
@@ -292,11 +292,11 @@
         switch (device.display_category) {
             case 'curtain':
                 return `<div class='device'>
-                            <span class="device-name">${node._('control-device.label.percentControl')}</span>
+                            <span class="device-name" style="width:120px!important">${node._('control-device.label.percentControl')}</span>
                             <input
-                                oninput="if(value>100)value=100;if(value<1)value=1"
+                                oninput="if(value>100)value=100;if(value<0)value=0"
                                 type="number"
-                                placeholder="${node._('control-device.label.percentValue')}(1%~100%)"
+                                placeholder="${node._('control-device.label.percentValue')}(0%~100%)"
                                 style="width:328px"
                                 onblur="curtainChange(this)"
                                 id="curtain"
@@ -345,7 +345,7 @@
                         <div class="device brightness" style="position:relative">
                             <span class="device-name">${node._('control-device.label.brightness')}</span>
                             <input
-                                oninput="if(value>100)value=100;if(value<1)value=1"
+                                oninput="if(value>100)value=100;if(value<0)value=0"
                                 type="number"
                                 class="switch-select"
                                 placeholder='${node._('control-device.label.brightnessPercent')}(1%-100%)'
@@ -367,24 +367,32 @@
                             </select>
                             <input
                                 id='light-temp'
-                                oninput='if(value>100)value=100;if(value<1)value=1'
+                                oninput='if(value>100)value=100;if(value<0)value=0'
                                 type='number'
                                 class='switch-select'
                                 style='calc(100% - 102px)'
                                 onblur='changeLight()'
                                 placeholder='${node._('control-device.label.colourPercent')}(1%-100%)'
                             />
+                            <i class="clearColor" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
                         </div>`;
             default:
                 return '';
         }
     }
+
     //curtain
     function curtainChange(val, node) {
-        $('#node-input-list').val('');
         const curtain = $('#curtain').val();
+        const reg = /^([0-9]?\d|100)$/;
+        if(!reg.test($('#curtain').val())){
+            $('#curtain').val(Math.floor(curtain));
+            RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
+        }
+
+        $('#node-input-list').val('');
         const deviceVal = $('#node-input-device').val();
-        const params = { type: 'curtain', curtain: curtain, deviceId: deviceVal };
+        const params = { type: 'curtain', curtain: Number($('#curtain').val()), deviceId: deviceVal };
         if (curtain) {
             $('#node-input-list').val(JSON.stringify(params));
         }
@@ -404,12 +412,12 @@
             const multiVal = $('.multi-swtich');
             let multi = {};
             $('.multi-swtich').each(function (index, item) {
-                if ($(this).val()) {
+                // if ($(this).val()) {
                     multi[index + 1] = $(this).val();
                     params.multi = multi;
                     params.deviceId = deviceVal;
                     params.type = 'multi';
-                }
+                // }
             });
             $('#node-input-list').val(JSON.stringify(params));
         }
@@ -427,7 +435,7 @@
             $('#colorAndtemp').append(
                 `<input
                     id="light-temp"
-                    oninput="if(value>100)value=100;if(value<1)value=1"
+                    oninput="if(value>100)value=100;if(value<0)value=0"
                     type="number"
                     class="switch-select"
                     style='calc(100% - 102px)'
@@ -472,8 +480,8 @@
                 setColor();
                 changeLight();
             });
-            $('#light-color').val('#ff002f');
-            colorPicker.color.hexString='#ff002f';
+            $('#light-color').val('#ff0000');
+            colorPicker.color.hexString='#ff0000';
             setColor();
             changeLight();
             // colorPicker.color.rgb = { r: 255, g: 255, b: 255 }
@@ -481,6 +489,28 @@
     }
     //light
     function changeLight() {
+        //check
+        const brightnessVal = $('#brightness').val();
+        const colorVal = $('#light-temp').val();
+        const reg = /^([1-9][0-9]{0,1}|100)$/;
+        if(!reg.test(brightnessVal) && brightnessVal!== ''){
+            if(brightnessVal == 0){
+                $('#brightness').val(1);
+            }else{
+                $('#brightness').val(Math.floor(brightnessVal));
+            }
+            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
+        }
+
+        if(!reg.test(colorVal) && colorVal!== ''&& $('#FiveOrTwoLight').val() == COLOR_TEMPERATURE){
+            if(colorVal == 0){
+                $('#light-temp').val(1);
+            }else{
+                $('#light-temp').val(Math.floor(colorVal));
+            }
+            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
+        }
+
         const deviceVal = $('#node-input-device').val();
         let device = tempList.find((item) => item.serial_number === deviceVal);
         const powerVal = $('#power').val();
@@ -517,7 +547,6 @@
         if (deviceVal) {
             $('#node-input-list').val(JSON.stringify(params));
         }
-        // console.log('>>>>>>>>>>>>>>>>>>>', powerVal, brightness, lightType, colorOrTemp);
     }
 
     function setColor(value) {

@@ -26,7 +26,13 @@
             "reverse":"reverse"
         },
         "message": {
-            "connect_fail": "Failed to connect. Please check Server configuration. "
+            "connect_fail": "Failed to connect. Please check Server configuration. ",
+            "integer_limit":"请输入0-100的整数",
+            "positive_integer_limit":"请输入1-100的整数",
+            "group_notexist":"id对应的子设备/群组不存在",
+            "update_fail":"更新设备状态失败",
+            "access_failed":"三方设备服务地址访问失败",
+            "device_offline":"设备离线"
         }
     }
 }
