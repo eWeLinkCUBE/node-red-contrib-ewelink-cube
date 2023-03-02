@@ -35,6 +35,7 @@
         oneditprepare() {
             const server = $('#node-input-server').val();
             const node = this;
+            const SERVER_EMPTY = '_ADD_';
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
@@ -42,11 +43,15 @@
                 data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.error !== 0) {
-                        RED.notify(`${node._('event-add-device.message.connect_fail')}`, { type: 'error' });
+                        if(server && server!==SERVER_EMPTY){
+                            RED.notify(`${node._('event-add-device.message.connect_fail')}`, { type: 'error' });
+                        }
                     }
                 },
                 error(error) {
-                    RED.notify(`${node._('event-add-device.message.connect_fail')}`, { type: 'error' });
+                    if(server && server!==SERVER_EMPTY){
+                        RED.notify(`${node._('event-add-device.message.connect_fail')}`, { type: 'error' });
+                    }
                     console.log('network error', error);
                 },
             });

@@ -68,6 +68,7 @@
     const DOM_ID_INPUT_TAGS = '#node-input-tags';
     const DOM_ID_INPUT_STATE = '#node-input-state';
     const DOM_ID_CAPA_LIST = '#capa-list';
+    const SERVER_EMPTY = '_ADD_';
 
     RED.nodes.registerType('register-device', {
         category: 'eWeLink Cube',
@@ -131,6 +132,7 @@
         paletteLabel: 'register device',
         oneditprepare() {
             const server = $('#node-input-server').val();
+            const node = this;
             $.ajax({
                 type: 'POST',
                 url: 'ewelink-cube-api-v1/get-device-list',
@@ -138,15 +140,18 @@
                 data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.error !== 0) {
-                        RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
+                        if(server && server!==SERVER_EMPTY){
+                            RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
+                        }
                     }
                 },
                 error(error) {
-                    RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
+                    if(server && server!==SERVER_EMPTY){
+                        RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
+                    }
                     console.log('network error', error);
                 },
             });
-            const node = this;
             // Device category list
             const CATE_LIST = [
                 {

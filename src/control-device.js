@@ -100,23 +100,10 @@ module.exports = function (RED) {
                     node.status({ text: '' });
                 } else {
                     node.status({ fill: 'red', shape: 'ring', text: RED._('control-device.message.connect_fail') });
+                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.node_execution_failed')}` });
                 }
-
                 node.log('res>>>>>>>>>>>>>>>>>>>'+JSON.stringify(res.data));
                 node.send({ payload: res.data });
-
-                if(res.data.error === 110000){
-                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.group_notexist')}` });
-                }
-                if(res.data.error === 110005){
-                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.device_offline')}` });
-                }
-                if(res.data.error === 110006){
-                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.update_fail')}` });
-                }
-                if(res.data.error === 110019){
-                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.access_failed')}` });
-                }
             })
             .catch((error) => {
                 node.error(error);

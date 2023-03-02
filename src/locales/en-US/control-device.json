@@ -5,16 +5,16 @@
             "server":"Server",
             "category":"Category",
             "device":"Device",
-            "percentControl":"百分比控制",
-            "percentValue":"百分比值",
+            "percentControl":"Percentage control",
+            "percentValue":"Open percentage",
             "switch":"Switch",
             "brightness":"Brightness",
-            "brightnessPercent":"亮度百分比",
+            "brightnessPercent":"Brightness ",
             "colourTemperature":"Color Temp",
             "color":"Color",
-            "colourPercent":"色温百分比",
-            "notSelect":"未选择",
-            "hexRgbValue":"16进制RGB值(如#FF0000)"
+            "colourPercent":"Color temperature",
+            "notSelect":"Please select",
+            "hexRgbValue":"RGB(eg:#FF0000)"
         },
         "action":{
             "action":"Action"
@@ -27,12 +27,9 @@
         },
         "message": {
             "connect_fail": "Failed to connect. Please check Server configuration. ",
-            "integer_limit":"请输入0-100的整数",
-            "positive_integer_limit":"请输入1-100的整数",
-            "group_notexist":"id对应的子设备/群组不存在",
-            "update_fail":"更新设备状态失败",
-            "access_failed":"三方设备服务地址访问失败",
-            "device_offline":"设备离线"
+            "integer_limit":"Enter an integer from 0 to 100",
+            "positive_integer_limit":"Enter an integer from 1 to 100",
+            "node_execution_failed":"Failed. Please check Node configuration."
         }
     }
 }
