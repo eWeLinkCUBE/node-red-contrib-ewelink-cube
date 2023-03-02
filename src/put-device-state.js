@@ -1,4 +1,3 @@
-const ApiClient = require('./extern/libapi').default.ihostApi;
 const {API_URL_CONTROL_DEVICE,EVENT_NODE_RED_ERROR} = require('./utils/const');
 const axios = require('axios');
 module.exports = function (RED) {
@@ -20,6 +19,12 @@ module.exports = function (RED) {
             };
             axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, params)
             .then((res) => {
+                // Add status
+                if (res.data.error === 0) {
+                    node.status({ text: '' });
+                } else {
+                    node.status({ fill: 'red', shape: 'ring', text: RED._('put-device-state.message.connect_fail') });
+                }
                 node.send({ payload: res.data });
             })
             .catch((error) => {

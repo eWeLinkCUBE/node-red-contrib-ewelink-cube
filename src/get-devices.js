@@ -1,4 +1,3 @@
-const ApiClient = require('./extern/libapi').default.ihostApi;
 const axios = require('axios');
 const { API_URL_GET_DEVICE_LIST } = require('./utils/const');
 module.exports = function (RED) {
@@ -14,6 +13,13 @@ module.exports = function (RED) {
             await axios
                 .post(url, { id: config.server })
                 .then(function (response) {
+                    // Add status
+                    if (response.data.error === 0) {
+                        node.status({ text: '' });
+                    } else {
+                        node.status({ fill: 'red', shape: 'ring', text: RED._('get-devices.message.connect_fail') });
+                    }
+
                     if (response.data.error === 0) {
                         let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
                         let tempList = [];

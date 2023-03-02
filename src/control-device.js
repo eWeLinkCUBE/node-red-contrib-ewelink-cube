@@ -95,6 +95,13 @@ module.exports = function (RED) {
             data.params=JSON.stringify(data.params);
             axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, data)
             .then((res) => {
+                // Add status
+                if (res.data.error === 0) {
+                    node.status({ text: '' });
+                } else {
+                    node.status({ fill: 'red', shape: 'ring', text: RED._('control-device.message.connect_fail') });
+                }
+
                 node.log('res>>>>>>>>>>>>>>>>>>>'+JSON.stringify(res.data));
                 node.send({ payload: res.data });
 

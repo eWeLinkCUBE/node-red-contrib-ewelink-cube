@@ -146,6 +146,12 @@ module.exports = function (RED) {
             };
             axios.post(`http://127.0.0.1:1880${API_URL_ADD_THIRDPARTY_DEVICE}`, data)
                 .then((res) => {
+                    // Add status
+                    if (res.data.error === 0) {
+                        node.status({ text: '' });
+                    } else {
+                        node.status({ fill: 'red', shape: 'ring', text: RED._('register-device.message.connect_fail') });
+                    }
                     node.send({ payload: res.data });
                 })
                 .catch((err) => {
