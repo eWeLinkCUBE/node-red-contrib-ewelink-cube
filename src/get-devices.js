@@ -7,7 +7,7 @@ module.exports = function (RED) {
         this.on('input', async (msg) => {
             this.log('config-------------------------------->' + JSON.stringify(config));
             let message = [];
-            const baseUrl = 'http://localhost:1880';
+            const baseUrl = 'http://127.0.0.1:1880';
             const url = baseUrl + API_URL_GET_DEVICE_LIST;
             let that = this;
             await axios
@@ -15,9 +15,9 @@ module.exports = function (RED) {
                 .then(function (response) {
                     // Add status
                     if (response.data.error === 0) {
-                        node.status({ text: '' });
+                        that.status({ text: '' });
                     } else {
-                        node.status({ fill: 'red', shape: 'ring', text: RED._('get-devices.message.connect_fail') });
+                        that.status({ fill: 'red', shape: 'ring', text: RED._('get-devices.message.connect_fail') });
                     }
 
                     if (response.data.error === 0) {
