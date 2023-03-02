@@ -131,21 +131,23 @@
         paletteLabel: 'register device',
         oneditprepare() {
             const server = $('#node-input-server').val();
-            $.ajax({
-                type: 'POST',
-                url: 'ewelink-cube-api-v1/get-device-list',
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify({ id: server }),
-                success(res) {
-                    if (res.error !== 0) {
+            if (server !== '_ADD_') {
+                $.ajax({
+                    type: 'POST',
+                    url: 'ewelink-cube-api-v1/get-device-list',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({ id: server }),
+                    success(res) {
+                        if (res.error !== 0) {
+                            RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
+                        }
+                    },
+                    error(error) {
                         RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
-                    }
-                },
-                error(error) {
-                    RED.notify(`${node._('register-device.message.connect_fail')}`, { type: 'error' });
-                    console.log('network error', error);
-                },
-            });
+                        console.log('network error', error);
+                    },
+                });
+            }
             const node = this;
             // Device category list
             const CATE_LIST = [
