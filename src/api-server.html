@@ -26,7 +26,9 @@
             <span data-i18n="api-server.label.token"></span>
         </label>
         <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;background-color: #ccc;color: #ffff!important;" disabled>
-            <i class="fa fa-search spinner"></i>
+            <!-- Spin icon -->
+            <!-- <i class="fa fa-search spinner"></i> -->
+            <span class="count-down"></span>
             <span class="btn-text" data-i18n="api-server.message.get_token"></span>
         </button>
         <!-- Store token -->
@@ -43,11 +45,15 @@
     const DOM_ID_GET_TOKEN_BTN = '#node-config-input-get-token-btn';
     const DOM_ID_GET_TOKEN_BTN_ICON = `${DOM_ID_GET_TOKEN_BTN} i`;
     const DOM_ID_GET_TOKEN_BTN_TEXT = `${DOM_ID_GET_TOKEN_BTN} .btn-text`;
+    const DOM_ID_GET_TOKEN_COUNT_DOWN = `${DOM_ID_GET_TOKEN_BTN} .count-down`;
     const DOM_ID_INPUT_NAME = '#node-config-input-name';
     const DOM_ID_INPUT_IP = '#node-config-input-ip';
     const DOM_ID_INPUT_TOKEN = '#node-config-input-token';
     const DOM_ID_ERROR_HINT_INPUT_IP = '#error-hint-input-ip';
     const DOM_ID_ERROR_HINT_GET_TOKEN = '#error-hint-get-token';
+
+    // Count down timer
+    let countDownTimerId = null;
 
     /**
      * Set search button icon spin state.
@@ -135,6 +141,39 @@
     }
 
     /**
+     * Whether get token button exist.
+     */
+    function getTokenBtnExist() {
+        return $(DOM_ID_GET_TOKEN_BTN).length !== 0;
+    }
+
+    /**
+     * Set count down timer.
+     */
+    function setCountDown() {
+        let count = 300;
+        // Count 1 time.
+        $(DOM_ID_GET_TOKEN_COUNT_DOWN).text(`${--count}s`);
+        countDownTimerId = setInterval(() => {
+            if (count > 0 && getTokenBtnExist()) {
+                $(DOM_ID_GET_TOKEN_COUNT_DOWN).text(`${--count}s`);
+            } else {
+                count = 300;
+                $(DOM_ID_GET_TOKEN_COUNT_DOWN).text('');
+                clearInterval(countDownTimerId);
+            }
+        }, 1000);
+    }
+
+    /**
+     * Unset count down timer.
+     */
+    function unsetCountDown() {
+        $(DOM_ID_GET_TOKEN_COUNT_DOWN).text('');
+        clearInterval(countDownTimerId);
+    }
+
+    /**
      * Get token button click event handler.
      */
     function getTokenBtnOnClickHandler() {
@@ -147,6 +186,7 @@
 
         $(DOM_ID_ERROR_HINT_INPUT_IP).text('');
         setGetTokenBtnSpin(true);
+        setCountDown();
 
         $.ajax({
             type: 'POST',
@@ -163,10 +203,12 @@
                     $(DOM_ID_ERROR_HINT_GET_TOKEN).text(node._('api-server.message.request_failed'));
                 }
                 setGetTokenBtnSpin(false);
+                unsetCountDown();
             },
             error(err) {
                 console.log(err);
                 setGetTokenBtnSpin(false);
+                unsetCountDown();
             }
         })
     }
