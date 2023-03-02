@@ -34,6 +34,11 @@ const API_URL_GET_DEVICE_LIST = `/${API_PREFIX}/get-device-list`;
 const API_URL_CONTROL_DEVICE = `/${API_PREFIX}/control-device`;
 
 /**
+ * API URL - upload device state
+ */
+const API_URL_UPLOAD_DEVICE_STATE = `/${API_PREFIX}/upload-device-state`;
+
+/**
  * API URL - add third party device
  */
 const API_URL_ADD_THIRDPARTY_DEVICE = `/${API_PREFIX}/add-thirdparty-device`;
@@ -82,6 +87,11 @@ const TAG_API_SERVER_NODE_ID = '__api_server_node_id';
  * Register device node tag item - current register device node ID
  */
 const TAG_REG_DEV_NODE_ID = '__reg_dev_node_id';
+
+/**
+ * Register device node tag item - device id
+ */
+const TAG_THIRDPARTY_DEVICE_ID = '__thirdparty_device_id';
 
 /**
  * Capabilities map
@@ -149,6 +159,7 @@ module.exports = {
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
     API_URL_CONTROL_DEVICE,
+    API_URL_UPLOAD_DEVICE_STATE,
     API_URL_ADD_THIRDPARTY_DEVICE,
     API_URL_IHOST_CALLBACK,
     EVENT_SSE_ON_ADD_DEVICE,
@@ -159,5 +170,6 @@ module.exports = {
     EVENT_NODE_RED_ERROR,
     TAG_API_SERVER_NODE_ID,
     TAG_REG_DEV_NODE_ID,
+    TAG_THIRDPARTY_DEVICE_ID,
     CAPA_MAP
 };
