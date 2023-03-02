@@ -70,9 +70,12 @@
                                 }
                             }
                         }
+                    }else{
+                        // node._('control-device.message.connect_fail')
                     }
                 },
                 error(error) {
+                    // node._('control-device.message.connect_fail')
                     console.log('network error', error);
                 },
             });
@@ -125,6 +128,7 @@
                 return this.name || 'control-device';
             },
             oneditprepare() {
+                // this.status({fill:"green",shape:"dot",text:"connected"});
                 const node = this;
                 outer_node = node;
                 const serverVal = $('#node-input-server').val();
@@ -215,9 +219,12 @@
                     if (params.light.type === COLOR_RGB) {
                         if(params.light.colorOrTemp){
                             $('#light-color').val(params.light.colorOrTemp);
-                            setColor();
                             colorPicker.color.hexString=params.light.colorOrTemp;
+                        }else{
+                            $('#light-color').val('#ff002f');
+                            colorPicker.color.hexString='#ff002f';
                         }
+                        setColor();
                     }
                     if (params.light.type === COLOR_TEMPERATURE) {
                         if(params.light.colorOrTemp){
@@ -287,9 +294,9 @@
                 return `<div class='device'>
                             <span class="device-name">${node._('control-device.label.percentControl')}</span>
                             <input
-                                oninput="if(value>100)value=100;if(value<0)value=0"
+                                oninput="if(value>100)value=100;if(value<1)value=1"
                                 type="number"
-                                placeholder="${node._('control-device.label.percentValue')}(0%~100%)"
+                                placeholder="${node._('control-device.label.percentValue')}(1%~100%)"
                                 style="width:328px"
                                 onblur="curtainChange(this)"
                                 id="curtain"
@@ -338,10 +345,10 @@
                         <div class="device brightness" style="position:relative">
                             <span class="device-name">${node._('control-device.label.brightness')}</span>
                             <input
-                                oninput="if(value>100)value=100;if(value<0)value=0"
+                                oninput="if(value>100)value=100;if(value<1)value=1"
                                 type="number"
                                 class="switch-select"
-                                placeholder='${node._('control-device.label.brightnessPercent')}(0%-100%)'
+                                placeholder='${node._('control-device.label.brightnessPercent')}(1%-100%)'
                                 id="brightness"
                                 onchange="changeLight()"
                             />
@@ -351,7 +358,7 @@
                         <div id='colorAndtemp' class="device" style="dispaly:${color_rgb || color_tempature ? 'block' : 'none'};position:relative">
                             <select
                                 class="half-action"
-                                style="width:90px!important;margin-right:12px"
+                                style="width:90px!important;margin-right:21px;margin-left:-8px"
                                 id="FiveOrTwoLight"
                                 onchange='changeMode()'
                             >
@@ -360,14 +367,13 @@
                             </select>
                             <input
                                 id='light-temp'
-                                oninput='if(value>100)value=100;if(value<0)value=0'
+                                oninput='if(value>100)value=100;if(value<1)value=1'
                                 type='number'
                                 class='switch-select'
                                 style='calc(100% - 102px)'
                                 onblur='changeLight()'
-                                placeholder='${node._('control-device.label.colourPercent')}(0%-100%)'
+                                placeholder='${node._('control-device.label.colourPercent')}(1%-100%)'
                             />
-                            <i class="clear" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();" style="right:10px">×</i>
                         </div>`;
             default:
                 return '';
@@ -407,7 +413,6 @@
             });
             $('#node-input-list').val(JSON.stringify(params));
         }
-        console.log('params>>>>>>>>>>>>>>>>>>>>>', params);
     }
 
     function changeMode() {
@@ -416,18 +421,20 @@
         $('#light-temp').remove();
         $('.color-box').remove();
         $('.picker').remove();
+        $('.clearColor').remove();
 
         if (type === COLOR_TEMPERATURE) {
             $('#colorAndtemp').append(
                 `<input
                     id="light-temp"
-                    oninput="if(value>100)value=100;if(value<0)value=0"
+                    oninput="if(value>100)value=100;if(value<1)value=1"
                     type="number"
                     class="switch-select"
                     style='calc(100% - 102px)'
                     onblur="changeLight()"
-                    placeholder='${outer_node._('control-device.label.colourPercent')} (0%-100%)'
+                    placeholder='${outer_node._('control-device.label.colourPercent')} (1%-100%)'
                 />
+                <i class="clearColor" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
                 `
             );
         } else {
@@ -454,7 +461,7 @@
             );
             colorPicker = new iro.ColorPicker('.colorPicker', {
                 width: 210,
-                color: 'rgb(255, 15, 39)',
+                color: 'rgb(255, 0, 47)',//#ff002f
                 borderWidth: 1,
                 borderColor: '#fff',
                 wheelLightness: false,
@@ -465,8 +472,10 @@
                 setColor();
                 changeLight();
             });
-
-
+            $('#light-color').val('#ff002f');
+            colorPicker.color.hexString='#ff002f';
+            setColor();
+            changeLight();
             // colorPicker.color.rgb = { r: 255, g: 255, b: 255 }
         }
     }
@@ -508,7 +517,7 @@
         if (deviceVal) {
             $('#node-input-list').val(JSON.stringify(params));
         }
-        console.log('>>>>>>>>>>>>>>>>>>>', powerVal, brightness, lightType, colorOrTemp);
+        // console.log('>>>>>>>>>>>>>>>>>>>', powerVal, brightness, lightType, colorOrTemp);
     }
 
     function setColor(value) {
@@ -560,7 +569,7 @@
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        padding: 0 15px 0 10px;
+        padding: 0 15px 0 15px;
         height: 46px;
         border-bottom: 1px solid #ccc;
     }
@@ -583,7 +592,7 @@
         display: flex;
         justify-content: flex-start;
         width: 90%;
-        margin: 0 0px 10px 10px;
+        margin: 0 0px 10px 15px;
         line-height: 34px;
     }
     .device-name {
@@ -605,7 +614,7 @@
         width: calc((100% - 114px)/2)!important;
         height: 34px;
     }
-    .clear {
+    .clear,.clearColor {
         position: absolute;
         display: none;
         top: 7px;
@@ -623,18 +632,18 @@
     .brightness:hover .clear {
         display: block;
     }
-    #colorAndtemp:hover .clear {
+    #colorAndtemp:hover .clearColor {
         display: block;
     }
     .require {
         position: absolute;
-        left: 0px !important;
+        left: 5px !important;
         top: 10px;
         color: red;
         font-size: 20px;
     }
     .form-row {
-        padding-left: 10px;
+        padding-left: 15px;
     }
     .IroSlider{
         display: none!important;

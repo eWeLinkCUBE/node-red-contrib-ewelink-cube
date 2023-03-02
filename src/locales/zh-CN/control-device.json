@@ -24,6 +24,9 @@
             "off":"关闭",
             "keep":"保持",
             "reverse":"反转"
+        },
+        "message": {
+            "connect_fail": "Server已失去连接，请检查节点server配置"
         }
     }
 }

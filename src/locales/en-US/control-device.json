@@ -24,6 +24,9 @@
             "off":"off",
             "keep":"keep",
             "reverse":"reverse"
+        },
+        "message": {
+            "connect_fail": "Failed to connect. Please check Server configuration. "
         }
     }
 }

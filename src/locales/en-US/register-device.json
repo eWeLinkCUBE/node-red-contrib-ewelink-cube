@@ -43,6 +43,9 @@
             "battery": "Battery",
             "press": "Press",
             "rssi": "RSSI"
+        },
+        "message": {
+            "connect_fail": "Failed to connect. Please check Server configuration. "
         }
     }
 }

@@ -26,6 +26,7 @@
         const ADD_ITEM = 'ADD_ITEM';
         const INIT_ITEM = 'INIT_ITEM';
         let tempList = [];
+        let outer_node = null;
 
         function renderOptions(optionList) {
             if (!optionList.length || optionList.length < 1) return '';
@@ -70,12 +71,14 @@
                                 renderState(node);
                             }
 
-                            if(deviceVal === 'all'){
+                            if (deviceVal === 'all') {
                                 $(DOM_ID_INPUT_STATE).get(0).options.length = 0;
-                                $(DOM_ID_INPUT_STATE).append('<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>');
+                                $(DOM_ID_INPUT_STATE).append(
+                                    '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>'
+                                );
                                 $(DOM_ID_INPUT_STATE).val(node.state);
+                                $(DOM_ID_INPUT_STATE).prop('disabled', true);
                             }
-
                             node.list && $('.node-input-state-class').remove() && $('#main-area').eq(0).nextAll().remove() && renderAddtionState();
                         }
                     }
@@ -86,15 +89,13 @@
             });
         }
 
-        //render device
         function renderDeviceOpt(node) {
             const deviceOption = renderOptions(tempList);
             $(DOM_ID_INPUT_DEVICE).append(deviceOption);
             $(DOM_ID_INPUT_DEVICE).val(node.device);
         }
 
-        //render state
-        function renderState(node){
+        function renderState(node) {
             $(DOM_ID_INPUT_STATE).get(0).options.length = 0;
             let template = getStateOption(INIT_ITEM).template;
             $(DOM_ID_INPUT_STATE).append(template);
@@ -148,6 +149,80 @@
         }
 
         function getStateOption(type) {
+            const STATE_LIST = {
+                'power': {
+                    id: 0,
+                    name: outer_node._('event-state.state.power'),
+                    value: 'power',
+                },
+                'toggle': {
+                    id: 1,
+                    name: outer_node._('event-state.state.toggle'),
+                    value: 'toggle',
+                },
+                'brightness': {
+                    id: 2,
+                    name: outer_node._('event-state.state.brightness'),
+                    value: 'brightness',
+                },
+                'color-temperature': {
+                    id: 3,
+                    name: outer_node._('event-state.state.color_temperature'),
+                    value: 'color-temperature',
+                },
+                'color-rgb': {
+                    id: 4,
+                    name: outer_node._('event-state.state.color_rgb'),
+                    value: 'color-rgb',
+                },
+                percentage: {
+                    id: 5,
+                    name: outer_node._('event-state.state.percentage'),
+                    value: 'percentage',
+                },
+                'motor-control': {
+                    id: 6,
+                    name: outer_node._('event-state.state.motor_control'),
+                    value: 'motor-control',
+                },
+                'motor-reverse': {
+                    id: 7,
+                    name: outer_node._('event-state.state.motor_reverse'),
+                    value: 'motor-reverse',
+                },
+                /* Unsupported
+                {
+                    id: 8,
+                    name: 'Startup',
+                    value: 'startup'
+                },
+                */
+                'motor-clb': {
+                    id: 9,
+                    name: outer_node._('event-state.state.motor_clb'),
+                    value: 'motor-clb',
+                },
+                'detect': {
+                    id: 10,
+                    name: outer_node._('event-state.state.detect'),
+                    value: 'detect',
+                },
+                'battery': {
+                    id: 11,
+                    name: outer_node._('event-state.state.battery'),
+                    value: 'battery',
+                },
+                'press': {
+                    id: 12,
+                    name: outer_node._('event-state.state.press'),
+                    value: 'press',
+                },
+                'rssi': {
+                    id: 13,
+                    name: outer_node._('event-state.state.rssi'),
+                    value: 'rssi',
+                },
+            };
             let list = [];
             for (const ele of tempList) {
                 if (ele.serial_number === $(DOM_ID_INPUT_DEVICE).val()) {
@@ -155,14 +230,13 @@
                 }
             }
             let template =
-                '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>' +
-                (type === INIT_ITEM ? '<option value="all">ALL</option>' : '');
+                '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>' + (type === INIT_ITEM ? '<option value="all">ALL</option>' : '');
             let stateLength = 0;
             if (list.length > 0) {
-                const stateList = Object.keys(list[0]);
+                const stateList = Object.keys(list[0]).filter((item)=>item !== 'startup');
                 stateLength = stateList.length;
                 for (const item of stateList) {
-                    template += `<option value="${item}">${item}</option>`;
+                    template += `<option value="${item}">${STATE_LIST[item].name}</option>`;
                 }
             }
             return { template, stateLength };
@@ -201,9 +275,10 @@
             },
             oneditprepare() {
                 const node = this;
-                const server =  $(DOM_ID_INPUT_SERVER).val();
+                outer_node = node;
+                const server = $(DOM_ID_INPUT_SERVER).val();
 
-                if ( server && server !== SERVER_EMPTY) {
+                if (server && server !== SERVER_EMPTY) {
                     getDeviceList(node);
                 }
 
@@ -216,7 +291,12 @@
                     $(DOM_ID_INPUT_STATE).get(0).options.length = 0;
                     let template = getStateOption(INIT_ITEM).template;
                     $(DOM_ID_INPUT_STATE).append(template);
-                    saveAddtionState();
+                    // saveAddtionState();
+
+                    $(DOM_ID_INPUT_STATE).prop('disabled', false);
+                    if ($(DOM_ID_INPUT_STATE).val() === 'all') {
+                        $(DOM_ID_INPUT_STATE).prop('disabled', true);
+                    }
                 });
 
                 $(DOM_ID_INPUT_STATE).on('change', () => {
@@ -278,8 +358,8 @@
         font-size: 20px;
     }
 
-    .require{
-        position:absolute;
+    .require {
+        position: absolute;
         left: -8px;
         top: 10px;
         color: red;

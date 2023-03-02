@@ -11,7 +11,8 @@
             "invalid_ip": "无效的 IP 地址",
             "request_failed": "IP连接失败",
             "get_token_success": "获取密钥成功",
-            "connect_success": "连接成功"
+            "connect_success": "连接成功",
+            "connect_fail": "Server已失去连接，请检查节点server配置"
         }
     }
 }

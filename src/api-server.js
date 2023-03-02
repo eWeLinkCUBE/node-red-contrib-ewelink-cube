@@ -142,7 +142,7 @@ module.exports = function (RED) {
     RED.httpAdmin.post(API_URL_GET_BRIDGE_TOKEN, (req, res) => {
         const ip = req.body.ip;
         const apiClient = new ApiClient({ ip });
-        apiClient.getBridgeAT({})
+        apiClient.getBridgeAT({timeout:300000})
             .then((data) => {
                 res.send(data);
             })

@@ -11,7 +11,8 @@
             "invalid_ip": "Invalid IP",
             "request_failed": "IP connection failed",
             "get_token_success": "Get token success",
-            "connect_success": "Connect success"
+            "connect_success": "Connect success",
+            "connect_fail": "Failed to connect. Please check Server configuration. "
         }
     }
 }

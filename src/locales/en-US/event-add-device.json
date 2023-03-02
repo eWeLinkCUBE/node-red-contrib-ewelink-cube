@@ -3,6 +3,9 @@
         "label": {
             "name": "Name",
             "server": "Server"
+        },
+        "message": {
+            "connect_fail": "Failed to connect. Please check Server configuration. "
         }
     }
 }

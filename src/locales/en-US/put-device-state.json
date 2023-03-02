@@ -6,6 +6,9 @@
             "category":"Category",
             "device":"Device",
             "state":"State"
+        },
+        "message": {
+            "connect_fail": "Failed to connect. Please check Server configuration. "
         }
     }
 }

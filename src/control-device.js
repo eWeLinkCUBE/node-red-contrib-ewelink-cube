@@ -60,14 +60,21 @@ module.exports = function (RED) {
                         Object.assign(data.params,single);
                         break;
                     case 'multi':
-                        data.params.toggle = {};
-                        for (const item in list.multi) {
-                            let toggle = {
-                                [item]: {
-                                    toggleState: list.multi[item],
-                                },
-                            };
-                            Object.assign(data.params.toggle, toggle);
+                        const allOn = Object.values(list.multi).every((item)=>item=='on');
+                        const allOff = Object.values(list.multi).every((item)=>item=='off');
+                        if(allOn || allOff){
+                            let single = { power: { powerState: allOn ? 'on' : 'off' } };
+                            Object.assign(data.params,single);
+                        }else{
+                            data.params.toggle = {};
+                            for (const item in list.multi) {
+                                let toggle = {
+                                    [item]: {
+                                        toggleState: list.multi[item],
+                                    },
+                                };
+                                Object.assign(data.params.toggle, toggle);
+                            }
                         }
                         break;
                     case 'curtain':

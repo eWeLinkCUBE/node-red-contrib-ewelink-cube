@@ -5,6 +5,24 @@
             "server":"服务器",
             "device":"设备",
             "state":"状态"
+        },
+        "state":{
+            "power": "电源控制",
+            "toggle": "子组件开关控制器",
+            "brightness": "亮度控制",
+            "color_temperature": "色温控制",
+            "color_rgb": "颜色控制",
+            "percentage": "范围调节",
+            "motor_control": "电机控制",
+            "motor_reverse": "电机反转",
+            "motor_clb": "电机校准检测",
+            "detect": "状态检测",
+            "battery": "剩余电池检测",
+            "press": "按键检测",
+            "rssi": "无线信号强度检测"
+        },
+        "message": {
+            "connect_fail": "Server已失去连接，请检查节点server配置"
         }
     }
 }

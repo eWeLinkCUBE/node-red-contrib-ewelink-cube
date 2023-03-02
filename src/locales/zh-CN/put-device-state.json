@@ -6,6 +6,9 @@
             "category":"设备类别",
             "device":"设备",
             "state":"状态"
+        },
+        "message": {
+            "connect_fail": "Server已失去连接，请检查节点server配置"
         }
     }
 }
