@@ -1,12 +1,17 @@
 const axios = require('axios');
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-const { API_URL_CONTROL_DEVICE } = require('./utils/const');
+const { API_URL_CONTROL_DEVICE,EVENT_NODE_RED_ERROR } = require('./utils/const');
 module.exports = function (RED) {
     function ControlDevicesNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
 
-        this.on('input', async (msg) => {
+        node.on('input',() => {
+            const server = config.server.trim();
+            if (!server) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no server' });
+                return;
+            }
             node.log('config>>>>>>>>>>>>>>>' + JSON.stringify(config));
             const params = JSON.parse(JSON.stringify(config));
             let data = {
@@ -87,21 +92,28 @@ module.exports = function (RED) {
             }
             node.log('data---------------------' + JSON.stringify(data));
 
-            const baseUrl = 'http://localhost:1880';
-            let message = '';
-            const url = baseUrl + API_URL_CONTROL_DEVICE;
             data.params=JSON.stringify(data.params);
-            await axios
-                .post(url, data)
-                .then((res) => {
-                    node.log('res>>>>>>>>>>>>>>>>>>>'+JSON.stringify(res.data));
-                    message = res.data;
-                })
-                .catch((error) => {
-                    message = 'NetWork Error';
-                });
-            msg.payload = message;
-            this.send(msg);
+            axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, data)
+            .then((res) => {
+                node.log('res>>>>>>>>>>>>>>>>>>>'+JSON.stringify(res.data));
+                node.send({ payload: res.data });
+
+                if(res.data.error === 110000){
+                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.group_notexist')}` });
+                }
+                if(res.data.error === 110005){
+                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.device_offline')}` });
+                }
+                if(res.data.error === 110006){
+                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.update_fail')}` });
+                }
+                if(res.data.error === 110019){
+                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.access_failed')}` });
+                }
+            })
+            .catch((error) => {
+                node.error(err);
+            });
         });
     }
 
