@@ -54,6 +54,7 @@
                                         manufacturer: item.manufacturer,
                                         state: item.state,
                                         capabilities: item.capabilities,
+                                        tags:item.tags
                                     };
                                     tempList.push(params);
                                 }
@@ -312,6 +313,11 @@
                 let params = [];
                 let temp = '';
                 const toggle = device.state.toggle;
+                const flag = judgeObject(device.tags) && judgeObject(device.tags.toggle);
+                let toggleNameList = [];
+                if(flag){
+                    toggleNameList = device.tags.toggle;
+                }
                 if (!toggle) {
                     params.push(device.state.power);
                     return (temp += `
@@ -323,11 +329,11 @@
                             </div>
                         `);
                 } else {
-                    params = Object.values(toggle); //object
+                    params = Object.values(toggle); //object swtich${index + 1}
                     params.forEach((item, index) => {
                         temp += `
                             <div class='device'>
-                                <span class="device-name">swtich${index + 1}</span>
+                                <span class="device-name">${flag?toggleNameList[index+1]:('swtich'+(index+1))}</span>
                                 <select class="multi-swtich" onchange="changeSwitch(this,'multi')">
                                     ${renderOptionByList(switchSelect.multi, node)}
                                 </select>
@@ -384,6 +390,9 @@
             default:
                 return '';
         }
+    }
+    function judgeObject(obj){
+        return obj!==null && typeof obj === 'object';
     }
 
     //curtain
@@ -499,19 +508,21 @@
         const colorVal = $('#light-temp').val();
         const reg = /^([1-9][0-9]{0,1}|100)$/;
         if(!reg.test(brightnessVal) && brightnessVal!== ''){
+            // brightnessVal=brightnessVal.replace(/-+/g, '');
             if(brightnessVal == 0){
                 $('#brightness').val(1);
             }else{
-                $('#brightness').val(Math.floor(brightnessVal));
+                $('#brightness').val(Math.round(brightnessVal));
             }
             RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
         }
 
         if(!reg.test(colorVal) && colorVal!== ''&& $('#FiveOrTwoLight').val() == COLOR_TEMPERATURE){
+            // colorVal=colorVal.replace(/-+/g, '');
             if(colorVal == 0){
                 $('#light-temp').val(1);
             }else{
-                $('#light-temp').val(Math.floor(colorVal));
+                $('#light-temp').val(Math.round(colorVal));
             }
             RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
         }
