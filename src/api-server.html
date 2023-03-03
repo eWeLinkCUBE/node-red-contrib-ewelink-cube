@@ -75,7 +75,6 @@
             $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'inline-block');
             // $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'none');
         } else {
-            enableGetTokenBtn();
             $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'none');
             // $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'inline-block');
         }
@@ -94,6 +93,30 @@
      */
     function disableGetTokenBtn() {
         $(DOM_ID_GET_TOKEN_BTN).prop('disabled', true);
+        $(DOM_ID_GET_TOKEN_BTN).css('background-color','#ccc');
+    }
+
+    /**
+     * Test token.
+     */
+    function testToken(ip, token) {
+        debugger
+        $.ajax({
+            type: 'POST',
+            url: `${API_PREFIX}/test-token`,
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ ip, token }),
+            success(res) {
+                if (res.error !== 0) {
+                    // wrong token
+                    enableGetTokenBtn();
+                }
+            },
+            error(err) {
+                console.error(err);
+                enableGetTokenBtn();
+            }
+        });
     }
 
     /**
@@ -102,6 +125,7 @@
     function searchBtnOnClickHandler() {
         const node = this;
         const ip = $(DOM_ID_INPUT_IP).val().trim();
+        const token = $(DOM_ID_INPUT_TOKEN).val();
         if (!ip) {
             $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.please_input_ip'));
             return;
@@ -126,7 +150,12 @@
                             $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.request_failed'));
                         } else {
                             RED.notify(node._('api-server.message.connect_success'), { type: 'success '});
-                            enableGetTokenBtn();
+                            debugger
+                            if (token) {
+                                testToken(ip, token);
+                            } else {
+                                enableGetTokenBtn();
+                            }
                         }
                         setSearchBtnIconSpin(false);
                     },
@@ -134,6 +163,7 @@
                         console.error(err);
                         $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.request_failed'));
                         setSearchBtnIconSpin(false);
+                        enableGetTokenBtn();
                     }
                 });
             }
@@ -207,6 +237,7 @@
                 if (res.error === 0) {
                     $(DOM_ID_ERROR_HINT_GET_TOKEN).text('');
                     $(DOM_ID_INPUT_TOKEN).val(res.data.token);
+                    $(DOM_ID_GET_TOKEN_BTN_TEXT).text(node._('api-server.message.has_token'));
                     RED.notify(node._('api-server.message.get_token_success'), { type: 'success '});
                 } else {
                     $(DOM_ID_ERROR_HINT_GET_TOKEN).text(node._('api-server.message.request_failed'));
@@ -246,6 +277,8 @@
             return this.name || this.ip || 'Token';
         },
         oneditprepare() {
+            const node = this;
+
             // Set default name if input field is empty.
             if ($(DOM_ID_INPUT_NAME).val() === '') {
                 $(DOM_ID_INPUT_NAME).val('Token');
@@ -259,6 +292,14 @@
 
             // Set get token button click event.
             $(DOM_ID_GET_TOKEN_BTN).on('click', getTokenBtnOnClickHandler.bind(this));
+
+            // Set get token button text.
+            const token = $(DOM_ID_INPUT_TOKEN).val();
+            if (token) {
+                setTimeout(() => {
+                    $(DOM_ID_GET_TOKEN_BTN_TEXT).text(node._('api-server.message.has_token'));
+                }, 0);
+            }
         },
         oneditsave() {
             // Cache api server node data when user clicks `save` button.

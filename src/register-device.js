@@ -187,7 +187,6 @@ module.exports = function (RED) {
                         node.status({ fill: 'red', shape: 'ring', text: RED._('register-device.message.connect_fail') });
                     } else {
                         node.status({ text: '' });
-
                     }
                     node.send({ payload: res.data });
                 })

@@ -8,6 +8,7 @@ const {
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
     API_URL_CONTROL_DEVICE,
+    API_URL_TEST_TOKEN,
     API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE,
     API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE,
     API_URL_ADD_THIRDPARTY_DEVICE,
@@ -156,6 +157,29 @@ module.exports = function (RED) {
             .catch((err) => {
                 res.send(JSON.stringify({ error: 500, msg: 'getBridgeAT() error' }));
             })
+    });
+
+    // Test token.
+    // params:
+    //      {
+    //          "ip": "xxx" - API server node IP
+    //          "token": "xxx" - API server node token
+    //      }
+    RED.httpAdmin.post(API_URL_TEST_TOKEN, (req, res) => {
+        const ip = req.body.ip;
+        const token = req.body.token;
+        const apiClient = new ApiClient({ ip, at: token });
+        apiClient.getDeviceList()
+            .then((data) => {
+                if (data.error === 0) {
+                    res.send({ error: 0 });
+                } else {
+                    res.send({ error: -1 });
+                }
+            })
+            .catch((err) => {
+                res.send({ error: -1 });
+            });
     });
 
     // Get device list.

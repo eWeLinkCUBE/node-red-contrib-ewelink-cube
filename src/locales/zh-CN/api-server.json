@@ -12,7 +12,8 @@
             "request_failed": "IP连接失败",
             "get_token_success": "获取密钥成功",
             "connect_success": "连接成功",
-            "connect_fail": "Server已失去连接，请检查节点server配置"
+            "connect_fail": "Server已失去连接，请检查节点server配置",
+            "has_token": "已获取密钥"
         }
     }
 }
