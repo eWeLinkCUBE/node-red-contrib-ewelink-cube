@@ -7,6 +7,7 @@ const {
     EVENT_NODE_RED_ERROR,
     TAG_API_SERVER_NODE_ID,
     TAG_REG_DEV_NODE_ID,
+    TAG_THIRDPARTY_DEVICE_ID,
     CAPA_MAP
 } = require('./utils/const');
 
@@ -125,6 +126,7 @@ module.exports = function (RED) {
             // Store API server node ID in tags
             _.set(tags, TAG_API_SERVER_NODE_ID, server);
             _.set(tags, TAG_REG_DEV_NODE_ID, node.id);
+            _.set(tags, TAG_THIRDPARTY_DEVICE_ID, deviceId);
 
             const params = [
                 {

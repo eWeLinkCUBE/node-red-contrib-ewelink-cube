@@ -232,6 +232,7 @@ module.exports = function (RED) {
         const id = req.body.id;
         const deviceId = req.body.deviceId;
         const thirdPartyDeviceId = req.body.thirdPartyDeviceId;
+        const params = JSON.parse(req.body.params);
 
         const nodeData = nodeDataCache.getNodeData(id);
         const node = RED.nodes.getNode(id);
