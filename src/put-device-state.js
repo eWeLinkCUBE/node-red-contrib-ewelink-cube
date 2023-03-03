@@ -36,8 +36,8 @@ module.exports = function (RED) {
             };
             axios.post(`http://127.0.0.1:1880${API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE}`, params)
             .then((res) => {
-                const errType = _.get(res, 'data.payload.type');
-                if (errType) {
+                const errNum = _.get(res, 'data.error');
+                if (errNum !== 0) {
                     node.status({ fill: 'red', shape: 'ring', text: RED._('put-device-state.message.connect_fail') });
                 } else {
                     node.status({ text: '' });
