@@ -107,7 +107,7 @@ module.exports = function (RED) {
             token
         });
 
-        res.send(JSON.stringify({ error: 0, msg: 'success' }));
+        res.send({ error: 0, msg: 'success' });
     });
 
     // Remove API server node data from cache.
@@ -122,7 +122,7 @@ module.exports = function (RED) {
             nodeDataCache.remove(id);
         }
 
-        res.send(JSON.stringify({ error: 0, msg: 'success' }));
+        res.send({ error: 0, msg: 'success' });
     });
 
     // Get bridge info.
@@ -138,7 +138,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'getBridgeInfo() error' }));
+                res.send({ error: 500, msg: 'getBridgeInfo() error' });
             });
     });
 
@@ -155,7 +155,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'getBridgeAT() error' }));
+                res.send({ error: 500, msg: 'getBridgeAT() error' });
             })
     });
 
@@ -210,7 +210,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'getDeviceList() error' }));
+                res.send({ error: 500, msg: 'getDeviceList() error' });
             });
     });
 
@@ -246,7 +246,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'updateDeviceState() error' }));
+                res.send({ error: 500, msg: 'updateDeviceState() error' });
             });
     });
 
@@ -288,7 +288,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'uploadDeviceState() error' }));
+                res.send({ error: 500, msg: 'uploadDeviceState() error' });
             });
     });
 
@@ -330,7 +330,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'updateDeviceOnline() error' }));
+                res.send({ error: 500, msg: 'updateDeviceOnline() error' });
             });
     });
 
