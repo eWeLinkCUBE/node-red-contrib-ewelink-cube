@@ -183,7 +183,7 @@ module.exports = function (RED) {
             axios.post(`http://127.0.0.1:1880${API_URL_ADD_THIRDPARTY_DEVICE}`, data)
                 .then((res) => {
                     const errNum = _.get(res, 'data.error');
-                    if (errNum !== 0) {
+                    if (typeof errNum === 'number' && errNum !== 0) {
                         node.status({ fill: 'red', shape: 'ring', text: RED._('register-device.message.connect_fail') });
                     } else {
                         node.status({ text: '' });
