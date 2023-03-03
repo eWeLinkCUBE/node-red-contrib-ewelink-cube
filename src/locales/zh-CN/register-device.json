@@ -42,7 +42,9 @@
             "detect": "状态检测",
             "battery": "剩余电池检测",
             "press": "按键检测",
-            "rssi": "无线信号强度检测"
+            "rssi": "无线信号强度检测",
+            "humidity": "湿度检测",
+            "temperature": "温度检测"
         },
         "message": {
             "connect_fail": "Server已失去连接，请检查节点server配置"

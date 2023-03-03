@@ -287,6 +287,16 @@
                     name: node._('register-device.capability.rssi'),
                     value: 'rssi'
                 },
+                {
+                    id: 14,
+                    name: node._('register-device.capability.humidity'),
+                    value: 'humidity'
+                },
+                {
+                    id: 15,
+                    name: node._('register-device.capability.temperature'),
+                    value: 'temperature'
+                }
             ];
             const TOGGLE_SELECT_HTML_STR = `<br><span style="padding-right: 8px; vertical-align: middle; display: inline-block; margin-top: 6px;">${node._('register-device.label.toggle_num')}</span><select id="capa-toggle-select" style="margin-top: 8px;"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>`;
             const ADD_ITEM_BTN_HTML_STR = '<span class="add-item-btn">+</span>';
@@ -406,13 +416,10 @@
 
             // Handle select onfocusin event.
             $(DOM_ID_CAPA_LIST).on('focusin', (event) => {
+                debugger
                 const className = event.target.className;
                 if (className === 'capa-select') {
                     const selectList = $(`${DOM_ID_CAPA_LIST} select`);
-                    // Do not replace the first select.
-                    if (selectList.length === 1) {
-                        return;
-                    }
                     const currentVal = event.target.value;
                     const valList = [];
                     for (let i = 0; i < selectList.length; i++) {
@@ -434,6 +441,7 @@
 
                     $(event.target).children().remove();
                     $(event.target).append(htmlStr);
+                    $(event.target).val(currentVal);
 
                     // Browser auto select "toggle" option.
                     if (htmlStr.indexOf('<option value="toggle">') === 0 && $('select#capa-toggle-select').length === 0) {

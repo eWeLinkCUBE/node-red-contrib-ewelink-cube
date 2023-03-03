@@ -42,7 +42,9 @@
             "detect": "Detect",
             "battery": "Battery",
             "press": "Press",
-            "rssi": "RSSI"
+            "rssi": "RSSI",
+            "humidity": "Humidity",
+            "temperature": "Temperature"
         },
         "message": {
             "connect_fail": "Failed to connect. Please check Server configuration. "
