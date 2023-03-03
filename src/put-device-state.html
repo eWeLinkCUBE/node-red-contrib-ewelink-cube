@@ -8,9 +8,9 @@
 
         let tempList = [];
         function renderOptions(optionList, type) {
-            if (!optionList.length || optionList.length < 1) return '';
             let dom = type == 'category' ? $(DOM_ID_INPUT_CATEGORY) : $(DOM_ID_INPUT_DEVICE);
             dom.get(0).options.length = 0;
+            if (!optionList.length || optionList.length < 1) return '';
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
             for (const item of optionList) {
                 let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
@@ -43,6 +43,7 @@
                                         name: item.name,
                                         manufacturer: item.manufacturer,
                                         state: item.state,
+                                        tags:item.tags
                                     };
                                     tempList.push(params);
                                 }
@@ -58,11 +59,17 @@
                                     var categoryVal = $(DOM_ID_INPUT_CATEGORY).val();
                                     let deviceList = [];
                                     for(const item of tempList){
-                                        if(categoryVal == item.display_category){
+                                        if(categoryVal === 'all' && item.tags && typeof item.tags.__thirdparty_device_id === 'string'){
                                             deviceList.push(item);
+                                            continue;
+                                        }
+                                        if(categoryVal === item.display_category){
+                                            if(item.tags && typeof item.tags.__thirdparty_device_id === 'string'){
+                                                deviceList.push(item);
+                                            }
                                         }
                                     }
-                                    if (deviceList.length === 0) deviceList = tempList;
+                                    // if (deviceList.length === 0) deviceList = tempList;
 
                                     var deviceOption = renderOptions(deviceList, 'device');
                                     $(DOM_ID_INPUT_DEVICE).append(deviceOption);
@@ -112,6 +119,9 @@
                     value: '',
                     required: true,
                 },
+                number:{
+                    value:'',
+                }
             },
             inputs: 1,
             outputs: 1,
@@ -141,15 +151,32 @@
 
                     let deviceList = [];
                     for (const item of tempList) {
-                        if (categoryVal == item.display_category) {
+                        if(categoryVal === 'all' && item.tags && typeof item.tags.__thirdparty_device_id === 'string'){
                             deviceList.push(item);
+                            continue;
+                        }
+                        if (categoryVal === item.display_category) {
+                            if(item.tags && typeof item.tags.__thirdparty_device_id === 'string'){
+                                deviceList.push(item);
+                            }
                         }
                     }
-
-                    if (deviceList.length === 0) deviceList = tempList;
+                    // if (deviceList.length === 0) deviceList = tempList;
 
                     var deviceOption = renderOptions(deviceList, 'device');
                     $(DOM_ID_INPUT_DEVICE).append(deviceOption);
+                });
+
+                $(DOM_ID_INPUT_DEVICE).on('change', () => {
+                    $('#node-input-number').val('');
+                    const deviceVal = $('#node-input-device').val();
+                    for(const item of tempList){
+                        if(item.serial_number === deviceVal){
+                            if(item.tags && item.tags.__thirdparty_device_id){
+                                $('#node-input-number').val(item.tags.__thirdparty_device_id);
+                            }
+                        }
+                    }
                 });
             },
         });
@@ -173,6 +200,10 @@
     <div class="form-row">
         <label for="node-input-device" data-i18n="put-device-state.label.device"> Device </label>
         <select id="node-input-device" name="node-input-device" style="width:70%"></select>
+    </div>
+    <div class="form-row" style="display:none">
+        <label for="node-input-number"> number</label>
+        <select id="node-input-number" name="node-input-number" style="width:70%"></select>
     </div>
     <div class="form-row">
         <label for="node-input-state" data-i18n="put-device-state.label.state"> state </label>

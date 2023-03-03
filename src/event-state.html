@@ -70,14 +70,14 @@
                             if (deviceVal && deviceVal !== 'all') {
                                 renderState(node);
                             }
-
+                            $('#state').show();
                             if (deviceVal === 'all') {
                                 $(DOM_ID_INPUT_STATE).get(0).options.length = 0;
                                 $(DOM_ID_INPUT_STATE).append(
                                     '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>'
                                 );
                                 $(DOM_ID_INPUT_STATE).val(node.state);
-                                $(DOM_ID_INPUT_STATE).prop('disabled', true);
+                                $('#state').hide();
                             }
                             node.list && $('.node-input-state-class').remove() && $('#main-area').eq(0).nextAll().remove() && renderAddtionState();
                         }
@@ -310,9 +310,9 @@
                     $(DOM_ID_INPUT_STATE).append(template);
                     // saveAddtionState();
 
-                    $(DOM_ID_INPUT_STATE).prop('disabled', false);
+                    $('#state').show();
                     if ($(DOM_ID_INPUT_DEVICE).val() === 'all') {
-                        $(DOM_ID_INPUT_STATE).prop('disabled', true);
+                        $('#state').hide();
                     }
                 });
 
