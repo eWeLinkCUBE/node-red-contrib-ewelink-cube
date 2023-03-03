@@ -28,8 +28,8 @@
         <button id="node-config-input-get-token-btn" type="button" class="red-ui-button" style="width: 70%;background-color: #ccc;color: #ffff!important;" disabled>
             <!-- Spin icon -->
             <!-- <i class="fa fa-search spinner"></i> -->
-            <span class="count-down"></span>
             <span class="btn-text" data-i18n="api-server.message.get_token"></span>
+            <span class="count-down" style="margin-left: 8px;"></span>
         </button>
         <!-- Store token -->
         <input type="text" id="node-config-input-token" style="width: 0; height: 0; display: none;">
@@ -73,11 +73,11 @@
         if (val) {
             disableGetTokenBtn();
             $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'inline-block');
-            $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'none');
+            // $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'none');
         } else {
             enableGetTokenBtn();
             $(DOM_ID_GET_TOKEN_BTN_ICON).css('display', 'none');
-            $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'inline-block');
+            // $(DOM_ID_GET_TOKEN_BTN_TEXT).css('display', 'inline-block');
         }
     }
 
@@ -148,15 +148,24 @@
     }
 
     /**
+     * Format count.
+     */
+    function formatCount(count) {
+        const min = Math.floor(count / 60);
+        const sec = count % 60;
+        return `(${min}min${sec}s)`;
+    }
+
+    /**
      * Set count down timer.
      */
     function setCountDown() {
         let count = 300;
         // Count 1 time.
-        $(DOM_ID_GET_TOKEN_COUNT_DOWN).text(`${--count}s`);
+        $(DOM_ID_GET_TOKEN_COUNT_DOWN).text(`${formatCount(--count)}`);
         countDownTimerId = setInterval(() => {
             if (count > 0 && getTokenBtnExist()) {
-                $(DOM_ID_GET_TOKEN_COUNT_DOWN).text(`${--count}s`);
+                $(DOM_ID_GET_TOKEN_COUNT_DOWN).text(`${formatCount(--count)}`);
             } else {
                 count = 300;
                 $(DOM_ID_GET_TOKEN_COUNT_DOWN).text('');
