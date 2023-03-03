@@ -1,4 +1,4 @@
-const {API_URL_CONTROL_DEVICE,EVENT_NODE_RED_ERROR} = require('./utils/const');
+const {API_URL_CONTROL_DEVICE,EVENT_NODE_RED_ERROR,API_URL_UPLOAD_DEVICE_STATE} = require('./utils/const');
 const axios = require('axios');
 module.exports = function (RED) {
     function PutDeviceStateNode(config) {
@@ -7,9 +7,15 @@ module.exports = function (RED) {
 
         node.on('input', () => {
             const server = config.server.trim();
+            const device = config.device.trim();
             let state = config.state.trim();
             if (!server) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'put-state-device: no server' });
+                return;
+            }
+
+            if (!device) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'put-state-device: no device' });
                 return;
             }
 
@@ -24,6 +30,7 @@ module.exports = function (RED) {
             let params = {
                 id: config.server,
                 deviceId: config.device,
+                thirdPartyDeviceId:config.thirdPartyDeviceId,
                 params: config.state,
             };
             axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, params)
