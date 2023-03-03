@@ -1,5 +1,6 @@
-const {API_URL_CONTROL_DEVICE,EVENT_NODE_RED_ERROR,API_URL_UPLOAD_DEVICE_STATE} = require('./utils/const');
+const {EVENT_NODE_RED_ERROR,API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE} = require('./utils/const');
 const axios = require('axios');
+const _ = require('lodash');
 module.exports = function (RED) {
     function PutDeviceStateNode(config) {
         RED.nodes.createNode(this, config);
@@ -30,16 +31,16 @@ module.exports = function (RED) {
             let params = {
                 id: config.server,
                 deviceId: config.device,
-                thirdPartyDeviceId:config.thirdPartyDeviceId,
+                thirdPartyDeviceId:config.number,   // thirdparty device ID
                 params: config.state,
             };
-            axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, params)
+            axios.post(`http://127.0.0.1:1880${API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE}`, params)
             .then((res) => {
-                // Add status
-                if (res.data.error === 0) {
-                    node.status({ text: '' });
-                } else {
+                const errType = _.get(res, 'data.payload.type');
+                if (errType) {
                     node.status({ fill: 'red', shape: 'ring', text: RED._('put-device-state.message.connect_fail') });
+                } else {
+                    node.status({ text: '' });
                 }
                 node.send({ payload: res.data });
             })

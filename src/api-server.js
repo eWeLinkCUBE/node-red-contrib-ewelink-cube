@@ -8,7 +8,8 @@ const {
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
     API_URL_CONTROL_DEVICE,
-    API_URL_UPLOAD_DEVICE_STATE,
+    API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE,
+    API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE,
     API_URL_ADD_THIRDPARTY_DEVICE,
     EVENT_SSE_ON_UPDATE_DEVICE_STATE,
     EVENT_SSE_ON_ADD_DEVICE,
@@ -230,10 +231,10 @@ module.exports = function (RED) {
     // {
     //     "id": "xxx" - API server node ID
     //     "deviceId": "xxx" - device ID
-    //     "thirdpartyDeviceId" - thirdparty device ID
+    //     "thirdPartyDeviceId": "xxx" - thirdparty device ID
     //     "params": {} - device state params
     // }
-    RED.httpAdmin.post(API_URL_UPLOAD_DEVICE_STATE, (req, res) => {
+    RED.httpAdmin.post(API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE, (req, res) => {
         const id = req.body.id;
         const deviceId = req.body.deviceId;
         const thirdPartyDeviceId = req.body.thirdPartyDeviceId;
@@ -264,6 +265,48 @@ module.exports = function (RED) {
             })
             .catch((err) => {
                 res.send(JSON.stringify({ error: 500, msg: 'uploadDeviceState() error' }));
+            });
+    });
+
+    // Upload thirdparty device online.
+    // params:
+    // {
+    //     "id": "xxx" - API server node ID
+    //     "deviceId": "xxx" - device ID
+    //     "thirdPartyDeviceId": "xxx" - thirdParty device ID
+    //     "params": {} - online params
+    // }
+    RED.httpAdmin.post(API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE, (req, res) => {
+        const id = req.body.id;
+        const deviceId = req.body.deviceId;
+        const thirdPartyDeviceId = req.body.thirdPartyDeviceId;
+        const params = JSON.parse(req.body.params);
+
+        const nodeData = nodeDataCache.getNodeData(id);
+        const node = RED.nodes.getNode(id);
+        let apiClient = null;
+        // If cache hit, use cache data. Otherwise use node instance.
+        if (nodeData) {
+            apiClient = new ApiClient({ ip: nodeData.ip, at: nodeData.token });
+        } else {
+            if (!node || !node.apiClient) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server: info incomplete' });
+                res.send(JSON.stringify({ error: 2000, msg: 'api-server: info incomplete' }));
+                return;
+            }
+            apiClient = node.apiClient;
+        }
+
+        apiClient.updateDeviceOnline({
+            serial_number: deviceId,
+            third_serial_number: thirdPartyDeviceId,
+            params
+        })
+            .then((data) => {
+                res.send(data);
+            })
+            .catch((err) => {
+                res.send(JSON.stringify({ error: 500, msg: 'updateDeviceOnline() error' }));
             });
     });
 

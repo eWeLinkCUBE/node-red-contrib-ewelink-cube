@@ -34,9 +34,14 @@ const API_URL_GET_DEVICE_LIST = `/${API_PREFIX}/get-device-list`;
 const API_URL_CONTROL_DEVICE = `/${API_PREFIX}/control-device`;
 
 /**
- * API URL - upload device state
+ * API URL - upload thirdparty device state
  */
-const API_URL_UPLOAD_DEVICE_STATE = `/${API_PREFIX}/upload-device-state`;
+const API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE = `/${API_PREFIX}/upload-thirdparty-device-state`;
+
+/**
+ * API URL - upload thirdparty device online
+ */
+const API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE = `/${API_PREFIX}/upload-thirdparty-device-online`;
 
 /**
  * API URL - add third party device
@@ -159,7 +164,8 @@ module.exports = {
     API_URL_GET_BRIDGE_TOKEN,
     API_URL_GET_DEVICE_LIST,
     API_URL_CONTROL_DEVICE,
-    API_URL_UPLOAD_DEVICE_STATE,
+    API_URL_UPLOAD_THIRDPARTY_DEVICE_STATE,
+    API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE,
     API_URL_ADD_THIRDPARTY_DEVICE,
     API_URL_IHOST_CALLBACK,
     EVENT_SSE_ON_ADD_DEVICE,

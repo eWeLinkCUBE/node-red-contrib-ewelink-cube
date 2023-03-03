@@ -3,7 +3,9 @@ const { v4 } = require('uuid');
 const axios = require('axios').default;
 const {
     API_URL_IHOST_CALLBACK,
+    API_URL_GET_DEVICE_LIST,
     API_URL_ADD_THIRDPARTY_DEVICE,
+    API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE,
     EVENT_NODE_RED_ERROR,
     TAG_API_SERVER_NODE_ID,
     TAG_REG_DEV_NODE_ID,
@@ -48,6 +50,38 @@ module.exports = function (RED) {
     function RegisterDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
+
+        // If this node registered a device, then set it online.
+        const apiServerNodeId = config.server;
+        const thirdpartyDevId = config.device_id.trim();
+        if (apiServerNodeId && thirdpartyDevId) {
+            axios.post(`http://127.0.0.1:1880${API_URL_GET_DEVICE_LIST}`, { id: apiServerNodeId })
+                .then((res) => {
+                    if (res.data.error === 0) {     // Request success.
+                        // Find the registered device.
+                        const deviceList = res.data.data.device_list;
+                        let found = null
+                        for (const dev of deviceList) {
+                            const devId = _.get(dev, `tags.${TAG_THIRDPARTY_DEVICE_ID}`);
+                            if (devId === thirdpartyDevId) {
+                                found = dev;
+                            }
+                        }
+
+                        // Call online API.
+                        if (found) {
+                            const onlineCmd = { online: true };
+                            const reqData = {
+                                id: apiServerNodeId,
+                                deviceId: found.serial_number,
+                                thirdPartyDeviceId: thirdpartyDevId,
+                                params: JSON.stringify(onlineCmd)
+                            };
+                            axios.post(`http://127.0.0.1:1880${API_URL_UPLOAD_THIRDPARTY_DEVICE_ONLINE}`, reqData);
+                        }
+                    }
+                });
+        }
 
         node.on('input', () => {
             const server = config.server.trim();
@@ -148,7 +182,13 @@ module.exports = function (RED) {
             };
             axios.post(`http://127.0.0.1:1880${API_URL_ADD_THIRDPARTY_DEVICE}`, data)
                 .then((res) => {
-                    node.status({ text: '' });
+                    const errType = _.get(res, 'data.payload.type');
+                    if (errType) {
+                        node.status({ fill: 'red', shape: 'ring', text: RED._('register-device.message.connect_fail') });
+                    } else {
+                        node.status({ text: '' });
+
+                    }
                     node.send({ payload: res.data });
                 })
                 .catch((err) => {
