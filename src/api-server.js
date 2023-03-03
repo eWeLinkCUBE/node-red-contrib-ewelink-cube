@@ -364,7 +364,7 @@ module.exports = function (RED) {
                 res.send(data);
             })
             .catch((err) => {
-                res.send(JSON.stringify({ error: 500, msg: 'syncDevices() error' }));
+                res.send({ error: 500, msg: 'syncDevices() error' });
             });
     });
 
