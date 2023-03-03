@@ -100,7 +100,6 @@
      * Test token.
      */
     function testToken(ip, token) {
-        debugger
         $.ajax({
             type: 'POST',
             url: `${API_PREFIX}/test-token`,
@@ -150,7 +149,6 @@
                             $(DOM_ID_ERROR_HINT_INPUT_IP).text(node._('api-server.message.request_failed'));
                         } else {
                             RED.notify(node._('api-server.message.connect_success'), { type: 'success '});
-                            debugger
                             if (token) {
                                 testToken(ip, token);
                             } else {

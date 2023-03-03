@@ -416,7 +416,6 @@
 
             // Handle select onfocusin event.
             $(DOM_ID_CAPA_LIST).on('focusin', (event) => {
-                debugger
                 const className = event.target.className;
                 if (className === 'capa-select') {
                     const selectList = $(`${DOM_ID_CAPA_LIST} select`);
