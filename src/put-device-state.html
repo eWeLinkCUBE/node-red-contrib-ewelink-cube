@@ -11,7 +11,7 @@
             let dom = type == 'category' ? $(DOM_ID_INPUT_CATEGORY) : $(DOM_ID_INPUT_DEVICE);
             dom.get(0).options.length = 0;
             if (!optionList.length || optionList.length < 1) return '';
-            var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
+            var optionStr = `<option selected="selected" disabled="disabled" style="display:none" value=""></option>${type === 'category'?'<option value="all">ALL</option>':''}`;
             for (const item of optionList) {
                 let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
                 let value = type == 'category' ? item.display_category : item.serial_number;
@@ -168,7 +168,7 @@
                 });
 
                 $(DOM_ID_INPUT_DEVICE).on('change', () => {
-                    $('#node-input-number').val('');
+                    // $('#node-input-number').val('');
                     const deviceVal = $('#node-input-device').val();
                     for(const item of tempList){
                         if(item.serial_number === deviceVal){
