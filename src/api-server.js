@@ -45,13 +45,18 @@ module.exports = function (RED) {
             at: token
         });
         node.apiClient.initSSE();
+        let errHintCnt = 1;
         node.apiClient.mountSseFunc({
             onopen() {
                 node.log('SSE connection success');
             },
             onerror(err) {
-                node.warn('SSE connection failed');
-                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server:' + err.message });
+                if (errHintCnt > 0) {
+                    // Hint only once.
+                    node.warn('SSE connection failed');
+                    RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'api-server:' + err.message });
+                    errHintCnt--;
+                }
             },
             onAddDevice(msg) {
                 eventBridge.emit(EVENT_SSE_ON_ADD_DEVICE, JSON.stringify({ srcNodeId: config.id, msg }));
