@@ -179,6 +179,12 @@
                     }
                 });
             },
+            oneditsave() {
+                const node =this;
+                if(!$(DOM_ID_INPUT_DEVICE).val()){
+                    node.device='';
+                }
+            }
         });
     })();
 </script>

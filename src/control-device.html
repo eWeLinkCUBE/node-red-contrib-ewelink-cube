@@ -431,16 +431,17 @@
     }
 
     //curtain
-    function curtainChange(val, node) {
+    function curtainChange(e) {
         const curtain = $('#curtain').val();
         const reg = /^([0-9]?\d|100)$/;
         if (!reg.test($('#curtain').val()) && curtain !== '') {
             $('#curtain').val(Math.round(curtain));
             RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
         }
-        if(curtain == ''){
+        if(curtain === ''){
             RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
         }
+        e.value = e.value.replace(/[^0-9.]/g, '');
 
         $('#node-input-list').val('');
         const deviceVal = $('#node-input-device').val();
