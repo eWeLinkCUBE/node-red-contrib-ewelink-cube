@@ -40,7 +40,7 @@
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({ id: server }),
                 success(res) {
-                    if (res.error === 0) {
+                    if (res.error !== 0) {
                         if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
                             tempList = [];
                             let deviceList = res.data.device_list;
@@ -54,7 +54,7 @@
                                         manufacturer: item.manufacturer,
                                         state: item.state,
                                         capabilities: item.capabilities,
-                                        tags:item.tags
+                                        tags: item.tags,
                                     };
                                     tempList.push(params);
                                 }
@@ -72,14 +72,14 @@
                                 }
                             }
                         }
-                    }else{
-                        if(server && server!==SERVER_EMPTY){
+                    } else {
+                        if (server && server !== SERVER_EMPTY) {
                             RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
                         }
                     }
                 },
                 error(error) {
-                    if(server && server!==SERVER_EMPTY){
+                    if (server && server !== SERVER_EMPTY) {
                         RED.notify(`${node._('control-device.message.connect_fail')}`, { type: 'error' });
                     }
                     console.log('network error', error);
@@ -223,17 +223,17 @@
                     changeMode();
 
                     if (params.light.type === COLOR_RGB) {
-                        if(params.light.colorOrTemp){
+                        if (params.light.colorOrTemp) {
                             $('#light-color').val(params.light.colorOrTemp);
-                            colorPicker.color.hexString=params.light.colorOrTemp;
-                        }else{
+                            colorPicker.color.hexString = params.light.colorOrTemp;
+                        } else {
                             $('#light-color').val('#ff0000');
-                            colorPicker.color.hexString='#ff0000';
+                            colorPicker.color.hexString = '#ff0000';
                         }
                         setColor();
                     }
                     if (params.light.type === COLOR_TEMPERATURE) {
-                        if(params.light.colorOrTemp){
+                        if (params.light.colorOrTemp) {
                             $('#light-temp').val(params.light.colorOrTemp);
                         }
                     }
@@ -300,7 +300,7 @@
                 return `<div class='device'>
                             <span class="device-name" style="width:120px!important">${node._('control-device.label.percentControl')}</span>
                             <input
-                                oninput="curtainChangeOniput(this)"
+                                oninput="changeCurtainOnIput(this)"
                                 type="number"
                                 placeholder="${node._('control-device.label.percentValue')}(0%~100%)"
                                 style="width:328px"
@@ -315,7 +315,7 @@
                 const toggle = device.state.toggle;
                 const flag = judgeObject(device.tags) && judgeObject(device.tags.toggle);
                 let toggleNameList = [];
-                if(flag){
+                if (flag) {
                     toggleNameList = device.tags.toggle;
                 }
                 if (!toggle) {
@@ -333,7 +333,7 @@
                     params.forEach((item, index) => {
                         temp += `
                             <div class='device'>
-                                <span class="device-name">${flag?toggleNameList[index+1]:('swtich'+(index+1))}</span>
+                                <span class="device-name">${flag ? toggleNameList[index + 1] : 'swtich' + (index + 1)}</span>
                                 <select class="multi-swtich" onchange="changeSwitch(this,'multi')">
                                     ${renderOptionByList(switchSelect.multi, node)}
                                 </select>
@@ -361,8 +361,7 @@
                                 class="switch-select"
                                 placeholder='${node._('control-device.label.brightnessPercent')}(1%-100%)'
                                 id="brightness"
-                                onchange="changeLight()"
-                                onblur="checkFormat(this)"
+                                onblur="checkBrightness(this)"
                             />
                             <i class="clear" onClick="$('#brightness').val('');changeLight()">×</i>
                         </div>
@@ -383,7 +382,7 @@
                                 type='number'
                                 class='switch-select'
                                 style='calc(100% - 102px)'
-                                onblur='LightloseBlur(this)'
+                                onblur='checkColorTemperture(this)'
                                 placeholder='${node._('control-device.label.colourPercent')}(1%-100%)'
                             />
                             <i class="clearColor" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
@@ -392,16 +391,19 @@
                 return '';
         }
     }
-    function judgeObject(obj){
-        return obj!==null && typeof obj === 'object';
+    function judgeObject(obj) {
+        return obj !== null && typeof obj === 'object';
     }
 
     //curtain
     function curtainChange(val, node) {
         const curtain = $('#curtain').val();
         const reg = /^([0-9]?\d|100)$/;
-        if(!reg.test($('#curtain').val())){
+        if (!reg.test($('#curtain').val()) && curtain !== '') {
             $('#curtain').val(Math.round(curtain));
+            RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
+        }
+        if(curtain == ''){
             RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
         }
 
@@ -428,10 +430,10 @@
             let multi = {};
             $('.multi-swtich').each(function (index, item) {
                 // if ($(this).val()) {
-                    multi[index + 1] = $(this).val();
-                    params.multi = multi;
-                    params.deviceId = deviceVal;
-                    params.type = 'multi';
+                multi[index + 1] = $(this).val();
+                params.multi = multi;
+                params.deviceId = deviceVal;
+                params.type = 'multi';
                 // }
             });
             $('#node-input-list').val(JSON.stringify(params));
@@ -454,7 +456,7 @@
                     type="number"
                     class="switch-select"
                     style='calc(100% - 102px)'
-                    onblur="LightloseBlur(this)"
+                    onblur="checkColorTemperture(this)"
                     placeholder='${outer_node._('control-device.label.colourPercent')} (1%-100%)'
                 />
                 <i class="clearColor" onClick="$('#light-temp').val('');$('#light-color').val('');changeLight();setColor();">×</i>
@@ -484,7 +486,7 @@
             );
             colorPicker = new iro.ColorPicker('.colorPicker', {
                 width: 210,
-                color: 'rgb(255, 0, 47)',//#ff002f
+                color: 'rgb(255, 0, 47)', //#ff002f
                 borderWidth: 1,
                 borderColor: '#fff',
                 wheelLightness: false,
@@ -496,82 +498,77 @@
                 changeLight();
             });
             $('#light-color').val('#ff0000');
-            colorPicker.color.hexString='#ff0000';
+            colorPicker.color.hexString = '#ff0000';
             setColor();
             changeLight();
             // colorPicker.color.rgb = { r: 255, g: 255, b: 255 }
         }
     }
-    function checkFormat(e){
+    function checkBrightness(e) {
         const reg = /^([1-9][0-9]{0,1}|100)$/;
-        if(!reg.test(e.value) && e.value !==''){
+        if(e.value === ''){
             RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
         }
-        e.value=e.value.replace(/[^0-9.]/g,"");
-    }
-    function changeLightOniput(e){
-        if(!e.value)return;
-
-        if(e.value>100){
-            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
-            e.value = 100;
-        }
-
-        if(e.value <0){
-            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
-            e.value = 0;
-        }
-    }
-    function curtainChangeOniput(e){
-        if(!e.value)return;
-
-        if(e.value>100){
-            RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
-            e.value = 100;
-        }
-
-        if(e.value <0){
-            RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
-            e.value = 0;
-        }
-    }
-
-    function LightloseBlur(e){
-        const reg = /^([1-9][0-9]{0,1}|100)$/;
-        const colorVal =e.value;
-        if(colorVal == ''){
-            $('#light-temp').val('');
-            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
-        }
-        if(!reg.test(colorVal) && colorVal != ''&& $('#FiveOrTwoLight').val() == COLOR_TEMPERATURE){
-            if(colorVal == 0){
-                $('#light-temp').val(1);
-            }else{
-                $('#light-temp').val(Math.round(colorVal));
-            }
-            const nowTemp = $('#light-temp').val();
-            if(!reg.test(nowTemp)){
-                const temp = nowTemp.replace(/[^0-9.]/g,"");
-                $('#light-temp').val(temp);
-            }
-            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
-        }
-        changeLight();
-    }
-    //light
-    function changeLight() {
-        //check
         const brightnessVal = $('#brightness').val();
-        const reg = /^([1-9][0-9]{0,1}|100)$/;
-        if(!reg.test(brightnessVal) && brightnessVal!== ''){
-            if(brightnessVal == 0){
+        if (!reg.test(brightnessVal) && brightnessVal !== '') {
+            if (brightnessVal == 0) {
                 $('#brightness').val(1);
-            }else{
+            } else {
                 $('#brightness').val(Math.round(brightnessVal));
             }
             RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
         }
+        e.value = e.value.replace(/[^0-9.]/g, '');
+        changeLight();
+    }
+    function changeLightOniput(e) {
+        if (!e.value) return;
 
+        if (e.value > 100) {
+            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
+            e.value = 100;
+        }
+
+        if (e.value < 0) {
+            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
+            e.value = 0;
+        }
+    }
+    function changeCurtainOnIput(e) {
+        if (!e.value) return;
+
+        if (e.value > 100) {
+            RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
+            e.value = 100;
+        }
+
+        if (e.value < 0) {
+            RED.notify(`control-device: ${outer_node._('control-device.message.integer_limit')}`, { type: 'error' });
+            e.value = 0;
+        }
+    }
+
+    function checkColorTemperture(e) {
+        const reg = /^([1-9][0-9]{0,1}|100)$/;
+        const colorVal = e.value;
+        if (colorVal == '') {
+            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
+        }
+        const colorTemp = $('#light-temp').val();
+
+        if (!reg.test(colorTemp) && colorTemp != '' && $('#FiveOrTwoLight').val() == COLOR_TEMPERATURE) {
+            if (colorTemp == 0) {
+                $('#light-temp').val(1);
+            } else {
+                $('#light-temp').val(Math.round(colorTemp));
+            }
+            RED.notify(`control-device: ${outer_node._('control-device.message.positive_integer_limit')}`, { type: 'error' });
+        }
+        e.value = e.value.replace(/[^0-9.]/g, '');
+        changeLight();
+    }
+    //light
+    function changeLight() {
         const deviceVal = $('#node-input-device').val();
         let device = tempList.find((item) => item.serial_number === deviceVal);
         const powerVal = $('#power').val();
@@ -612,8 +609,8 @@
 
     function setColor(value) {
         const colorVal = $('#light-color').val();
-        if(colorVal){
-            colorPicker.color.hexString=colorVal;
+        if (colorVal) {
+            colorPicker.color.hexString = colorVal;
         }
         $('.color-box').css('background-color', colorVal);
     }
@@ -702,11 +699,12 @@
     }
     .color-box {
         display: inline-block;
-        width: 117px!important;
+        width: 117px !important;
         height: 34px;
         vertical-align: middle;
     }
-    .clear,.clearColor {
+    .clear,
+    .clearColor {
         position: absolute;
         display: none;
         top: 7px;
@@ -737,11 +735,11 @@
     .form-row {
         padding-left: 15px;
     }
-    .IroSlider{
-        display: none!important;
+    .IroSlider {
+        display: none !important;
     }
-    .IroWheel{
-        margin:0 auto;
+    .IroWheel {
+        margin: 0 auto;
         margin-top: 16px;
         margin-bottom: 16px;
     }
