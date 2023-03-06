@@ -8,8 +8,19 @@ module.exports = function (RED) {
 
         node.on('input',() => {
             const server = config.server.trim();
+            const category = config.category.trim();
+            const device = config.device.trim();
+
             if (!server) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no server' });
+                return;
+            }
+            if (!category) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no category' });
+                return;
+            }
+            if (!device) {
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no device' });
                 return;
             }
             node.log('config>>>>>>>>>>>>>>>' + JSON.stringify(config));
