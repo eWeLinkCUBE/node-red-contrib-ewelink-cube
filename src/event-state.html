@@ -249,7 +249,7 @@
             let template =
                 '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>' + (type === INIT_ITEM ? '<option value="all">ALL</option>' : '');
             let stateLength = 0;
-            if (list.length > 0) {
+            if (list[0]) {
                 const stateList = Object.keys(list[0]).filter((item)=>item !== 'startup');
                 stateLength = stateList.length;
                 for (const item of stateList) {
