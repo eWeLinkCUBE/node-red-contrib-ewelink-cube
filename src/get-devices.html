@@ -2,9 +2,9 @@
     (function () {
         let tempList = [];
         function renderOptions(list, type) {
-            if (!list.length || list.length < 1) return '';
             let dom = type == 'category' ? $('#node-input-category') : $('#node-input-device');
             dom.get(0).options.length = 0;
+            if (!list.length || list.length < 1) return '';
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
             for (const item of list) {
                 let content = type == 'category' ? item.display_category : item.name || item.manufacturer + item.display_category;
@@ -25,7 +25,7 @@
                 data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.error === 0) {
-                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                        if (res.data.device_list instanceof Array) {
                             tempList = [];
                             let deviceList = res.data.device_list;
                             for (const item of deviceList) {
@@ -128,6 +128,13 @@
                     if (node.server) {
                         $('#node-input-device').val(node.device);
                     }
+                });
+
+                $('#node-input-server').on('change', () => {
+                    $('#node-input-category').get(0).options.length = 0;
+                    $('#node-input-category').val('');
+                    $('#node-input-device').get(0).options.length = 0;
+                    $('#node-input-device').val('');
                 });
             },
         });

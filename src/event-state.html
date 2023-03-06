@@ -29,8 +29,8 @@
         let outer_node = null;
 
         function renderOptions(optionList) {
-            if (!optionList.length || optionList.length < 1) return '';
             $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+            if (!optionList.length || optionList.length < 1) return '';
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none" value=""></option><option value="all">ALL</option>';
             for (const item of optionList) {
                 optionStr += '<option' + ' value=' + item.serial_number + '>' + (item.name || item.manufacturer + item.display_category) + '</option>';
@@ -47,21 +47,18 @@
                 data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.error === 0) {
-                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                        if (res.data.device_list instanceof Array) {
                             tempList = [];
                             let deviceList = res.data.device_list;
                             for (const item of deviceList) {
-                                if (item.display_category !== 'sensor' && item.display_category !=='camera') {
-                                    //remove seed
-                                    let params = {
-                                        serial_number: item.serial_number,
-                                        display_category: item.display_category,
-                                        name: item.name,
-                                        manufacturer: item.manufacturer,
-                                        state: item.state,
-                                    };
-                                    tempList.push(params);
-                                }
+                                let params = {
+                                    serial_number: item.serial_number,
+                                    display_category: item.display_category,
+                                    name: item.name,
+                                    manufacturer: item.manufacturer,
+                                    state: item.state,
+                                };
+                                tempList.push(params);
                             }
 
                             renderDeviceOpt(node);
@@ -324,6 +321,14 @@
                 });
 
                 $('#add-item-btn').on('click', addItem);
+
+                $(DOM_ID_INPUT_SERVER).on('change', () => {
+                    $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+                    $(DOM_ID_INPUT_DEVICE).val('');
+                    $(DOM_ID_INPUT_STATE).get(0).options.length = 0;
+                    $(DOM_ID_INPUT_STATE).val('');
+                    $('#state #main-area').eq(0).nextAll().remove();
+                });
             },
             oneditsave() {
                 saveAddtionState();

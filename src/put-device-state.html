@@ -31,7 +31,7 @@
                 data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.error === 0) {
-                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                        if (res.data.device_list instanceof Array) {
                             tempList = [];
                             let deviceList = res.data.device_list;
                             for (const item of deviceList) {
@@ -177,6 +177,13 @@
                             }
                         }
                     }
+                });
+
+                $(DOM_ID_INPUT_SERVER).on('change', () => {
+                    $(DOM_ID_INPUT_CATEGORY).get(0).options.length = 0;
+                    $(DOM_ID_INPUT_CATEGORY).val('');
+                    $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+                    $(DOM_ID_INPUT_DEVICE).val('');
                 });
             },
             oneditsave() {

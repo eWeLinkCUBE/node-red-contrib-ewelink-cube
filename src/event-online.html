@@ -118,6 +118,11 @@
                     }
                 });
             }
+
+            $(DOM_ID_INPUT_SERVER).on('change', () => {
+                $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+                $(DOM_ID_INPUT_DEVICE).val('');
+            });
         }
     });
 })();

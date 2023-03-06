@@ -23,8 +23,8 @@
         const SERVER_EMPTY = '_ADD_';
         let tempList = [];
         function renderOptions(optionList) {
-            if (!optionList.length || optionList.length < 1) return '';
             $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+            if (!optionList.length || optionList.length < 1) return '';
             var optionStr = '<option selected="selected" disabled="disabled" style="display:none"></option></option><option value="all">ALL</option>';
             for (const item of optionList) {
                 optionStr += '<option' + ' value=' + item.serial_number + '>' + (item.name || item.manufacturer + item.display_category) + '</option>';
@@ -41,7 +41,7 @@
                 data: JSON.stringify({ id: server }),
                 success(res) {
                     if (res.error === 0) {
-                        if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
+                        if (res.data.device_list instanceof Array) {
                             tempList = [];
                             let deviceList = res.data.device_list;
 
@@ -106,8 +106,13 @@
                     getDeviceList(node);
                 }
 
-                $('#node-input-device').on('focus', () => {
+                $(DOM_ID_INPUT_DEVICE).on('focus', () => {
                     getDeviceList(node);
+                });
+
+                $(DOM_ID_INPUT_SERVER).on('change', () => {
+                    $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
+                    $(DOM_ID_INPUT_DEVICE).val('');
                 });
             },
         });
