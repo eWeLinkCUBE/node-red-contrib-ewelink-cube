@@ -159,6 +159,14 @@ const CAPA_MAP = [
         capability: 'rssi',
         permission: 'read'
     },
+    {
+        capability: 'humidity',
+        permission: 'read'
+    },
+    {
+        capability: 'temperature',
+        permission: 'read'
+    }
 ];
 
 module.exports = {
