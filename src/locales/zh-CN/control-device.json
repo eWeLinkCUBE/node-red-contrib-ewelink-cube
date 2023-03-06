@@ -6,6 +6,7 @@
             "category":"设备类别",
             "device":"设备",
             "percentControl":"百分比控制",
+            "control":"控制",
             "percentValue":"百分比值",
             "switch":"开关",
             "brightness":"亮度",
@@ -23,7 +24,9 @@
             "on":"打开",
             "off":"关闭",
             "keep":"保持",
-            "reverse":"反转"
+            "reverse":"反转",
+            "all_on":"全开",
+            "all_off":"全关"
         },
         "message": {
             "connect_fail": "Server已失去连接，请检查节点server配置",

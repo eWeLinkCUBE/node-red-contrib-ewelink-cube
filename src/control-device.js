@@ -83,7 +83,16 @@ module.exports = function (RED) {
                         }
                         break;
                     case 'curtain':
-                        let  curtain = { percentage: { percentage: list.curtain } };
+                        let  curtain ={};
+                        if(typeof list.curtain === 'string'){
+                            curtain = {
+                                'motor-control': {
+                                    motorControl: list.curtain,
+                                }
+                            }
+                        }else{
+                            curtain = { percentage: { percentage: list.curtain } };
+                        }
                         Object.assign(data.params,curtain);
                         break;
                     default:

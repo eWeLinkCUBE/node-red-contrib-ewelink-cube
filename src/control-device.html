@@ -40,7 +40,7 @@
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({ id: server }),
                 success(res) {
-                    if (res.error !== 0) {
+                    if (res.error === 0) {
                         if (res.data.device_list instanceof Array && res.data.device_list.length > 0) {
                             tempList = [];
                             let deviceList = res.data.device_list;
@@ -198,12 +198,23 @@
     function initialization(device, node) {
         const listVal = $('#node-input-list').val();
         if (!listVal) return;
-        const params = JSON.parse($('#node-input-list').val());
+        let params = JSON.parse($('#node-input-list').val());
         const deviceVal = $('#node-input-device').val();
         if (params.deviceId === deviceVal) {
             switch (device.display_category) {
                 case 'curtain':
-                    $('#curtain').val(params.curtain);
+                    const isNotCalibration = device.state['motor-clb'].motorClb=== 'calibration';//string
+                    const isString = typeof params.curtain === 'string';
+                    //Re-assign the curtain stroke calibration change
+                    if((isString && !isNotCalibration) || (!isString && isNotCalibration)){
+                        params = { type: 'curtain', curtain: '', deviceId: deviceVal };
+                        $('#node-input-list').val(JSON.stringify(params));
+                    }
+                    if(isString){
+                        $('#curtainSelect').val(params.curtain);
+                    }else{
+                        $('#curtain').val(params.curtain);
+                    }
                     break;
                 case 'plug':
                 case 'switch':
@@ -295,19 +306,43 @@
             ],
         };
 
+        const curtain = {
+            option:[
+                {
+                    name: node._('control-device.SelectOption.all_on'),
+                    value: 'open',
+                },
+                {
+                    name: node._('control-device.SelectOption.all_off'),
+                    value: 'close',
+                },
+            ]
+        }
+
         switch (device.display_category) {
             case 'curtain':
-                return `<div class='device'>
-                            <span class="device-name" style="width:120px!important">${node._('control-device.label.percentControl')}</span>
-                            <input
-                                oninput="changeCurtainOnIput(this)"
-                                type="number"
-                                placeholder="${node._('control-device.label.percentValue')}(0%~100%)"
-                                style="width:328px"
-                                onblur="curtainChange(this)"
-                                id="curtain"
-                            />
-                        </div>`;
+                const isNotCalibration = device.state['motor-clb'].motorClb=== 'calibration';
+                if(isNotCalibration){
+                    return `<div class='device'>
+                                <span class="device-name">${node._('control-device.label.control')}</span>
+                                <select id="curtainSelect" class="switch-select" onchange="curtainChangeSelect()">
+                                    ${renderOptionByList(curtain.option, node)}
+                                </select>
+                            </div>`;
+                }else{
+                    return `<div class='device'>
+                                <span class="device-name" style="width:120px!important">${node._('control-device.label.percentControl')}</span>
+                                <input
+                                    oninput="changeCurtainOnIput(this)"
+                                    type="number"
+                                    placeholder="${node._('control-device.label.percentValue')}(0%~100%)"
+                                    style="width:328px"
+                                    onblur="curtainChange(this)"
+                                    id="curtain"
+                                />
+                            </div>`;
+                }
+
             case 'plug':
             case 'switch':
                 let params = [];
@@ -414,6 +449,16 @@
             $('#node-input-list').val(JSON.stringify(params));
         }
     }
+    // curtain select
+    function curtainChangeSelect(){
+        const curtainVal = $('#curtainSelect').val();
+        $('#node-input-list').val('');
+        const deviceVal = $('#node-input-device').val();
+        const params = { type: 'curtain', curtain: curtainVal, deviceId: deviceVal };
+        if (curtainVal) {
+            $('#node-input-list').val(JSON.stringify(params));
+        }
+    }
     //plug、Switch
     function changeSwitch(value, type) {
         $('#node-input-list').val('');
@@ -469,7 +514,7 @@
                 <input
                     id="light-color"
                     class="switch-select"
-                    style='width: 127px!important;height:28px;margin-left:11px'
+                    style='width: calc((100% - 120px)/2) !important;height:28px;margin-left:11px'
                     onblur="changeLight()"
                     placeholder='${outer_node._('control-device.label.hexRgbValue')}'
                     onchange="setColor(this)"
@@ -687,6 +732,9 @@
         display: inline-block;
         width: 102px !important;
         text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     .switch-select,
     .multi-swtich {
@@ -699,9 +747,10 @@
     }
     .color-box {
         display: inline-block;
-        width: 117px !important;
+        /* width: 117px !important; */
         height: 34px;
         vertical-align: middle;
+        width: calc((100% - 130px)/2) !important;
     }
     .clear,
     .clearColor {

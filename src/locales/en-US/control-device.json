@@ -6,6 +6,7 @@
             "category":"Category",
             "device":"Device",
             "percentControl":"Percentage control",
+            "control":"control",
             "percentValue":"Open percentage",
             "switch":"Switch",
             "brightness":"Brightness",
@@ -23,7 +24,9 @@
             "on":"on",
             "off":"off",
             "keep":"keep",
-            "reverse":"reverse"
+            "reverse":"reverse",
+            "all_on":"Fully Opened",
+            "all_off":"Fully Closed"
         },
         "message": {
             "connect_fail": "Failed to connect. Please check Server configuration. ",
