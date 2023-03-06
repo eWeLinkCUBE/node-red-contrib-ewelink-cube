@@ -22,6 +22,7 @@ module.exports = function (RED) {
 
                     if (response.data.error === 0) {
                         let dataList = JSON.parse(JSON.stringify(response.data.data.device_list));
+                        dataList=dataList.filter((item)=>(item.display_category!=='camera' && item.display_category!=='sensor'));
                         let tempList = [];
                         for (const item of dataList) {
                             if (config.device && config.device !== 'all') {

@@ -51,7 +51,7 @@
                             tempList = [];
                             let deviceList = res.data.device_list;
                             for (const item of deviceList) {
-                                if (item.display_category !== 'sensor') {
+                                if (item.display_category !== 'sensor' && item.display_category !=='camera') {
                                     //remove seed
                                     let params = {
                                         serial_number: item.serial_number,

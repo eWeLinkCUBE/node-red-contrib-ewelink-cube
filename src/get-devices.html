@@ -29,7 +29,7 @@
                             tempList = [];
                             let deviceList = res.data.device_list;
                             for (const item of deviceList) {
-                                if (item.display_category !== 'sensor') {
+                                if (item.display_category !== 'sensor' && item.display_category !=='camera') {
                                     let params = {
                                         serial_number: item.serial_number,
                                         display_category: item.display_category,
