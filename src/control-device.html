@@ -277,9 +277,11 @@
                         $('#brightness').val('');
                         $('#light-color').val('');
                         $('#light-temp').val('');
+                        $('.picker').hide();
                     }else{
                         $('.brightness').show();
                         $('#colorAndtemp').show();
+                        $('.picker').show();
                     }
                     break;
                 default:
@@ -694,9 +696,11 @@
             $('#brightness').val('');
             $('#light-color').val('');
             $('#light-temp').val('');
+            $('.picker').hide();
         }else{
             $('.brightness').show();
             $('#colorAndtemp').show();
+            $('.picker').show();
         }
         changeLight();
     }
