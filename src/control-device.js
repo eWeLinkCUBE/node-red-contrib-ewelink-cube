@@ -8,17 +8,13 @@ module.exports = function (RED) {
 
         node.on('input',() => {
             const server = config.server.trim();
-            const category = config.category.trim();
             const device = config.device.trim();
 
             if (!server) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no server' });
                 return;
             }
-            if (!category) {
-                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no category' });
-                return;
-            }
+
             if (!device) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no device' });
                 return;
@@ -30,7 +26,10 @@ module.exports = function (RED) {
                 deviceId:config.device,
                 params:{}
             };
-            if(params.list === '')return;
+            if(!params.list){
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.node_execution_failed')}` });
+                return;
+            };
             const list = JSON.parse(params.list);
             if (params.device === list.deviceId) {
                 switch (list.type) {
@@ -109,6 +108,9 @@ module.exports = function (RED) {
                     default:
                         break;
                 }
+            }else{
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.node_execution_failed')}` });
+                return;
             }
             node.log('data---------------------' + JSON.stringify(data));
 

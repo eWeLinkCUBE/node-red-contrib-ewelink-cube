@@ -46,20 +46,20 @@
                                 $('#node-input-category').val(node.category);
 
                                 var categoryVal = $('#node-input-category').val();
-                                if (node.device) {
+                                // if (node.device) {
                                     let deviceList = [];
                                     for (var j = 0; j <= tempList.length - 1; j++) {
-                                        if (categoryVal == tempList[j].display_category) {
+                                        if (categoryVal == tempList[j].display_category || categoryVal === 'all') {
                                             deviceList.push(tempList[j]);
                                         }
                                     }
 
-                                    if (deviceList.length === 0) deviceList = tempList;
+                                    // if (deviceList.length === 0) deviceList = tempList;
 
                                     var deviceOption = renderOptions(deviceList, 'device');
                                     $('#node-input-device').append(deviceOption);
                                     $('#node-input-device').val(node.device);
-                                }
+                                // }
                             }
                         }
                     }else{
@@ -109,9 +109,9 @@
                     getDeviceList(node);
                 }
 
-                $('#node-input-category').on('focus', () => {
-                    getDeviceList(node);
-                });
+                // $('#node-input-category').on('focus', () => {
+                //     getDeviceList(node);
+                // });
 
                 $('#node-input-category').on('change', () => {
                     var categoryVal = $('#node-input-category').val();
@@ -135,6 +135,7 @@
                     $('#node-input-category').val('');
                     $('#node-input-device').get(0).options.length = 0;
                     $('#node-input-device').val('');
+                    getDeviceList(node);
                 });
             },
         });

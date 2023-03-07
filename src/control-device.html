@@ -69,6 +69,11 @@
                                     renderDeviceOpt(node);
                                     //render action
                                     renderActionByType(node);
+                                }else{
+                                    if($('#node-input-category').val() === 'all'){
+                                        var allDevice = renderOptions(tempList, 'device');
+                                        $('#node-input-device').append(allDevice);
+                                    }
                                 }
                             }
                         }
@@ -138,12 +143,24 @@
                 const node = this;
                 outer_node = node;
                 const serverVal = $('#node-input-server').val();
-                if (serverVal && serverVal !== '_ADD_') {
-                    getDeviceList(node);
-                }
-                $('#node-input-category').on('focus', () => {
+
+                $('#node-input-server').on('change', () => {
+                    $('#node-input-category').get(0).options.length = 0;
+                    $('#node-input-category').val('');
+                    $('#node-input-device').get(0).options.length = 0;
+                    $('#node-input-device').val('');
+                    $('.main-area').empty();
                     getDeviceList(node);
                 });
+
+                if (serverVal && serverVal !== '_ADD_') {
+                    setTimeout(() => {
+                        getDeviceList(node);
+                    }, 100);
+                }
+                // $('#node-input-category').on('focus', () => {
+                //     getDeviceList(node);
+                // });
 
                 $('#node-input-category').on('change', () => {
                     var categoryVal = $('#node-input-category').val();
@@ -168,14 +185,11 @@
                     renderActionByType(node);
                 });
 
-                $('#node-input-server').on('change', () => {
-                    $('#node-input-category').get(0).options.length = 0;
-                    $('#node-input-category').val('');
-                    $('#node-input-device').get(0).options.length = 0;
-                    $('#node-input-device').val('');
-                    $('.main-area').empty();
-                });
             },
+            oneditsave() {
+                this.category = $('#node-input-category').val();
+                this.device = $('#node-input-device').val();
+            }
         });
     })();
 
@@ -255,6 +269,17 @@
                         if (params.light.colorOrTemp) {
                             $('#light-temp').val(params.light.colorOrTemp);
                         }
+                    }
+                    const power = $('#power').val();
+                    if(power === 'off'){
+                        $('.brightness').hide();
+                        $('#colorAndtemp').hide();
+                        $('#brightness').val('');
+                        $('#light-color').val('');
+                        $('#light-temp').val('');
+                    }else{
+                        $('.brightness').show();
+                        $('#colorAndtemp').show();
                     }
                     break;
                 default:
@@ -391,7 +416,7 @@
                 const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE); //2
                 return `<div class="device">
                             <span class="device-name">${node._('control-device.label.switch')}</span>
-                            <select class="switch-select" id="power" onchange="changeLight()">
+                            <select class="switch-select" id="power" onchange="changeLightPower()">
                                 ${renderOptionByList(lightSelect.switch, node)}
                             </select>
                         </div>
@@ -659,6 +684,21 @@
         if (deviceVal) {
             $('#node-input-list').val(JSON.stringify(params));
         }
+    }
+
+    function changeLightPower(){
+        const power = $('#power').val();
+        if(power === 'off'){
+            $('.brightness').hide();
+            $('#colorAndtemp').hide();
+            $('#brightness').val('');
+            $('#light-color').val('');
+            $('#light-temp').val('');
+        }else{
+            $('.brightness').show();
+            $('#colorAndtemp').show();
+        }
+        changeLight();
     }
 
     function setColor(value) {

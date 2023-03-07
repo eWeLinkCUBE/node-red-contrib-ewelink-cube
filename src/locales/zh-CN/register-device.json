@@ -48,6 +48,9 @@
         },
         "message": {
             "connect_fail": "Server已失去连接，请检查节点server配置"
+        },
+        "placeHolder":{
+            "service_ip":"当前 Node-RED 服务的 IP"
         }
     }
 }

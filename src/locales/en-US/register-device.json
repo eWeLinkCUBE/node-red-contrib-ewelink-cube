@@ -48,6 +48,9 @@
         },
         "message": {
             "connect_fail": "Failed to connect. Please check Server configuration. "
+        },
+        "placeHolder":{
+            "service_ip":"Current Node-RED Server IP"
         }
     }
 }

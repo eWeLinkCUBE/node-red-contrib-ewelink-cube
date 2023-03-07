@@ -55,7 +55,6 @@
                             if (node.server) {
                                 node.category && $(DOM_ID_INPUT_CATEGORY).val(node.category);
 
-                                if (node.device) {
                                     var categoryVal = $(DOM_ID_INPUT_CATEGORY).val();
                                     let deviceList = [];
                                     for(const item of tempList){
@@ -75,7 +74,7 @@
                                     $(DOM_ID_INPUT_DEVICE).append(deviceOption);
 
                                     $(DOM_ID_INPUT_DEVICE).val(node.device);
-                                }
+
                                 if (node.state) {
                                     $(DOM_ID_INPUT_STATE).val(node.state);
                                 }
@@ -141,9 +140,9 @@
                     getDeviceList(node);
                 }
 
-                $(DOM_ID_INPUT_CATEGORY).on('focus', () => {
-                    getDeviceList(node);
-                });
+                // $(DOM_ID_INPUT_CATEGORY).on('focus', () => {
+                //     getDeviceList(node);
+                // });
 
                 $(DOM_ID_INPUT_CATEGORY).on('change', () => {
                     var categoryVal = $(DOM_ID_INPUT_CATEGORY).val();
@@ -184,6 +183,7 @@
                     $(DOM_ID_INPUT_CATEGORY).val('');
                     $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
                     $(DOM_ID_INPUT_DEVICE).val('');
+                    getDeviceList(node);
                 });
             },
             oneditsave() {
