@@ -1,11 +1,16 @@
 const axios = require('axios');
-const { API_URL_GET_DEVICE_LIST } = require('./utils/const');
+const { API_URL_GET_DEVICE_LIST ,EVENT_NODE_RED_ERROR } = require('./utils/const');
+
 module.exports = function (RED) {
     function GetDevicesNode(config) {
         RED.nodes.createNode(this, config);
 
         this.on('input', async (msg) => {
             this.log('config-------------------------------->' + JSON.stringify(config));
+            if(!config.server){
+                RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'get-devices: no server' });
+                return;
+            }
             let message = [];
             const baseUrl = 'http://127.0.0.1:1880';
             const url = baseUrl + API_URL_GET_DEVICE_LIST;
@@ -16,7 +21,7 @@ module.exports = function (RED) {
                     // Add status
                     if (response.data.error === 0) {
                         that.status({ text: '' });
-                    } else {
+                    } else if (response.data.error === 500){
                         that.status({ fill: 'red', shape: 'ring', text: RED._('get-devices.message.connect_fail') });
                     }
 
@@ -43,13 +48,13 @@ module.exports = function (RED) {
                         } else {
                             message = tempList;
                         }
+                        msg.payload = message;
+                        that.send(msg);
                     }
                 })
                 .catch(function (error) {
-                    message = error;
+                    that.error(error);
                 });
-            msg.payload = message;
-            that.send(msg);
         });
     }
     RED.nodes.registerType('get-devices', GetDevicesNode);

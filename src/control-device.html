@@ -150,7 +150,10 @@
                     $('#node-input-device').get(0).options.length = 0;
                     $('#node-input-device').val('');
                     $('.main-area').empty();
-                    getDeviceList(node);
+                    const serverValue = $('#node-input-server').val();
+                    if (serverValue && serverValue !== '_ADD_') {
+                        getDeviceList(node);
+                    }
                 });
 
                 if (serverVal && serverVal !== '_ADD_') {
@@ -699,10 +702,24 @@
             $('.picker').hide();
         }else{
             $('.brightness').show();
-            $('#colorAndtemp').show();
+            if(judgeShowColor()){
+                $('#colorAndtemp').show();
+            }
             $('.picker').show();
         }
         changeLight();
+    }
+
+    function judgeShowColor(){
+        const deviceValue = $('#node-input-device').val();
+        if(tempList.length>0 && deviceValue){
+            const device = tempList.find(item => item.serial_number === deviceValue);
+            const capabilities = device.capabilities;
+            const color_rgb = capabilities.some((item) => item.capability === COLOR_RGB); //5
+            const color_tempature = capabilities.some((item) => item.capability === COLOR_TEMPERATURE); //2
+            return color_rgb || color_tempature;
+        }
+        return false;
     }
 
     function setColor(value) {

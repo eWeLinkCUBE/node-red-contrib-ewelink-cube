@@ -179,7 +179,7 @@
                     name: outer_node._('event-state.state.color_rgb'),
                     value: 'color-rgb',
                 },
-                percentage: {
+                'percentage': {
                     id: 5,
                     name: outer_node._('event-state.state.percentage'),
                     value: 'percentage',
@@ -247,7 +247,7 @@
                 '<option selected="selected" disabled="disabled" style="display:none" value="" label=""></option>' + (type === INIT_ITEM ? '<option value="all">ALL</option>' : '');
             let stateLength = 0;
             if (list[0]) {
-                const stateList = Object.keys(list[0]).filter((item)=>item !== 'startup');
+                const stateList = Object.keys(list[0]).filter((item)=>(item !== 'startup' && item !== 'availability'));
                 stateLength = stateList.length;
                 for (const item of stateList) {
                     template += `<option value="${item}">${STATE_LIST[item].name}</option>`;

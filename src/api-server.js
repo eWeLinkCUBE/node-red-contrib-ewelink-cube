@@ -240,14 +240,23 @@ module.exports = function (RED) {
             }
             apiClient = node.apiClient;
         }
-
-        apiClient.updateDeviceState(deviceId, { state: params })
+        new ApiClient({ ip: apiClient.ip}).getBridgeInfo()
+        .then((data) => {
+            if(!data.data.ip){
+                res.send({ error: 501, msg: 'network error' });
+                return;
+            }
+            apiClient.updateDeviceState(deviceId, { state: params })
             .then((data) => {
                 res.send(data);
             })
             .catch((err) => {
                 res.send({ error: 500, msg: 'updateDeviceState() error' });
             });
+        })
+        .catch((err) => {
+            res.send({ error: 501, msg: 'network error' });
+        });
     });
 
     // Upload thirdparty device state.

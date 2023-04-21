@@ -135,7 +135,11 @@
                     $('#node-input-category').val('');
                     $('#node-input-device').get(0).options.length = 0;
                     $('#node-input-device').val('');
-                    getDeviceList(node);
+
+                    const serverValue = $('#node-input-server').val();
+                    if (serverValue && serverValue !== '_ADD_') {
+                        getDeviceList(node);
+                    }
                 });
             },
         });

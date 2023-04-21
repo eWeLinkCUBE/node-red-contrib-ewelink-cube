@@ -183,7 +183,11 @@
                     $(DOM_ID_INPUT_CATEGORY).val('');
                     $(DOM_ID_INPUT_DEVICE).get(0).options.length = 0;
                     $(DOM_ID_INPUT_DEVICE).val('');
-                    getDeviceList(node);
+
+                    const serverValue = $(DOM_ID_INPUT_SERVER).val();
+                    if (serverValue && serverValue !== '_ADD_') {
+                        getDeviceList(node);
+                    }
                 });
             },
             oneditsave() {

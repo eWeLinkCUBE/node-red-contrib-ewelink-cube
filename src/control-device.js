@@ -8,7 +8,7 @@ module.exports = function (RED) {
 
         node.on('input',() => {
             const server = config.server.trim();
-            const device = config.device.trim();
+            const device = config.device;
 
             if (!server) {
                 RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: 'control-device: no server' });
@@ -83,12 +83,14 @@ module.exports = function (RED) {
                         }else{
                             data.params.toggle = {};
                             for (const item in list.multi) {
-                                let toggle = {
-                                    [item]: {
-                                        toggleState: list.multi[item],
-                                    },
-                                };
-                                Object.assign(data.params.toggle, toggle);
+                                if(list.multi[item]){
+                                    let toggle = {
+                                        [item]: {
+                                            toggleState: list.multi[item],
+                                        },
+                                    };
+                                    Object.assign(data.params.toggle, toggle);
+                                }
                             }
                         }
                         break;
@@ -118,10 +120,14 @@ module.exports = function (RED) {
             axios.post(`http://127.0.0.1:1880${API_URL_CONTROL_DEVICE}`, data)
             .then((res) => {
                 // Add status
-                if (res.data.error === 0) {
-                    node.status({ text: '' });
-                } else {
+                if (res.data.error === 501) {
                     node.status({ fill: 'red', shape: 'ring', text: RED._('control-device.message.connect_fail') });
+                    return;
+                }
+
+                if(res.data.error === 0) {
+                    node.status({ text: '' });
+                }else{
                     RED.comms.publish(EVENT_NODE_RED_ERROR, { msg: `control-device: ${RED._('control-device.message.node_execution_failed')}` });
                 }
                 node.log('res>>>>>>>>>>>>>>>>>>>'+JSON.stringify(res.data));
