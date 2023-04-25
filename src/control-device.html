@@ -283,7 +283,9 @@
                         $('.picker').hide();
                     }else{
                         $('.brightness').show();
-                        $('#colorAndtemp').show();
+                        if(judgeShowColor()){
+                            $('#colorAndtemp').show();
+                        }
                         $('.picker').show();
                     }
                     break;
